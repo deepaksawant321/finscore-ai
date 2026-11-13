@@ -36,6 +36,7 @@ export default function ProtectedLayout({ children }: { children: ReactNode }) {
               ["/app/interview", "Talk"],
               ["/app/coach", "Coach"],
               ["/app/score", "Score"],
+              ["/app/health", "Health"],
               ["/app/dna", "DNA"],
               ["/app/goals", "Goals"],
               ["/app/actions", "Actions"],

@@ -2,6 +2,12 @@
 
 Format: Keep a Changelog; semver for the product, separate semver for the Rulebook.
 
+## [0.5.1-dev] - MVP 5 slice 2: Health Monitoring - 2026-11-13
+### Added
+- Financial health check: five vitals, green/amber/red from demo thresholds, overall status, a separate data-quality verdict, change classification (health vs data quality), recorded history, Health page, `health_alert` nudges. Migration 0008.
+### Not done
+- Segment-specific thresholds, background checks. See tracker H-08, H-09.
+
 ## [0.5.0-dev] - MVP 5 slice 1: Daily Companion - 2026-11-13
 ### Added
 - Rule-based in-app nudges (7 rules, placeholder thresholds), priorities, snooze/dismiss/done with no repeat after refusal, preferences (on/off, how many at once, mute by type), Today page and home card, opt-out events in the audit log. Migration 0007.

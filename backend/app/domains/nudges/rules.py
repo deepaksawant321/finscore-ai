@@ -5,7 +5,16 @@ from dataclasses import dataclass
 from decimal import Decimal
 
 PRIORITIES = ("critical", "high", "medium", "low", "habit")  # FR-COMP-01
-RULES = ("action_next", "action_waiting", "action_stalled", "goal_deadline", "stale_fact", "score_moved", "data_gap")
+RULES = (
+    "health_alert",
+    "action_next",
+    "action_waiting",
+    "action_stalled",
+    "goal_deadline",
+    "stale_fact",
+    "score_moved",
+    "data_gap",
+)
 
 
 @dataclass(frozen=True)
@@ -48,11 +57,21 @@ class ScoreInfo:
 
 
 @dataclass(frozen=True)
+class HealthAlertInfo:
+    snapshot_id: str
+    vital: str
+    label: str
+    from_status: str
+    to_status: str
+
+
+@dataclass(frozen=True)
 class Snapshot:
     facts: tuple[FactInfo, ...] = ()
     actions: tuple[ActionInfo, ...] = ()
     goals: tuple[GoalInfo, ...] = ()
     score: ScoreInfo | None = None
+    health_alerts: tuple[HealthAlertInfo, ...] = ()  # genuine deterioration only, never data-quality changes
 
 
 @dataclass(frozen=True)
@@ -72,6 +91,14 @@ def _pts(d: Decimal) -> str:
 
 def evaluate(snap: Snapshot, t: dict[str, int]) -> list[Candidate]:
     out: list[Candidate] = []
+
+    for h in snap.health_alerts:
+        out.append(Candidate(
+            "health_alert", f"health_alert:{h.snapshot_id}:{h.vital}", "high" if h.to_status == "red" else "medium",
+            f"{h.label} slipped to {h.to_status}",
+            f"At the last check it was {h.from_status}; your numbers now put it at {h.to_status}. See what changed and what could help.",
+            "See my health check", "/app/health",
+        ))  # fmt: skip
 
     open_actions = sorted((a for a in snap.actions if a.state == "suggested"), key=lambda a: (-a.priority_total, a.key))
     if open_actions:  # only the single best one: one message, one action

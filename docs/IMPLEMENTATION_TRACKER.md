@@ -135,8 +135,22 @@ Evidence: backend `pytest` 215 passed (+15: nudge rules 8, nudge API 7); ruff/my
 | M5-06 | Today page + home card | Completed | home shows the single top nudge |
 | M5-07 | Delivery outside the app (email, push, SMS) | **Not started - approval gate** | needs channel choice, consent purpose and cost approval; nudges also refresh only when the user opens the app (no worker, K-35) |
 | M5-08 | Gamification (XP, streaks, badges, missions) | **Blocked on D-B19** | XP economy approval needed; must never change the score |
-| M5-09 | Health monitoring | **Not started** | alert thresholds are PENDING; would build on the same nudge channel |
+| M5-09 | Health monitoring | Completed (demo thresholds) | See slice 2 below |
 | M5-10 | Household / family graph | **Not started** | needs per-member permission design and your approval of the privacy model |
 | M5-11 | Portfolio intelligence (manual holdings) | **Not started - compliance gate** | no product-specific recommendations until the advice perimeter (D-B9) is approved |
 | M5-12 | Personalised news | **Not started - cost gate** | provider and licence cost need your approval (roadmap R8) |
 | M5-13 | Copilot, Wealth OS orchestration | **Not started** | |
+
+### MVP 5, slice 2: Health Monitoring (2026-11-13)
+Evidence: backend `pytest` 245 passed (+30: health engine 21, health API 9); ruff/mypy/import-linter clean; frontend tsc/lint/build clean; in the in-app browser the Health page showed 5 vitals with amber/green/red, the overall status and a separate data-quality verdict.
+| ID | Item | Status | Evidence / remarks |
+|---|---|---|---|
+| H-01 | Five vitals with green/amber/red (savings rate, emergency cushion, EMI share, health cover, term cover) | Completed (PLACEHOLDER thresholds, watermarked) | boundary tests for every cut-off; thresholds live in the Rulebook (`health.vitals`) |
+| H-02 | Overall = worst known vital; unknown vitals never improve or worsen it | Completed | engine tests |
+| H-03 | Data quality as a SEPARATE verdict (good/fair/poor) | Completed | measured share + freshness; a user can have poor health with good data, or the reverse |
+| H-04 | Health deterioration vs data-quality change | Completed | `health_worse`/`health_better` are health; `newly_measured`, `went_stale`, `refreshed` are data quality. A vital that turns red only because it was measured for the first time is reported as new information, not a decline |
+| H-05 | Recorded checks (history) | Completed | a snapshot is written only when values or freshness change (digest); encrypted at rest; history endpoint |
+| H-06 | Health alerts through the Daily Companion | Completed | new `health_alert` nudge (high when red) only for genuine decline; never for stale or newly measured data; mutable like other nudges |
+| H-07 | Health page | Completed | status shown by word and shape as well as colour |
+| H-08 | Thresholds by age, income and household | **Not started** | official design says configurable per segment (B18); needs Product input |
+| H-09 | Proactive checks without opening the app | **Not started** | needs the worker (K-35) |

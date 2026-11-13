@@ -808,6 +808,49 @@
         "title": "EscalationOut",
         "type": "object"
       },
+      "EventOut": {
+        "properties": {
+          "category": {
+            "title": "Category",
+            "type": "string"
+          },
+          "from_status": {
+            "title": "From Status",
+            "type": "string"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          },
+          "to_status": {
+            "title": "To Status",
+            "type": "string"
+          },
+          "vital": {
+            "title": "Vital",
+            "type": "string"
+          }
+        },
+        "required": [
+          "vital",
+          "label",
+          "kind",
+          "category",
+          "from_status",
+          "to_status",
+          "message"
+        ],
+        "title": "EventOut",
+        "type": "object"
+      },
       "ExplainOut": {
         "properties": {
           "additivity_note": {
@@ -1382,6 +1425,92 @@
           }
         },
         "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "HealthOut": {
+        "properties": {
+          "checked_at": {
+            "format": "date-time",
+            "title": "Checked At",
+            "type": "string"
+          },
+          "data_quality": {
+            "title": "Data Quality",
+            "type": "string"
+          },
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/EventOut"
+            },
+            "title": "Events",
+            "type": "array"
+          },
+          "official": {
+            "title": "Official",
+            "type": "boolean"
+          },
+          "overall": {
+            "title": "Overall",
+            "type": "string"
+          },
+          "vitals": {
+            "items": {
+              "$ref": "#/components/schemas/VitalOut"
+            },
+            "title": "Vitals",
+            "type": "array"
+          },
+          "watermark": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Watermark"
+          }
+        },
+        "required": [
+          "overall",
+          "data_quality",
+          "vitals",
+          "events",
+          "official",
+          "watermark",
+          "checked_at"
+        ],
+        "title": "HealthOut",
+        "type": "object"
+      },
+      "HistoryItem": {
+        "properties": {
+          "data_quality": {
+            "title": "Data Quality",
+            "type": "string"
+          },
+          "official": {
+            "title": "Official",
+            "type": "boolean"
+          },
+          "overall": {
+            "title": "Overall",
+            "type": "string"
+          },
+          "taken_at": {
+            "format": "date-time",
+            "title": "Taken At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "taken_at",
+          "overall",
+          "data_quality",
+          "official"
+        ],
+        "title": "HistoryItem",
         "type": "object"
       },
       "Invest": {
@@ -2750,6 +2879,68 @@
           "token"
         ],
         "title": "VerifyEmailIn",
+        "type": "object"
+      },
+      "VitalOut": {
+        "properties": {
+          "fact_age_days": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fact Age Days"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "known": {
+            "title": "Known",
+            "type": "boolean"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "rule_text": {
+            "title": "Rule Text",
+            "type": "string"
+          },
+          "stale": {
+            "title": "Stale",
+            "type": "boolean"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "value_display": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value Display"
+          }
+        },
+        "required": [
+          "key",
+          "label",
+          "status",
+          "known",
+          "stale",
+          "value_display",
+          "rule_text",
+          "fact_age_days"
+        ],
+        "title": "VitalOut",
         "type": "object"
       }
     },
@@ -4359,6 +4550,112 @@
         "summary": "Goal Funding",
         "tags": [
           "goals"
+        ]
+      }
+    },
+    "/api/v1/health-monitor": {
+      "get": {
+        "operationId": "current_api_v1_health_monitor_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Current",
+        "tags": [
+          "health-monitor"
+        ]
+      }
+    },
+    "/api/v1/health-monitor/check": {
+      "post": {
+        "operationId": "check_api_v1_health_monitor_check_post",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Check",
+        "tags": [
+          "health-monitor"
+        ]
+      }
+    },
+    "/api/v1/health-monitor/history": {
+      "get": {
+        "operationId": "history_api_v1_health_monitor_history_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/HistoryItem"
+                  },
+                  "title": "Response History Api V1 Health Monitor History Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "History",
+        "tags": [
+          "health-monitor"
         ]
       }
     },

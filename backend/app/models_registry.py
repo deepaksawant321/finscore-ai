@@ -4,6 +4,7 @@ from app.domains.actions import models as _actions  # noqa: F401
 from app.domains.coach import models as _coach  # noqa: F401
 from app.domains.goals import models as _goals  # noqa: F401
 from app.domains.governance import models as _governance  # noqa: F401
+from app.domains.health import models as _health  # noqa: F401
 from app.domains.identity import models as _identity  # noqa: F401
 from app.domains.interview import models as _interview  # noqa: F401
 from app.domains.nudges import models as _nudges  # noqa: F401

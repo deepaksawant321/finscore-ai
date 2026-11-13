@@ -8,6 +8,7 @@ from app.config import Settings
 from app.domains.actions.service import DERIVED_FROM, ActionService
 from app.domains.goals.service import GoalService
 from app.domains.governance.service import audit
+from app.domains.health.service import HealthService
 from app.domains.interview.service import InterviewService
 from app.domains.nudges import rules
 from app.domains.nudges.models import ACTIVE_STATES, NotificationPref, Nudge
@@ -133,9 +134,19 @@ class NudgeService:
             score = rules.ScoreInfo(
                 str(latest.id), latest.overall, runs[1].overall if len(runs) > 1 else None, early, latest.official, tuple(missing)
             )
+        alerts: list[rules.HealthAlertInfo] = []
+        try:  # a health check is recorded when the companion looks; unavailable in production until thresholds are approved
+            rep = await HealthService(self.s, self.cfg).check(user_id)
+            alerts = [
+                rules.HealthAlertInfo(str(rep.snapshot_id), e.vital, e.label, e.from_status, e.to_status)
+                for e in rep.events
+                if e.kind == "health_worse"
+            ]
+        except AppError:
+            pass
         return rules.Snapshot(
             tuple(rules.FactInfo(str(f.id), f.field_key, FIELDS[f.field_key].label, (now - f.valid_from).days) for f in facts if f.field_key in FIELDS),
-            tuple(actions), tuple(goals), score,
+            tuple(actions), tuple(goals), score, tuple(alerts),
         )  # fmt: skip
 
     async def refresh(self, user_id: uuid.UUID, request_id: str | None = None) -> list[Nudge]:

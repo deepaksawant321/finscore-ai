@@ -8,6 +8,7 @@ import { NudgeCard, useNudgeReaction, useNudges } from "@/features/companion/nud
 import { api, problemMessage } from "@/lib/api/client";
 
 const RULE_LABEL: Record<string, string> = {
+  health_alert: "Health check alerts",
   action_next: "Next best action",
   action_waiting: "Update numbers after an action",
   action_stalled: "Actions that stalled",

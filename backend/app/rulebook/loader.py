@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from app.engines.actions import ActionSpec, Change, Cond, PriorityConfig
+from app.engines.health import VitalSpec
 from app.engines.score import Measure, PillarSpec, ScoreSpec
 from app.engines.stage import Stage
 from app.engines.traits import Band, PersonaSpec, TraitSpec
@@ -115,6 +116,15 @@ class Rulebook:
             {k: Decimal(v) for k, v in w.items() if k != "max_actions"},
             {k: Decimal(v) for k, v in sc["urgency"].items()}, {k: Decimal(v) for k, v in sc["ease"].items()}, int(w["max_actions"]),
         )  # fmt: skip
+
+    def health_vitals(self) -> tuple[tuple[VitalSpec, ...], Decimal]:
+        cfg = self.item("health.vitals").value
+        specs = []
+        for v in cfg["vitals"]:
+            green = v["green"] if isinstance(v["green"], bool) else Decimal(v["green"])
+            amber = Decimal(v["amber"]) if v.get("amber") is not None else None
+            specs.append(VitalSpec(v["key"], v["label"], v["input"], v["kind"], green, amber, v["unit"]))
+        return tuple(specs), Decimal(cfg["fair_known_share"])
 
     def nudge_thresholds(self) -> dict[str, int]:
         return {k: int(v) for k, v in self.item("nudges.thresholds").value.items()}

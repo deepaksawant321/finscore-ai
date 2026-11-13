@@ -60,3 +60,6 @@ Authoritative contract: `backend/openapi.json` (generated).
 
 ## Implemented in MVP 5, slice 1 (Daily Companion)
 `GET /nudges` - `POST /nudges/refresh` (evaluates rules, idempotent) - `PATCH /nudges/{id}` (`{"action": "seen"|"dismiss"|"done"|"snooze", "days": 1..90}`) - `GET/PUT /notification-prefs` (`in_app_enabled`, `max_active` 1..10, `muted_rules`). In-app only; no push, email or SMS.
+
+## Implemented in MVP 5, slice 2 (health monitoring)
+`GET /health-monitor` (live, read-only) - `POST /health-monitor/check` (records a snapshot when something changed; idempotent) - `GET /health-monitor/history`. Response: `overall`, `data_quality`, `vitals[]` (`status` green|amber|red|unknown, `stale`, `rule_text`), `events[]` with `category` health|data_quality, `official`, `watermark`. Returns 503 `rulebook_not_approved` in production until thresholds are approved.

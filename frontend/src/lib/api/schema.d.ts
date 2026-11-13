@@ -519,6 +519,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/health-monitor": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Current */
+        get: operations["current_api_v1_health_monitor_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/health-monitor/check": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Check */
+        post: operations["check_api_v1_health_monitor_check_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/health-monitor/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** History */
+        get: operations["history_api_v1_health_monitor_history_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/health/live": {
         parameters: {
             query?: never;
@@ -1197,6 +1248,23 @@ export interface components {
             /** Status */
             status: string;
         };
+        /** EventOut */
+        EventOut: {
+            /** Category */
+            category: string;
+            /** From Status */
+            from_status: string;
+            /** Kind */
+            kind: string;
+            /** Label */
+            label: string;
+            /** Message */
+            message: string;
+            /** To Status */
+            to_status: string;
+            /** Vital */
+            vital: string;
+        };
         /** ExplainOut */
         ExplainOut: {
             /** Additivity Note */
@@ -1384,6 +1452,40 @@ export interface components {
         HTTPValidationError: {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
+        };
+        /** HealthOut */
+        HealthOut: {
+            /**
+             * Checked At
+             * Format: date-time
+             */
+            checked_at: string;
+            /** Data Quality */
+            data_quality: string;
+            /** Events */
+            events: components["schemas"]["EventOut"][];
+            /** Official */
+            official: boolean;
+            /** Overall */
+            overall: string;
+            /** Vitals */
+            vitals: components["schemas"]["VitalOut"][];
+            /** Watermark */
+            watermark: string | null;
+        };
+        /** HistoryItem */
+        HistoryItem: {
+            /** Data Quality */
+            data_quality: string;
+            /** Official */
+            official: boolean;
+            /** Overall */
+            overall: string;
+            /**
+             * Taken At
+             * Format: date-time
+             */
+            taken_at: string;
         };
         /** Invest */
         Invest: {
@@ -1910,6 +2012,25 @@ export interface components {
         VerifyEmailIn: {
             /** Token */
             token: string;
+        };
+        /** VitalOut */
+        VitalOut: {
+            /** Fact Age Days */
+            fact_age_days: number | null;
+            /** Key */
+            key: string;
+            /** Known */
+            known: boolean;
+            /** Label */
+            label: string;
+            /** Rule Text */
+            rule_text: string;
+            /** Stale */
+            stale: boolean;
+            /** Status */
+            status: string;
+            /** Value Display */
+            value_display: string | null;
         };
     };
     responses: never;
@@ -2948,6 +3069,77 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["FundingOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    current_api_v1_health_monitor_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HealthOut"];
+                };
+            };
+        };
+    };
+    check_api_v1_health_monitor_check_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HealthOut"];
+                };
+            };
+        };
+    };
+    history_api_v1_health_monitor_history_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HistoryItem"][];
                 };
             };
             /** @description Validation Error */

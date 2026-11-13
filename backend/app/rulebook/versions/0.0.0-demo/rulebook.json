@@ -494,6 +494,60 @@
         "max_active_default": "3"
       },
       "note": "When the Daily Companion speaks up. Engineering placeholders, not approved nudge thresholds."
+    },
+    "health.vitals": {
+      "status": "PLACEHOLDER",
+      "value": {
+        "vitals": [
+          {
+            "key": "savings_rate",
+            "label": "Savings rate",
+            "input": "savings_rate",
+            "kind": "higher",
+            "green": "0.20",
+            "amber": "0.10",
+            "unit": "percent"
+          },
+          {
+            "key": "emergency_cushion",
+            "label": "Emergency cushion",
+            "input": "emergency_months",
+            "kind": "higher",
+            "green": "6",
+            "amber": "3",
+            "unit": "months"
+          },
+          {
+            "key": "debt_load",
+            "label": "EMI share of income",
+            "input": "debt_to_income",
+            "kind": "lower",
+            "green": "0.20",
+            "amber": "0.35",
+            "unit": "percent"
+          },
+          {
+            "key": "health_cover",
+            "label": "Health insurance",
+            "input": "has_health_insurance",
+            "kind": "flag",
+            "green": true,
+            "amber": null,
+            "unit": "flag"
+          },
+          {
+            "key": "life_cover",
+            "label": "Term life cover",
+            "input": "has_term_insurance",
+            "kind": "flag",
+            "green": true,
+            "amber": null,
+            "unit": "flag"
+          }
+        ],
+        "fair_known_share": "0.6"
+      },
+      "note": "DEMO health thresholds - NOT APPROVED. Green/amber cut-offs and the data-quality rule are engineering placeholders; the official ones are configurable by age, income and household (B18)."
     }
   }
 }
