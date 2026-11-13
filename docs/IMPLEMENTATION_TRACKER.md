@@ -89,6 +89,6 @@ Evidence: backend `pytest` 162 passed (+40: coach unit 28 incl. routing golden s
 | M3-05 | Guards: distress, regulated ask, "talk to a human" | Completed | Reuse governance rules; human request opens a `user_request` escalation |
 | M3-06 | Coach audit (`coach_runs`, audit `coach.turn`) | Completed | Migration 0004; stores mode/tools/flags only, no text or values |
 | M3-07 | Coach UI (`/app/coach`) | Completed | Suggested prompts, "numbers from engine" badge, consent step |
-| M3-08 | Escalation admin inbox UI | **Not started** | staff still use the API (K-26) |
-| M3-09 | Eval suite: "0 ungrounded numbers", red-team 100% | Partial | Small unit/integration set only (13 routing cases, 8 regulated + 4 distress red-team lines, injection + fallback tests); no larger golden set, no real-model run |
+| M3-08 | Staff inbox UI (`/app/staff`) | Completed | Visible only to support/compliance/admin (API re-checks roles in DB); filter, assign to me, resolve with note; checked in the in-app browser. Roles are still granted by CLI; no escalation detail view or user messaging |
+| M3-09 | Eval suite: "0 ungrounded numbers", red-team 100% | Partial | 13 routing cases, 8 regulated + 4 distress red-team lines, injection + fallback tests, and an adversarial-model eval over 12 prompts (a model that always invents numbers never changes any reply). Still no large golden set and no real-model run |
 | M3-10 | Free-form conversational answers / general education content | **Not built by design** | Anything outside the nine tools gets a capability menu; approved education content and the advice perimeter (D-B9) are needed first |

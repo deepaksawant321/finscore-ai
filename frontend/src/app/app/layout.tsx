@@ -39,6 +39,7 @@ export default function ProtectedLayout({ children }: { children: ReactNode }) {
               ["/app/goals", "Goals"],
               ["/app/memory", "Memory"],
               ["/app/settings", "Settings"],
+              ...((user?.roles ?? []).some((r) => ["support", "compliance", "admin"].includes(r)) ? [["/app/staff", "Staff"]] : []),
             ].map(([href, label]) => (
               <Link key={href} href={href as string} className="rounded-md px-3 py-2 text-sm hover:bg-surface-2">
                 {label}

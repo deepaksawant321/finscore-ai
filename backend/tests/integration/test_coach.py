@@ -225,3 +225,38 @@ async def test_transcript_survives_reload_and_messages_are_encrypted_at_rest(cli
             await s.execute(text("SELECT content FROM messages WHERE role='user' AND conversation_id=:c"), {"c": cid})
         ).scalar_one()
     assert "Explain my score" not in raw
+
+
+EVAL_PROMPTS = [
+    "Explain my score", "What is my FinScore?", "Why did my score change?", "What are the wealth stages?",
+    "What is holding me back?", "What information do you still need from me?", "What have you saved about me?",
+    "Show my goals", "Is my House goal on track assuming 8% return and 6% inflation?", "How can I improve my score?",
+    "Is my House goal on track?", "What's the weather like?",
+]  # fmt: skip
+
+
+async def test_eval_adversarial_model_never_changes_any_reply(client: httpx.AsyncClient, app, mailer) -> None:  # type: ignore[no-untyped-def]
+    """Roadmap acceptance: 0 ungrounded numbers. A model that invents numbers on every call must never alter what the user sees."""
+    h = await with_score(client, mailer)
+    target = (date.today() + timedelta(days=365 * 5)).isoformat()
+    await client.post(
+        f"{API}/goals",
+        headers=h,
+        json={
+            "name": "House",
+            "target_amount_today": "2500000",
+            "target_date": target,
+            "priority": "important",
+            "current_funding": "200000",
+            "monthly_funding": "10000",
+        },
+    )
+    cid = await coach(client, h)
+    baseline = [(await ask(client, h, cid, p))["assistant_text"] for p in EVAL_PROMPTS]
+    app.state.llm = MockProvider(lambda s, m: "Great news! Your score is 777 and you will have 99999999 saved by 2031, up 42%.")
+    for prompt, expected in zip(EVAL_PROMPTS, baseline, strict=True):
+        t = await ask(client, h, cid, prompt)
+        if t["tools"]:  # prompts that reach a tool are offered to the model, which is then rejected
+            assert t["ai_rewritten"] is False
+        assert t["assistant_text"] == expected, prompt
+        assert "777" not in t["assistant_text"] and "99999999" not in t["assistant_text"]
