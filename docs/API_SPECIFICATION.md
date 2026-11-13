@@ -63,3 +63,6 @@ Authoritative contract: `backend/openapi.json` (generated).
 
 ## Implemented in MVP 5, slice 2 (health monitoring)
 `GET /health-monitor` (live, read-only) - `POST /health-monitor/check` (records a snapshot when something changed; idempotent) - `GET /health-monitor/history`. Response: `overall`, `data_quality`, `vitals[]` (`status` green|amber|red|unknown, `stale`, `rule_text`), `events[]` with `category` health|data_quality, `official`, `watermark`. Returns 503 `rulebook_not_approved` in production until thresholds are approved.
+
+## Implemented in MVP 5, slice 3 (Copilot)
+`POST /copilot/actions/{action_id}/check` - `POST /copilot/goals/check` (body: `{"goal_id": uuid|null, "new_monthly_funding": "..."}`; omit `goal_id` to check a goal you have not created yet). Response: `context`, `findings[]` (`level` ok|info|warning|blocker, `code`, `message`, `hand_off`), `needs_hand_off`. Never executes anything; a `hand_off` finding is surfaced to the UI, which may then call `POST /escalations` itself.

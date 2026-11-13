@@ -396,6 +396,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/copilot/actions/{action_id}/check": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Check Action */
+        post: operations["check_action_api_v1_copilot_actions__action_id__check_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/copilot/goals/check": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Check Goal */
+        post: operations["check_goal_api_v1_copilot_goals_check_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/coverage": {
         parameters: {
             query?: never;
@@ -1141,6 +1175,15 @@ export interface components {
              */
             mode: "problem" | "full";
         };
+        /** CopilotReportOut */
+        CopilotReportOut: {
+            /** Context */
+            context: string;
+            /** Findings */
+            findings: components["schemas"]["FindingOut"][];
+            /** Needs Hand Off */
+            needs_hand_off: boolean;
+        };
         /** CoverageItem */
         CoverageItem: {
             /** Calculator */
@@ -1328,6 +1371,17 @@ export interface components {
             /** Value */
             value: string;
         };
+        /** FindingOut */
+        FindingOut: {
+            /** Code */
+            code: string;
+            /** Hand Off */
+            hand_off: boolean;
+            /** Level */
+            level: string;
+            /** Message */
+            message: string;
+        };
         /** ForgotIn */
         ForgotIn: {
             /**
@@ -1356,6 +1410,13 @@ export interface components {
             required_monthly_additional: string;
             /** Shortfall */
             shortfall: string;
+        };
+        /** GoalCheckIn */
+        GoalCheckIn: {
+            /** Goal Id */
+            goal_id?: string | null;
+            /** New Monthly Funding */
+            new_monthly_funding: number | string;
         };
         /** GoalIn */
         GoalIn: {
@@ -2750,6 +2811,70 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TurnOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    check_action_api_v1_copilot_actions__action_id__check_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                action_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CopilotReportOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    check_goal_api_v1_copilot_goals_check_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GoalCheckIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CopilotReportOut"];
                 };
             };
             /** @description Validation Error */

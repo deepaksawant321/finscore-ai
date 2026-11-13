@@ -139,7 +139,7 @@ Evidence: backend `pytest` 215 passed (+15: nudge rules 8, nudge API 7); ruff/my
 | M5-10 | Household / family graph | **Not started** | needs per-member permission design and your approval of the privacy model |
 | M5-11 | Portfolio intelligence (manual holdings) | **Not started - compliance gate** | no product-specific recommendations until the advice perimeter (D-B9) is approved |
 | M5-12 | Personalised news | **Not started - cost gate** | provider and licence cost need your approval (roadmap R8) |
-| M5-13 | Copilot, Wealth OS orchestration | **Not started** | |
+| M5-13 | Copilot (pre-action checks, hand-offs) | Completed (slice 3) | Wealth OS event orchestration still not started | 
 
 ### MVP 5, slice 2: Health Monitoring (2026-11-13)
 Evidence: backend `pytest` 245 passed (+30: health engine 21, health API 9); ruff/mypy/import-linter clean; frontend tsc/lint/build clean; in the in-app browser the Health page showed 5 vitals with amber/green/red, the overall status and a separate data-quality verdict.
@@ -154,3 +154,15 @@ Evidence: backend `pytest` 245 passed (+30: health engine 21, health API 9); ruf
 | H-07 | Health page | Completed | status shown by word and shape as well as colour |
 | H-08 | Thresholds by age, income and household | **Not started** | official design says configurable per segment (B18); needs Product input |
 | H-09 | Proactive checks without opening the app | **Not started** | needs the worker (K-35) |
+
+### MVP 5, slice 3: AI Financial Copilot (2026-11-13)
+Evidence: backend `pytest` 268 passed (+23: copilot engine 12, copilot API 11); ruff/mypy/import-linter clean; frontend tsc/lint/build clean; in the in-app browser: "Check before you accept" on an action, "Check affordability first" on the goal form, and the hand-off "Ask a person to review this" button, which created a real support request (confirmed via the API).
+| ID | Item | Status | Evidence / remarks |
+|---|---|---|---|
+| C-01 | Pre-action affordability check (income vs. everything committed each month) | Completed | plain arithmetic, not a Rulebook item; shared between action checks and goal checks; a deficit is a blocker, a thin margin (demo: 5% of income) is a warning |
+| C-02 | Checks are scoped to what the decision actually changes | Completed (bug found while testing) | the first version attached "this would commit ₹X a month" to actions that add no recurring monthly amount (buying insurance, reallocating savings into an emergency fund), misattributing the user's pre-existing cash-flow position to an unrelated decision. Fixed: the affordability check now only runs for actions that change a recurring amount (raise savings rate, lower EMI); regression test added |
+| C-03 | Action-specific notes (large cut, needs a lender, target not immediate, product choice) | Completed (demo thresholds) | a savings-rate cut ≥30% (placeholder) is flagged; EMI changes and insurance purchases are explicitly said to need the user or a lender, never the Copilot |
+| C-04 | Hand-off, never execution | Completed | a `hand_off` finding only offers an "ask a person" button wired to the existing escalation API; nothing is ever executed or recommended by product name; a check never changes an action's state or the user's facts/goals (tested) |
+| C-05 | `/copilot/actions/{id}/check`, `/copilot/goals/check` | Completed | private (404 for other users), audited (rule/level/hand-off only, no message text or amounts), no new table (reuses the audit log) |
+| C-06 | Actions and Goals page integration | Completed | "Check before you accept" per action; "Check affordability first" on the new-goal form |
+| C-07 | Wealth OS (event-driven orchestration across all 20 capabilities) | **Not started** | current domains call each other directly (e.g. nudges call the health checker); an event/outbox layer is a larger architectural piece, not yet justified by load |

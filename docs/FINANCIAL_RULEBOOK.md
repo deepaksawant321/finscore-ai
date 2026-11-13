@@ -41,6 +41,7 @@ The Rulebook is the single version-controlled specification (B§28 "critical dep
 | Simulation assumptions (returns, inflation, step-ups, tax) | **PENDING** | D-B7 |
 | Monte Carlo method & confidence ranges | **PENDING** | D-B7 |
 | Health thresholds (green/amber/red) | **DEMO set in `0.0.0-demo` (`health.vitals`, PLACEHOLDER)**; official set PENDING (configurable by age/income/household) | B§18 |
+| Copilot affordability thresholds (thin margin 5%, large cut 30%) | **DEMO set in `0.0.0-demo` (`copilot.affordability_thresholds`, PLACEHOLDER)** | B§18 family |
 | XP economy | PROPOSED | B§14 |
 | Nudge trigger thresholds | **PENDING** | B§13 |
 | Tax rules scope/FY | **PENDING** | D-B11 |

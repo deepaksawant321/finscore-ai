@@ -2,6 +2,14 @@
 
 Format: Keep a Changelog; semver for the product, separate semver for the Rulebook.
 
+## [0.5.2-dev] - MVP 5 slice 3: AI Financial Copilot - 2026-11-13
+### Added
+- Pre-action checks (AC-18): affordability (income vs. everything committed each month) and action-specific notes (large spending cut, EMI changes need a lender, insurance is a hand-off). `/copilot/actions/{id}/check`, `/copilot/goals/check`; wired into the Actions and Goals pages. Read-only: never executes anything, never recommends a product; a hand-off only offers to open a support request.
+### Fixed
+- An affordability finding could be attached to an action that adds no recurring monthly commitment (insurance, emergency-fund reallocation), misattributing the user's existing cash-flow position to an unrelated decision. The check now only runs for actions that change a recurring amount.
+### Not done
+- Wealth OS event orchestration. See tracker C-07.
+
 ## [0.5.1-dev] - MVP 5 slice 2: Health Monitoring - 2026-11-13
 ### Added
 - Financial health check: five vitals, green/amber/red from demo thresholds, overall status, a separate data-quality verdict, change classification (health vs data quality), recorded history, Health page, `health_alert` nudges. Migration 0008.

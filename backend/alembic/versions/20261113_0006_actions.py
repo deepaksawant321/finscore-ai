@@ -55,7 +55,9 @@ def upgrade() -> None:
         sa.Column("at", sa.DateTime(timezone=True), nullable=False),
         sa.Column("meta", postgresql.JSONB(astext_type=sa.Text()), nullable=False),
         sa.Column("id", sa.UUID(), nullable=False),
-        sa.ForeignKeyConstraint(["action_id"], ["user_actions.id"], name=op.f("fk_action_events_action_id_user_actions"), ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(
+            ["action_id"], ["user_actions.id"], name=op.f("fk_action_events_action_id_user_actions"), ondelete="CASCADE"
+        ),
         sa.ForeignKeyConstraint(["user_id"], ["users.id"], name=op.f("fk_action_events_user_id_users"), ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_action_events")),
     )

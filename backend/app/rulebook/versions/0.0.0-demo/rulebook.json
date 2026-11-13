@@ -548,6 +548,14 @@
         "fair_known_share": "0.6"
       },
       "note": "DEMO health thresholds - NOT APPROVED. Green/amber cut-offs and the data-quality rule are engineering placeholders; the official ones are configurable by age, income and household (B18)."
+    },
+    "copilot.affordability_thresholds": {
+      "status": "PLACEHOLDER",
+      "value": {
+        "thin_margin_ratio": "0.05",
+        "large_cut_ratio": "0.30"
+      },
+      "note": "DEMO Copilot pre-action check thresholds - NOT APPROVED. When a monthly margin counts as thin, and when an expense cut counts as large, are engineering placeholders (B18/D-B6 family). The affordability check itself (income vs committed spending) is plain arithmetic, not a rule that needs approval."
     }
   }
 }

@@ -1,10 +1,11 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { FormEvent } from "react";
 
 import { Alert, Badge, Button, Card, Input } from "@/design-system/ui";
+import { CopilotPanel, type CopilotReport } from "@/features/copilot/report";
 import { api, problemMessage } from "@/lib/api/client";
 import type { components } from "@/lib/api/schema";
 import { formatInr } from "@/lib/format";
@@ -14,6 +15,9 @@ type Goal = components["schemas"]["GoalOut"];
 export default function GoalsPage() {
   const qc = useQueryClient();
   const [error, setError] = useState<string | null>(null);
+  const [newReport, setNewReport] = useState<CopilotReport | null>(null);
+  const [checkingNew, setCheckingNew] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
   const goals = useQuery({
     queryKey: ["goals"],
     queryFn: async () => {
@@ -23,6 +27,17 @@ export default function GoalsPage() {
     },
   });
   const refresh = () => qc.invalidateQueries({ queryKey: ["goals"] });
+
+  async function checkNew() {
+    if (!formRef.current) return;
+    const monthly = String(new FormData(formRef.current).get("monthly") || "0");
+    setCheckingNew(true);
+    setError(null);
+    const { data, error: err } = await api.POST("/api/v1/copilot/goals/check", { body: { new_monthly_funding: monthly } });
+    setCheckingNew(false);
+    if (!data) return setError(problemMessage(err));
+    setNewReport(data);
+  }
 
   async function create(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -52,7 +67,7 @@ export default function GoalsPage() {
       </p>
       <Card>
         <h2 className="mb-4 text-lg font-semibold">Add a goal</h2>
-        <form method="post" onSubmit={create} className="grid gap-4 sm:grid-cols-2">
+        <form ref={formRef} method="post" onSubmit={create} className="grid gap-4 sm:grid-cols-2">
           {error && (
             <div className="sm:col-span-2">
               <Alert tone="error">{error}</Alert>
@@ -73,7 +88,15 @@ export default function GoalsPage() {
           </div>
           <Input name="current" label="Already set aside (₹, optional)" type="number" min="0" step="1" inputMode="numeric" />
           <Input name="monthly" label="You add each month (₹, optional)" type="number" min="0" step="1" inputMode="numeric" />
-          <div className="sm:col-span-2">
+          {newReport && (
+            <div className="sm:col-span-2">
+              <CopilotPanel report={newReport} />
+            </div>
+          )}
+          <div className="flex flex-wrap gap-2 sm:col-span-2">
+            <Button type="button" variant="ghost" onClick={() => void checkNew()} loading={checkingNew}>
+              Check affordability first
+            </Button>
             <Button type="submit">Add goal</Button>
           </div>
         </form>

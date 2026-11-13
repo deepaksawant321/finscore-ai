@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from app.engines.actions import ActionSpec, Change, Cond, PriorityConfig
+from app.engines.copilot import Thresholds as CopilotThresholds
 from app.engines.health import VitalSpec
 from app.engines.score import Measure, PillarSpec, ScoreSpec
 from app.engines.stage import Stage
@@ -128,6 +129,10 @@ class Rulebook:
 
     def nudge_thresholds(self) -> dict[str, int]:
         return {k: int(v) for k, v in self.item("nudges.thresholds").value.items()}
+
+    def copilot_thresholds(self) -> CopilotThresholds:
+        v = self.item("copilot.affordability_thresholds").value
+        return CopilotThresholds(Decimal(v["thin_margin_ratio"]), Decimal(v["large_cut_ratio"]))
 
     def stage_matrix(self) -> object | None:
         matrix: object | None = self.item("score.stage_matrix").value

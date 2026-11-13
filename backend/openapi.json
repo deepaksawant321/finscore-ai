@@ -472,6 +472,32 @@
         "title": "ConversationStart",
         "type": "object"
       },
+      "CopilotReportOut": {
+        "properties": {
+          "context": {
+            "title": "Context",
+            "type": "string"
+          },
+          "findings": {
+            "items": {
+              "$ref": "#/components/schemas/FindingOut"
+            },
+            "title": "Findings",
+            "type": "array"
+          },
+          "needs_hand_off": {
+            "title": "Needs Hand Off",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "context",
+          "findings",
+          "needs_hand_off"
+        ],
+        "title": "CopilotReportOut",
+        "type": "object"
+      },
       "CoverageItem": {
         "properties": {
           "calculator": {
@@ -1053,6 +1079,34 @@
         "title": "FactPatch",
         "type": "object"
       },
+      "FindingOut": {
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "hand_off": {
+            "title": "Hand Off",
+            "type": "boolean"
+          },
+          "level": {
+            "title": "Level",
+            "type": "string"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          }
+        },
+        "required": [
+          "level",
+          "code",
+          "message",
+          "hand_off"
+        ],
+        "title": "FindingOut",
+        "type": "object"
+      },
       "ForgotIn": {
         "properties": {
           "email": {
@@ -1121,6 +1175,40 @@
           "assumptions"
         ],
         "title": "FundingOut",
+        "type": "object"
+      },
+      "GoalCheckIn": {
+        "properties": {
+          "goal_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Goal Id"
+          },
+          "new_monthly_funding": {
+            "anyOf": [
+              {
+                "maximum": 1000000000.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "New Monthly Funding"
+          }
+        },
+        "required": [
+          "new_monthly_funding"
+        ],
+        "title": "GoalCheckIn",
         "type": "object"
       },
       "GoalIn": {
@@ -4045,6 +4133,100 @@
         "summary": "Send Message",
         "tags": [
           "intelligence"
+        ]
+      }
+    },
+    "/api/v1/copilot/actions/{action_id}/check": {
+      "post": {
+        "operationId": "check_action_api_v1_copilot_actions__action_id__check_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "action_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Action Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CopilotReportOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Check Action",
+        "tags": [
+          "copilot"
+        ]
+      }
+    },
+    "/api/v1/copilot/goals/check": {
+      "post": {
+        "operationId": "check_goal_api_v1_copilot_goals_check_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GoalCheckIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CopilotReportOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Check Goal",
+        "tags": [
+          "copilot"
         ]
       }
     },

@@ -4,6 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 
 import { Alert, Badge, Button, Card } from "@/design-system/ui";
+import { CopilotPanel, type CopilotReport } from "@/features/copilot/report";
 import { api, problemMessage } from "@/lib/api/client";
 import type { components } from "@/lib/api/schema";
 
@@ -32,6 +33,8 @@ const FACTORS: [keyof NonNullable<Action["priority"]>, string][] = [
 export default function ActionsPage() {
   const qc = useQueryClient();
   const [error, setError] = useState<string | null>(null);
+  const [reports, setReports] = useState<Record<string, CopilotReport | undefined>>({});
+  const [checking, setChecking] = useState<string | null>(null);
   const actions = useQuery({
     queryKey: ["actions"],
     queryFn: async () => {
@@ -46,6 +49,15 @@ export default function ActionsPage() {
     enabled: !actions.isLoading, // the refresh may verify actions, so read the timeline after it
     queryFn: async () => (await api.GET("/api/v1/timeline", { params: { query: {} } })).data ?? [],
   });
+
+  async function check(a: Action) {
+    setChecking(a.id);
+    setError(null);
+    const { data, error: err } = await api.POST("/api/v1/copilot/actions/{action_id}/check", { params: { path: { action_id: a.id } } });
+    setChecking(null);
+    if (!data) return setError(problemMessage(err));
+    setReports((r) => ({ ...r, [a.id]: data }));
+  }
 
   async function move(a: Action, verb: Verb) {
     setError(null);
@@ -102,8 +114,14 @@ export default function ActionsPage() {
                   </ul>
                 </details>
               )}
+              {a.allowed.includes("accept") && reports[a.id] && <CopilotPanel report={reports[a.id]!} />}
               {a.allowed.length > 0 && (
                 <div className="flex flex-wrap gap-2">
+                  {a.allowed.includes("accept") && (
+                    <Button variant="ghost" onClick={() => void check(a)} loading={checking === a.id}>
+                      Check before you accept
+                    </Button>
+                  )}
                   {(a.allowed as Verb[]).map((v) => (
                     <Button key={v} variant={v === "accept" || v === "complete" ? "primary" : "secondary"} onClick={() => void move(a, v)}>
                       {LABEL[v]}

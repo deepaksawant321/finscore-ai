@@ -78,6 +78,9 @@ class ActionService:
             sp.time_to_impact_weeks if sp else 0, sorted(TRANSITIONS.get(a.state, {})),
         )  # fmt: skip
 
+    async def get_view(self, user_id: uuid.UUID, action_id: uuid.UUID) -> ActionView:
+        return self.view(await self._get(user_id, action_id))
+
     async def mine(self, user_id: uuid.UUID, include_closed: bool = False) -> list[ActionView]:
         q = select(UserAction).where(UserAction.user_id == user_id)
         if not include_closed:
