@@ -57,3 +57,6 @@ Authoritative contract: `backend/openapi.json` (generated).
 
 ## Implemented in MVP 4, slice 2 (actions)
 `GET /actions[?include_closed=true]` - `POST /actions/refresh` (recomputes and reconciles; idempotent) - `POST /actions/{id}/{accept|skip|snooze|start|complete|reopen}` (snooze body `{"days":1..90}`; illegal moves return 409 `invalid_transition`) - `GET /timeline`. Each action carries `expected_score_change` (engine-computed), the priority breakdown, `official` and a watermark. Refresh returns 503 `rulebook_not_approved` in production until the library is approved. `verify` and `complete`-to-verified are system-driven, not endpoints.
+
+## Implemented in MVP 5, slice 1 (Daily Companion)
+`GET /nudges` - `POST /nudges/refresh` (evaluates rules, idempotent) - `PATCH /nudges/{id}` (`{"action": "seen"|"dismiss"|"done"|"snooze", "days": 1..90}`) - `GET/PUT /notification-prefs` (`in_app_enabled`, `max_active` 1..10, `muted_rules`). In-app only; no push, email or SMS.

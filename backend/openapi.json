@@ -1586,6 +1586,61 @@
         "title": "NextQuestion",
         "type": "object"
       },
+      "NudgeOut": {
+        "properties": {
+          "body": {
+            "title": "Body",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "cta_label": {
+            "title": "Cta Label",
+            "type": "string"
+          },
+          "cta_path": {
+            "title": "Cta Path",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "priority": {
+            "title": "Priority",
+            "type": "string"
+          },
+          "rule": {
+            "title": "Rule",
+            "type": "string"
+          },
+          "state": {
+            "title": "State",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "rule",
+          "priority",
+          "title",
+          "body",
+          "cta_label",
+          "cta_path",
+          "state",
+          "created_at"
+        ],
+        "title": "NudgeOut",
+        "type": "object"
+      },
       "PersonaOut": {
         "properties": {
           "description": {
@@ -1669,6 +1724,70 @@
           "missing_inputs"
         ],
         "title": "PillarOut",
+        "type": "object"
+      },
+      "PrefsIn": {
+        "properties": {
+          "in_app_enabled": {
+            "title": "In App Enabled",
+            "type": "boolean"
+          },
+          "max_active": {
+            "maximum": 10.0,
+            "minimum": 1.0,
+            "title": "Max Active",
+            "type": "integer"
+          },
+          "muted_rules": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 20,
+            "title": "Muted Rules",
+            "type": "array"
+          }
+        },
+        "required": [
+          "in_app_enabled",
+          "max_active"
+        ],
+        "title": "PrefsIn",
+        "type": "object"
+      },
+      "PrefsOut": {
+        "properties": {
+          "available_rules": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Available Rules",
+            "type": "array"
+          },
+          "in_app_enabled": {
+            "title": "In App Enabled",
+            "type": "boolean"
+          },
+          "max_active": {
+            "maximum": 10.0,
+            "minimum": 1.0,
+            "title": "Max Active",
+            "type": "integer"
+          },
+          "muted_rules": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 20,
+            "title": "Muted Rules",
+            "type": "array"
+          }
+        },
+        "required": [
+          "in_app_enabled",
+          "max_active",
+          "available_rules"
+        ],
+        "title": "PrefsOut",
         "type": "object"
       },
       "PriorityOut": {
@@ -1770,6 +1889,38 @@
           "status"
         ],
         "title": "ProposalOut",
+        "type": "object"
+      },
+      "ReactIn": {
+        "properties": {
+          "action": {
+            "enum": [
+              "seen",
+              "dismiss",
+              "done",
+              "snooze"
+            ],
+            "title": "Action",
+            "type": "string"
+          },
+          "days": {
+            "anyOf": [
+              {
+                "maximum": 90.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Days"
+          }
+        },
+        "required": [
+          "action"
+        ],
+        "title": "ReactIn",
         "type": "object"
       },
       "RecordedFact": {
@@ -4333,6 +4484,194 @@
         "summary": "Fact History",
         "tags": [
           "intelligence"
+        ]
+      }
+    },
+    "/api/v1/notification-prefs": {
+      "get": {
+        "operationId": "get_prefs_api_v1_notification_prefs_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PrefsOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Prefs",
+        "tags": [
+          "nudges"
+        ]
+      },
+      "put": {
+        "operationId": "put_prefs_api_v1_notification_prefs_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PrefsIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PrefsOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Put Prefs",
+        "tags": [
+          "nudges"
+        ]
+      }
+    },
+    "/api/v1/nudges": {
+      "get": {
+        "operationId": "list_nudges_api_v1_nudges_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/NudgeOut"
+                  },
+                  "title": "Response List Nudges Api V1 Nudges Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Nudges",
+        "tags": [
+          "nudges"
+        ]
+      }
+    },
+    "/api/v1/nudges/refresh": {
+      "post": {
+        "operationId": "refresh_api_v1_nudges_refresh_post",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/NudgeOut"
+                  },
+                  "title": "Response Refresh Api V1 Nudges Refresh Post",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Refresh",
+        "tags": [
+          "nudges"
+        ]
+      }
+    },
+    "/api/v1/nudges/{nudge_id}": {
+      "patch": {
+        "operationId": "react_api_v1_nudges__nudge_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "nudge_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Nudge Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReactIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NudgeOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "React",
+        "tags": [
+          "nudges"
         ]
       }
     },

@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { Alert, Badge, Card } from "@/design-system/ui";
 import { useAuth } from "@/features/auth/auth-context";
+import { TodayCard } from "@/features/companion/nudges";
 import { ScoreRing } from "@/features/score/score-ring";
 import { useCurrentScore } from "@/features/score/hooks";
 
@@ -17,6 +18,8 @@ export default function Home() {
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">Welcome{user?.full_name ? `, ${user.full_name}` : ""}</h1>
+
+      <TodayCard />
 
       {score.isLoading && <p className="text-muted">Loading…</p>}
       {score.isError && <Alert tone="error">Could not load your score right now.</Alert>}

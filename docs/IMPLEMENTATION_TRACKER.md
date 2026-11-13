@@ -122,3 +122,21 @@ Evidence: backend `pytest` 200 passed (+15: action engine 8, actions API 7); ruf
 | A-07 | Timeline (`/timeline`, Actions page) | Completed | Action events + score runs |
 | A-08 | Coach "what should I do" | Completed | Top 3 with engine numbers and demo caveats; no invented actions |
 | A-09 | Gamification/XP, nudges, reminders for snoozed actions | **Not started** | MVP 5 |
+
+## MVP 5 - Advanced Intelligence (started 2026-11-13, slice 1: Daily Companion)
+Evidence: backend `pytest` 215 passed (+15: nudge rules 8, nudge API 7); ruff/mypy/import-linter clean; frontend tsc/lint/tests/build clean; in the in-app browser: home "Today" card, Today page, dismiss (stays dismissed), preferences.
+| ID | Item | Status | Evidence / remarks |
+|---|---|---|---|
+| M5-01 | Daily Companion nudge rules (7) | Completed (thresholds PLACEHOLDER) | next best action (single), update numbers after an action, stalled action, goal deadline, stale fact (single stalest), score moved, data gap; pure rule module, unit-tested at the boundaries |
+| M5-02 | One message, one action, with the reason | Completed | every nudge has a body that says why, and one call to action |
+| M5-03 | Snooze / dismiss / done; no repeat after refusal | Completed | a dedupe key is never re-created once a nudge exists in any state; resolved situations expire the nudge |
+| M5-04 | Preferences and frequency control | Completed | in-app on/off, 1-10 at a time (default 3, placeholder), mute by type; muted types are not generated |
+| M5-05 | Opt-out metric | Completed (data only) | dismissals/mutes are audit events carrying the rule key and no content; no dashboard yet |
+| M5-06 | Today page + home card | Completed | home shows the single top nudge |
+| M5-07 | Delivery outside the app (email, push, SMS) | **Not started - approval gate** | needs channel choice, consent purpose and cost approval; nudges also refresh only when the user opens the app (no worker, K-35) |
+| M5-08 | Gamification (XP, streaks, badges, missions) | **Blocked on D-B19** | XP economy approval needed; must never change the score |
+| M5-09 | Health monitoring | **Not started** | alert thresholds are PENDING; would build on the same nudge channel |
+| M5-10 | Household / family graph | **Not started** | needs per-member permission design and your approval of the privacy model |
+| M5-11 | Portfolio intelligence (manual holdings) | **Not started - compliance gate** | no product-specific recommendations until the advice perimeter (D-B9) is approved |
+| M5-12 | Personalised news | **Not started - cost gate** | provider and licence cost need your approval (roadmap R8) |
+| M5-13 | Copilot, Wealth OS orchestration | **Not started** | |

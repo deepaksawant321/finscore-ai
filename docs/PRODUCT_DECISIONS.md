@@ -46,6 +46,7 @@ Status values: OPEN / PROPOSED-AWAITING-APPROVAL / APPROVED / REJECTED.
 | D-B23 🟠 | Erasure rules: cooling-off length (placeholder 7 days), what must be retained (audit ids, completion record, any financial-record retention law), who can request on behalf of a user | MVP 6 | Legal |
 | D-B24 🟠 | Escalation policy: reasons, SLA (placeholder 4h distress / 48h other), staffing, tooling for staff; helpline wording per country | MVP 3 | Compliance/CS |
 | D-B21 🟡 | Human-agent staffing/tool for escalation (internal inbox, CRM?) | MVP 3 | CS |
+| D-B25 | Nudge policy: which triggers, thresholds, frequency caps and quiet hours are allowed; which channels (in-app, email, push, SMS) and under which consent purpose | MVP 5 | Product / Compliance |
 
 ## C. Technical decisions made (informational; challenge any)
 | ID | Decision | Why |

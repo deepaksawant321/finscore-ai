@@ -587,6 +587,75 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/notification-prefs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Prefs */
+        get: operations["get_prefs_api_v1_notification_prefs_get"];
+        /** Put Prefs */
+        put: operations["put_prefs_api_v1_notification_prefs_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/nudges": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Nudges */
+        get: operations["list_nudges_api_v1_nudges_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/nudges/refresh": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Refresh */
+        post: operations["refresh_api_v1_nudges_refresh_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/nudges/{nudge_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** React */
+        patch: operations["react_api_v1_nudges__nudge_id__patch"];
+        trace?: never;
+    };
     "/api/v1/profile/facts/{key}": {
         parameters: {
             query?: never;
@@ -1386,6 +1455,33 @@ export interface components {
             /** Why */
             why: string;
         };
+        /** NudgeOut */
+        NudgeOut: {
+            /** Body */
+            body: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Cta Label */
+            cta_label: string;
+            /** Cta Path */
+            cta_path: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Priority */
+            priority: string;
+            /** Rule */
+            rule: string;
+            /** State */
+            state: string;
+            /** Title */
+            title: string;
+        };
         /** PersonaOut */
         PersonaOut: {
             /** Description */
@@ -1409,6 +1505,26 @@ export interface components {
             score: string | null;
             /** Weight */
             weight: string;
+        };
+        /** PrefsIn */
+        PrefsIn: {
+            /** In App Enabled */
+            in_app_enabled: boolean;
+            /** Max Active */
+            max_active: number;
+            /** Muted Rules */
+            muted_rules?: string[];
+        };
+        /** PrefsOut */
+        PrefsOut: {
+            /** Available Rules */
+            available_rules: string[];
+            /** In App Enabled */
+            in_app_enabled: boolean;
+            /** Max Active */
+            max_active: number;
+            /** Muted Rules */
+            muted_rules?: string[];
         };
         /** PriorityOut */
         PriorityOut: {
@@ -1449,6 +1565,16 @@ export interface components {
             status: string;
             /** Value */
             value: string;
+        };
+        /** ReactIn */
+        ReactIn: {
+            /**
+             * Action
+             * @enum {string}
+             */
+            action: "seen" | "dismiss" | "done" | "snooze";
+            /** Days */
+            days?: number | null;
         };
         /** RecordedFact */
         RecordedFact: {
@@ -2915,6 +3041,134 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["FactOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_prefs_api_v1_notification_prefs_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PrefsOut"];
+                };
+            };
+        };
+    };
+    put_prefs_api_v1_notification_prefs_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PrefsIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PrefsOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_nudges_api_v1_nudges_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NudgeOut"][];
+                };
+            };
+        };
+    };
+    refresh_api_v1_nudges_refresh_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NudgeOut"][];
+                };
+            };
+        };
+    };
+    react_api_v1_nudges__nudge_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                nudge_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReactIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NudgeOut"];
                 };
             };
             /** @description Validation Error */

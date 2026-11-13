@@ -2,6 +2,12 @@
 
 Format: Keep a Changelog; semver for the product, separate semver for the Rulebook.
 
+## [0.5.0-dev] - MVP 5 slice 1: Daily Companion - 2026-11-13
+### Added
+- Rule-based in-app nudges (7 rules, placeholder thresholds), priorities, snooze/dismiss/done with no repeat after refusal, preferences (on/off, how many at once, mute by type), Today page and home card, opt-out events in the audit log. Migration 0007.
+### Not done
+- External delivery, gamification, health monitoring, household, portfolio, news, copilot. See tracker M5-07..M5-13.
+
 ## [0.4.1-dev] - MVP 4 slice 2: demo action library - 2026-11-13
 ### Added
 - Demo-flagged action library in the Rulebook (5 actions) with PROPOSED priority weights; per-user score effects computed by the score engine; ranked suggestions with a stored priority breakdown.

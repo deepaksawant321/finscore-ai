@@ -116,6 +116,9 @@ class Rulebook:
             {k: Decimal(v) for k, v in sc["urgency"].items()}, {k: Decimal(v) for k, v in sc["ease"].items()}, int(w["max_actions"]),
         )  # fmt: skip
 
+    def nudge_thresholds(self) -> dict[str, int]:
+        return {k: int(v) for k, v in self.item("nudges.thresholds").value.items()}
+
     def stage_matrix(self) -> object | None:
         matrix: object | None = self.item("score.stage_matrix").value
         return matrix

@@ -482,6 +482,18 @@
         }
       },
       "note": "How urgency and effort labels map to points. Not approved."
+    },
+    "nudges.thresholds": {
+      "status": "PLACEHOLDER",
+      "value": {
+        "stale_fact_days": "180",
+        "goal_deadline_days": "90",
+        "goal_urgent_days": "30",
+        "stalled_action_days": "14",
+        "score_move_points": "20",
+        "max_active_default": "3"
+      },
+      "note": "When the Daily Companion speaks up. Engineering placeholders, not approved nudge thresholds."
     }
   }
 }

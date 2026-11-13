@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.api.v1 import actions, auth, coach, goals, governance, health, intelligence, simulations, users
+from app.api.v1 import actions, auth, coach, goals, governance, health, intelligence, nudges, simulations, users
 
 api_router = APIRouter(prefix="/api/v1")
 api_router.include_router(health.router)
@@ -12,3 +12,4 @@ api_router.include_router(goals.router)
 api_router.include_router(coach.router)
 api_router.include_router(simulations.router)
 api_router.include_router(actions.router)
+api_router.include_router(nudges.router)
