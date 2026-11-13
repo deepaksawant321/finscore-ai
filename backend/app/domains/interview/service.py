@@ -8,6 +8,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.ai.extraction import Candidate, extract
 from app.ai.gateway import LLMProvider
 from app.ai.intents import classify_intents
+from app.domains.governance.advice import (
+    BLOCKED_CLASSES,
+    DISTRESS_RESPONSE,
+    SAFE_DECLINE,
+    asks_for_regulated_advice,
+    classify_output,
+    indicates_distress,
+)
+from app.domains.governance.escalation import create_escalation
 from app.domains.governance.service import active_consent, audit
 from app.domains.interview.models import Conversation, Message, MessageExtraction
 from app.domains.profile.catalog import FIELDS, INTERVIEW_ORDER
@@ -41,6 +50,9 @@ class Turn:
     progress: dict[str, int]
     ready_for_score: bool
     message_id: uuid.UUID
+    escalation_suggested: bool = False
+    advice_class: str = "information"
+    escalation_id: uuid.UUID | None = None
 
 
 def _now() -> datetime:
@@ -95,11 +107,43 @@ class InterviewService:
             raise AppError(404, "not_found", "Conversation not found")
         return c
 
-    async def _add_msg(self, conv_id: uuid.UUID, role: str, content: str) -> Message:
-        m = Message(id=uuid.uuid4(), conversation_id=conv_id, role=role, content=content, created_at=_now())
+    async def assert_owner(self, user_id: uuid.UUID, conv_id: uuid.UUID) -> None:
+        await self._get_conv(user_id, conv_id)
+
+    async def _add_msg(self, conv_id: uuid.UUID, role: str, content: str, advice_class: str | None = None) -> Message:
+        m = Message(
+            id=uuid.uuid4(), conversation_id=conv_id, role=role, content=content, advice_class=advice_class, created_at=_now()
+        )
         self.s.add(m)
         await self.s.flush()
         return m
+
+    async def _guarded_reply(self, conv: Conversation, user_id: uuid.UUID, text: str, request_id: str | None) -> Turn | None:
+        """Governance guard that runs BEFORE extraction: distress => support + human flag; request for regulated advice => safe decline."""
+        if indicates_distress(text):
+            esc = await create_escalation(
+                self.s, user_id, "distress", None, conv.id, request_id
+            )  # note stays empty: no sensitive text copied
+            am = await self._add_msg(conv.id, "assistant", DISTRESS_RESPONSE, "information")
+            return Turn(
+                DISTRESS_RESPONSE,
+                [],
+                None,
+                {"known": 0, "total": len(INTERVIEW_ORDER)},
+                False,
+                am.id,
+                True,
+                "information",
+                esc.id,
+            )
+        if asks_for_regulated_advice(text):
+            await audit(self.s, action="advice.regulated_request_declined", entity_type="conversation", entity_id=str(conv.id),
+                        actor_user_id=user_id, request_id=request_id)  # fmt: skip
+            am = await self._add_msg(conv.id, "assistant", SAFE_DECLINE, "information")
+            return Turn(
+                SAFE_DECLINE, [], None, {"known": 0, "total": len(INTERVIEW_ORDER)}, False, am.id, True, "information", None
+            )
+        return None
 
     async def start(self, user_id: uuid.UUID, mode: str) -> tuple[Conversation, Message]:
         if await active_consent(self.s, user_id, "ai_processing") is None:
@@ -124,9 +168,12 @@ class InterviewService:
         )
         return {str(p["field_key"]) for r in rows for p in r.proposals if p["status"] == "pending"}
 
-    async def send(self, user_id: uuid.UUID, conv_id: uuid.UUID, text: str) -> Turn:
+    async def send(self, user_id: uuid.UUID, conv_id: uuid.UUID, text: str, request_id: str | None = None) -> Turn:
         conv = await self._get_conv(user_id, conv_id)
         user_msg = await self._add_msg(conv.id, "user", text)
+        guarded = await self._guarded_reply(conv, user_id, text, request_id)
+        if guarded is not None:
+            return guarded
         intents = sorted(set(conv.intents) | (set(classify_intents(text)) - {"general_health"}))
         conv.intents = intents
         cands: list[Candidate] = await extract(text, conv.awaiting_field, self.provider)
@@ -148,9 +195,13 @@ class InterviewService:
         progress = {"known": len(known & set(INTERVIEW_ORDER)), "total": total}
         ready = all(k in known or k in pending for k in READY_FIELDS)
         reply = self._compose(proposals, nxt, progress)
-        am = await self._add_msg(conv.id, "assistant", reply)
+        advice = classify_output(reply)
+        blocked = advice in BLOCKED_CLASSES  # perimeter not approved (D-B9): never show regulated-class output
+        if blocked:
+            reply, advice = SAFE_DECLINE, "information"
+        am = await self._add_msg(conv.id, "assistant", reply, advice)
         nq = None if nxt is None else {"field_key": nxt, "text": FIELDS[nxt].question, "why": FIELDS[nxt].why}
-        return Turn(reply, proposals, nq, progress, ready, am.id)
+        return Turn(reply, proposals, nq, progress, ready, am.id, blocked, advice)
 
     @staticmethod
     def _compose(proposals: list[dict[str, object]], nxt: str | None, progress: dict[str, int]) -> str:

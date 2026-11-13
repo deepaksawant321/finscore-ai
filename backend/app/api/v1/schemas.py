@@ -86,6 +86,9 @@ class TurnOut(BaseModel):
     progress: dict[str, int]
     ready_for_score: bool
     disclosure: str
+    advice_class: str = "information"
+    escalation_suggested: bool = False
+    escalation_id: uuid.UUID | None = None
 
 
 class Decision(BaseModel):

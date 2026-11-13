@@ -126,7 +126,9 @@ async def test_sessions_list_revoke_and_idor(client: httpx.AsyncClient, app, mai
         assert (await other.delete(f"/api/v1/users/me/sessions/{sessions[0]['id']}", headers=hb)).status_code == 404
         assert len((await other.get("/api/v1/users/me/sessions", headers=hb)).json()) == 1
     assert (await client.delete(f"/api/v1/users/me/sessions/{sessions[0]['id']}", headers=ha)).status_code == 204
-    assert (await client.get("/api/v1/users/me/sessions", headers=ha)).json() == []
+    assert (
+        await client.get("/api/v1/users/me/sessions", headers=ha)
+    ).status_code == 401  # revoked session => its access token dies at once
 
 
 async def test_patch_me_updates_only_allowed_fields(client: httpx.AsyncClient, mailer) -> None:  # type: ignore[no-untyped-def]
@@ -178,3 +180,15 @@ async def test_consent_grant_revoke_and_audit_chain(client: httpx.AsyncClient, a
         await s.commit()
     async with app.state.sessionmaker() as s:
         assert not await verify_chain(s)  # tampering is detected
+
+
+async def test_access_token_stops_working_after_logout_and_password_reset(client: httpx.AsyncClient, mailer) -> None:  # type: ignore[no-untyped-def]
+    await register_verified(client, mailer)
+    tok = (await login(client)).json()["access_token"]
+    h = {"Authorization": f"Bearer {tok}"}
+    assert (await client.get("/api/v1/users/me", headers=h)).status_code == 200
+    # refresh rotation must NOT kill the in-flight old token's family
+    assert (await client.post("/api/v1/auth/refresh")).status_code == 200
+    assert (await client.get("/api/v1/users/me", headers=h)).status_code == 200
+    assert (await client.post("/api/v1/auth/logout")).status_code == 204
+    assert (await client.get("/api/v1/users/me", headers=h)).status_code == 401

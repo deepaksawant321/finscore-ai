@@ -22,6 +22,8 @@ export default function InterviewPage() {
   const [proposals, setProposals] = useState<Proposal[]>([]);
   const [progress, setProgress] = useState<{ known: number; total: number } | null>(null);
   const [ready, setReady] = useState(false);
+  const [escSuggested, setEscSuggested] = useState(false);
+  const [escSent, setEscSent] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const endRef = useRef<HTMLDivElement>(null);
@@ -70,6 +72,8 @@ export default function InterviewPage() {
     setProposals((p) => [...p, ...data.proposals]);
     setProgress(data.progress as { known: number; total: number });
     setReady(data.ready_for_score);
+    setEscSuggested(data.escalation_suggested && !data.escalation_id);
+    if (data.escalation_id) setEscSent(true);
   }
 
   async function decide(p: Proposal, action: "accept" | "reject" | "edit", value?: string) {
@@ -82,6 +86,14 @@ export default function InterviewPage() {
     setProposals((all) => all.filter((x) => x.id !== p.id));
     if (action !== "reject") setProgress((pr) => (pr ? { ...pr, known: pr.known + 1 } : pr));
     void qc.invalidateQueries({ queryKey: ["facts"] });
+  }
+
+  async function askPerson() {
+    if (!convId) return;
+    const { response, error: err } = await api.POST("/api/v1/escalations", { body: { reason: "regulated_question", conversation_id: convId, note: null } });
+    if (!response.ok) return setError(problemMessage(err));
+    setEscSuggested(false);
+    setEscSent(true);
   }
 
   async function reveal() {
@@ -124,6 +136,12 @@ export default function InterviewPage() {
           </ul>
           <div ref={endRef} />
         </Card>
+        {escSuggested && (
+          <Alert tone="info">
+            That needs a qualified human. <button type="button" onClick={askPerson} className="font-semibold underline">Ask a person to review my question</button>
+          </Alert>
+        )}
+        {escSent && <Alert tone="success">A person on our team has been asked to follow up. You can see the request in Settings.</Alert>}
         {error && <Alert tone="error">{error}</Alert>}
         <form onSubmit={send} className="flex gap-2">
           <label htmlFor="msg" className="sr-only">

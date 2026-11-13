@@ -371,6 +371,174 @@
         "title": "DnaTraitOut",
         "type": "object"
       },
+      "ErasureRequestIn": {
+        "properties": {
+          "password": {
+            "maxLength": 128,
+            "title": "Password",
+            "type": "string"
+          }
+        },
+        "required": [
+          "password"
+        ],
+        "title": "ErasureRequestIn",
+        "type": "object"
+      },
+      "ErasureStatusOut": {
+        "properties": {
+          "pending": {
+            "title": "Pending",
+            "type": "boolean"
+          },
+          "requested_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Requested At"
+          },
+          "scheduled_for": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scheduled For"
+          }
+        },
+        "required": [
+          "pending",
+          "scheduled_for",
+          "requested_at"
+        ],
+        "title": "ErasureStatusOut",
+        "type": "object"
+      },
+      "EscalationCreate": {
+        "properties": {
+          "conversation_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Conversation Id"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "maxLength": 1000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "reason": {
+            "default": "user_request",
+            "enum": [
+              "user_request",
+              "regulated_question",
+              "low_confidence",
+              "distress",
+              "other"
+            ],
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "title": "EscalationCreate",
+        "type": "object"
+      },
+      "EscalationOut": {
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          },
+          "resolution_note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolution Note"
+          },
+          "resolved_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolved At"
+          },
+          "sla_due_at": {
+            "format": "date-time",
+            "title": "Sla Due At",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "reason",
+          "status",
+          "created_at",
+          "sla_due_at",
+          "resolved_at",
+          "note",
+          "resolution_note"
+        ],
+        "title": "EscalationOut",
+        "type": "object"
+      },
       "ExplainOut": {
         "properties": {
           "additivity_note": {
@@ -585,6 +753,295 @@
           "email"
         ],
         "title": "ForgotIn",
+        "type": "object"
+      },
+      "FundingOut": {
+        "properties": {
+          "assumptions": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Assumptions",
+            "type": "array"
+          },
+          "funded_ratio": {
+            "title": "Funded Ratio",
+            "type": "string"
+          },
+          "future_target": {
+            "title": "Future Target",
+            "type": "string"
+          },
+          "months_remaining": {
+            "title": "Months Remaining",
+            "type": "integer"
+          },
+          "projected_from_current": {
+            "title": "Projected From Current",
+            "type": "string"
+          },
+          "projected_from_monthly": {
+            "title": "Projected From Monthly",
+            "type": "string"
+          },
+          "projected_total": {
+            "title": "Projected Total",
+            "type": "string"
+          },
+          "required_monthly_additional": {
+            "title": "Required Monthly Additional",
+            "type": "string"
+          },
+          "shortfall": {
+            "title": "Shortfall",
+            "type": "string"
+          }
+        },
+        "required": [
+          "months_remaining",
+          "future_target",
+          "projected_from_current",
+          "projected_from_monthly",
+          "projected_total",
+          "shortfall",
+          "required_monthly_additional",
+          "funded_ratio",
+          "assumptions"
+        ],
+        "title": "FundingOut",
+        "type": "object"
+      },
+      "GoalIn": {
+        "properties": {
+          "current_funding": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "default": "0",
+            "title": "Current Funding"
+          },
+          "monthly_funding": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "default": "0",
+            "title": "Monthly Funding"
+          },
+          "name": {
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "priority": {
+            "default": "important",
+            "enum": [
+              "essential",
+              "important",
+              "aspirational"
+            ],
+            "title": "Priority",
+            "type": "string"
+          },
+          "target_amount_today": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Target Amount Today"
+          },
+          "target_date": {
+            "format": "date",
+            "title": "Target Date",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "target_amount_today",
+          "target_date"
+        ],
+        "title": "GoalIn",
+        "type": "object"
+      },
+      "GoalOut": {
+        "properties": {
+          "current_funding": {
+            "title": "Current Funding",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "monthly_funding": {
+            "title": "Monthly Funding",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "priority": {
+            "title": "Priority",
+            "type": "string"
+          },
+          "source": {
+            "title": "Source",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "target_amount_today": {
+            "title": "Target Amount Today",
+            "type": "string"
+          },
+          "target_date": {
+            "format": "date",
+            "title": "Target Date",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "target_amount_today",
+          "target_date",
+          "priority",
+          "current_funding",
+          "monthly_funding",
+          "status",
+          "source"
+        ],
+        "title": "GoalOut",
+        "type": "object"
+      },
+      "GoalPatch": {
+        "properties": {
+          "current_funding": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current Funding"
+          },
+          "monthly_funding": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Monthly Funding"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "maxLength": 80,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "priority": {
+            "anyOf": [
+              {
+                "enum": [
+                  "essential",
+                  "important",
+                  "aspirational"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Priority"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "active",
+                  "achieved",
+                  "archived"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status"
+          },
+          "target_amount_today": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Amount Today"
+          },
+          "target_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Date"
+          }
+        },
+        "title": "GoalPatch",
         "type": "object"
       },
       "HTTPValidationError": {
@@ -1171,6 +1628,138 @@
         "title": "SessionOut",
         "type": "object"
       },
+      "StaffEscalationOut": {
+        "properties": {
+          "assigned_to": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Assigned To"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          },
+          "resolution_note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolution Note"
+          },
+          "resolved_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolved At"
+          },
+          "sla_due_at": {
+            "format": "date-time",
+            "title": "Sla Due At",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "user_id": {
+            "format": "uuid",
+            "title": "User Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "reason",
+          "status",
+          "created_at",
+          "sla_due_at",
+          "resolved_at",
+          "note",
+          "resolution_note",
+          "user_id",
+          "assigned_to"
+        ],
+        "title": "StaffEscalationOut",
+        "type": "object"
+      },
+      "StaffEscalationPatch": {
+        "properties": {
+          "assign_to_me": {
+            "default": false,
+            "title": "Assign To Me",
+            "type": "boolean"
+          },
+          "resolution_note": {
+            "anyOf": [
+              {
+                "maxLength": 2000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolution Note"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "open",
+                  "assigned",
+                  "resolved",
+                  "closed"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status"
+          }
+        },
+        "title": "StaffEscalationPatch",
+        "type": "object"
+      },
       "StatusOut": {
         "properties": {
           "status": {
@@ -1209,6 +1798,11 @@
       },
       "TurnOut": {
         "properties": {
+          "advice_class": {
+            "default": "information",
+            "title": "Advice Class",
+            "type": "string"
+          },
           "assistant_text": {
             "title": "Assistant Text",
             "type": "string"
@@ -1216,6 +1810,23 @@
           "disclosure": {
             "title": "Disclosure",
             "type": "string"
+          },
+          "escalation_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Escalation Id"
+          },
+          "escalation_suggested": {
+            "default": false,
+            "title": "Escalation Suggested",
+            "type": "boolean"
           },
           "message_id": {
             "format": "uuid",
@@ -1428,6 +2039,147 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/api/v1/admin/escalations": {
+      "get": {
+        "operationId": "staff_queue_api_v1_admin_escalations_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/StaffEscalationOut"
+                  },
+                  "title": "Response Staff Queue Api V1 Admin Escalations Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Staff Queue",
+        "tags": [
+          "governance"
+        ]
+      }
+    },
+    "/api/v1/admin/escalations/{esc_id}": {
+      "patch": {
+        "operationId": "staff_update_api_v1_admin_escalations__esc_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "esc_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Esc Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StaffEscalationPatch"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StaffEscalationOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Staff Update",
+        "tags": [
+          "governance"
+        ]
+      }
+    },
+    "/api/v1/ai/disclosure": {
+      "get": {
+        "operationId": "disclosure_api_v1_ai_disclosure_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Disclosure Api V1 Ai Disclosure Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Disclosure",
+        "tags": [
+          "governance"
+        ]
+      }
+    },
     "/api/v1/auth/login": {
       "post": {
         "operationId": "login_api_v1_auth_login_post",
@@ -2108,6 +2860,455 @@
         ]
       }
     },
+    "/api/v1/escalations": {
+      "get": {
+        "operationId": "my_escalations_api_v1_escalations_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/EscalationOut"
+                  },
+                  "title": "Response My Escalations Api V1 Escalations Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "My Escalations",
+        "tags": [
+          "governance"
+        ]
+      },
+      "post": {
+        "operationId": "create_escalation_api_v1_escalations_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EscalationCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EscalationOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Create Escalation",
+        "tags": [
+          "governance"
+        ]
+      }
+    },
+    "/api/v1/escalations/{esc_id}": {
+      "get": {
+        "operationId": "my_escalation_api_v1_escalations__esc_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "esc_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Esc Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EscalationOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "My Escalation",
+        "tags": [
+          "governance"
+        ]
+      }
+    },
+    "/api/v1/goals": {
+      "get": {
+        "operationId": "list_goals_api_v1_goals_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "include_archived",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Include Archived",
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/GoalOut"
+                  },
+                  "title": "Response List Goals Api V1 Goals Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Goals",
+        "tags": [
+          "goals"
+        ]
+      },
+      "post": {
+        "operationId": "create_goal_api_v1_goals_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GoalIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GoalOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Create Goal",
+        "tags": [
+          "goals"
+        ]
+      }
+    },
+    "/api/v1/goals/{goal_id}": {
+      "delete": {
+        "operationId": "delete_goal_api_v1_goals__goal_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "goal_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Goal Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Delete Goal",
+        "tags": [
+          "goals"
+        ]
+      },
+      "get": {
+        "operationId": "get_goal_api_v1_goals__goal_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "goal_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Goal Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GoalOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Goal",
+        "tags": [
+          "goals"
+        ]
+      },
+      "patch": {
+        "operationId": "patch_goal_api_v1_goals__goal_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "goal_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Goal Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GoalPatch"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GoalOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Patch Goal",
+        "tags": [
+          "goals"
+        ]
+      }
+    },
+    "/api/v1/goals/{goal_id}/funding": {
+      "get": {
+        "operationId": "goal_funding_api_v1_goals__goal_id__funding_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "goal_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Goal Id",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Annual return you assume (required: no default is approved)",
+            "in": "query",
+            "name": "assumed_return_pct",
+            "required": true,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 30.0,
+                  "minimum": 0.0,
+                  "type": "number"
+                },
+                {
+                  "type": "string"
+                }
+              ],
+              "description": "Annual return you assume (required: no default is approved)",
+              "title": "Assumed Return Pct"
+            }
+          },
+          {
+            "description": "Annual inflation you assume (required)",
+            "in": "query",
+            "name": "inflation_pct",
+            "required": true,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 20.0,
+                  "minimum": 0.0,
+                  "type": "number"
+                },
+                {
+                  "type": "string"
+                }
+              ],
+              "description": "Annual inflation you assume (required)",
+              "title": "Inflation Pct"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FundingOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Goal Funding",
+        "tags": [
+          "goals"
+        ]
+      }
+    },
     "/api/v1/health/live": {
       "get": {
         "operationId": "live_api_v1_health_live_get",
@@ -2596,6 +3797,117 @@
         "summary": "Patch Me",
         "tags": [
           "users"
+        ]
+      }
+    },
+    "/api/v1/users/me/data-export": {
+      "get": {
+        "operationId": "data_export_api_v1_users_me_data_export_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Data Export",
+        "tags": [
+          "governance"
+        ]
+      }
+    },
+    "/api/v1/users/me/erasure-request": {
+      "delete": {
+        "operationId": "cancel_erasure_api_v1_users_me_erasure_request_delete",
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Cancel Erasure",
+        "tags": [
+          "governance"
+        ]
+      },
+      "get": {
+        "operationId": "erasure_status_api_v1_users_me_erasure_request_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErasureStatusOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Erasure Status",
+        "tags": [
+          "governance"
+        ]
+      },
+      "post": {
+        "operationId": "request_erasure_api_v1_users_me_erasure_request_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ErasureRequestIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErasureStatusOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Request Erasure",
+        "tags": [
+          "governance"
         ]
       }
     },

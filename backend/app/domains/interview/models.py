@@ -23,6 +23,7 @@ class Message(Base, IdMixin):
     conversation_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("conversations.id", ondelete="CASCADE"))
     role: Mapped[str] = mapped_column(String(12))  # user | assistant
     content: Mapped[str] = mapped_column(EncryptedText)  # encrypted at application level
+    advice_class: Mapped[str | None] = mapped_column(String(20), nullable=True)  # assistant messages only
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     __table_args__ = (Index("ix_messages_conv_time", "conversation_id", "created_at"),)
 

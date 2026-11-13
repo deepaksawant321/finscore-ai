@@ -98,13 +98,19 @@ async def get_conversation(conv_id: uuid.UUID, p: PrincipalDep, session: Session
 
 @router.post("/conversations/{conv_id}/messages", response_model=sc.TurnOut, dependencies=[Depends(rate_limit("chat", 60, 60))])
 async def send_message(
-    conv_id: uuid.UUID, body: sc.SendIn, p: PrincipalDep, session: SessionDep, llm: LLMProvider | None = Depends(get_llm)
+    conv_id: uuid.UUID,
+    body: sc.SendIn,
+    p: PrincipalDep,
+    session: SessionDep,
+    client: ClientDep,
+    llm: LLMProvider | None = Depends(get_llm),
 ) -> sc.TurnOut:
-    t = await InterviewService(session, llm).send(p.user_id, conv_id, body.content)
+    t = await InterviewService(session, llm).send(p.user_id, conv_id, body.content, client.request_id)
     return sc.TurnOut(
         message_id=t.message_id, assistant_text=t.assistant_text, proposals=[sc.ProposalOut(**x) for x in t.proposals],
         next_question=sc.NextQuestion(**t.next_question) if t.next_question else None, progress=t.progress,
-        ready_for_score=t.ready_for_score, disclosure=DISCLOSURE,
+        ready_for_score=t.ready_for_score, disclosure=DISCLOSURE, advice_class=t.advice_class,
+        escalation_suggested=t.escalation_suggested, escalation_id=t.escalation_id,
     )  # fmt: skip
 
 

@@ -6,6 +6,7 @@ import type { FormEvent } from "react";
 
 import { Alert, Badge, Button, Card, Input } from "@/design-system/ui";
 import { useAuth } from "@/features/auth/auth-context";
+import { PrivacyCards, SupportCard } from "@/features/privacy/privacy-cards";
 import { api, problemMessage } from "@/lib/api/client";
 
 function ProfileForm() {
@@ -82,6 +83,8 @@ export default function SettingsPage() {
       <h1 className="text-2xl font-bold">Settings</h1>
       <ProfileForm />
       <Sessions />
+      <SupportCard />
+      <PrivacyCards />
     </div>
   );
 }

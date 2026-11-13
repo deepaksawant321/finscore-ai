@@ -4,6 +4,57 @@
  */
 
 export interface paths {
+    "/api/v1/admin/escalations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Staff Queue */
+        get: operations["staff_queue_api_v1_admin_escalations_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/escalations/{esc_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Staff Update */
+        patch: operations["staff_update_api_v1_admin_escalations__esc_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/ai/disclosure": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Disclosure */
+        get: operations["disclosure_api_v1_ai_disclosure_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/login": {
         parameters: {
             query?: never;
@@ -260,6 +311,95 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/escalations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** My Escalations */
+        get: operations["my_escalations_api_v1_escalations_get"];
+        put?: never;
+        /** Create Escalation */
+        post: operations["create_escalation_api_v1_escalations_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/escalations/{esc_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** My Escalation */
+        get: operations["my_escalation_api_v1_escalations__esc_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/goals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Goals */
+        get: operations["list_goals_api_v1_goals_get"];
+        put?: never;
+        /** Create Goal */
+        post: operations["create_goal_api_v1_goals_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/goals/{goal_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Goal */
+        get: operations["get_goal_api_v1_goals__goal_id__get"];
+        put?: never;
+        post?: never;
+        /** Delete Goal */
+        delete: operations["delete_goal_api_v1_goals__goal_id__delete"];
+        options?: never;
+        head?: never;
+        /** Patch Goal */
+        patch: operations["patch_goal_api_v1_goals__goal_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/goals/{goal_id}/funding": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Goal Funding */
+        get: operations["goal_funding_api_v1_goals__goal_id__funding_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/health/live": {
         parameters: {
             query?: never;
@@ -468,6 +608,42 @@ export interface paths {
         patch: operations["patch_me_api_v1_users_me_patch"];
         trace?: never;
     };
+    "/api/v1/users/me/data-export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Data Export */
+        get: operations["data_export_api_v1_users_me_data_export_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/users/me/erasure-request": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Erasure Status */
+        get: operations["erasure_status_api_v1_users_me_erasure_request_get"];
+        put?: never;
+        /** Request Erasure */
+        post: operations["request_erasure_api_v1_users_me_erasure_request_post"];
+        /** Cancel Erasure */
+        delete: operations["cancel_erasure_api_v1_users_me_erasure_request_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/users/me/sessions": {
         parameters: {
             query?: never;
@@ -627,6 +803,61 @@ export interface components {
             /** Wording */
             wording: string;
         };
+        /** ErasureRequestIn */
+        ErasureRequestIn: {
+            /** Password */
+            password: string;
+        };
+        /** ErasureStatusOut */
+        ErasureStatusOut: {
+            /** Pending */
+            pending: boolean;
+            /** Requested At */
+            requested_at: string | null;
+            /** Scheduled For */
+            scheduled_for: string | null;
+        };
+        /** EscalationCreate */
+        EscalationCreate: {
+            /** Conversation Id */
+            conversation_id?: string | null;
+            /** Note */
+            note?: string | null;
+            /**
+             * Reason
+             * @default user_request
+             * @enum {string}
+             */
+            reason: "user_request" | "regulated_question" | "low_confidence" | "distress" | "other";
+        };
+        /** EscalationOut */
+        EscalationOut: {
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Note */
+            note: string | null;
+            /** Reason */
+            reason: string;
+            /** Resolution Note */
+            resolution_note: string | null;
+            /** Resolved At */
+            resolved_at: string | null;
+            /**
+             * Sla Due At
+             * Format: date-time
+             */
+            sla_due_at: string;
+            /** Status */
+            status: string;
+        };
         /** ExplainOut */
         ExplainOut: {
             /** Additivity Note */
@@ -697,6 +928,99 @@ export interface components {
              * Format: email
              */
             email: string;
+        };
+        /** FundingOut */
+        FundingOut: {
+            /** Assumptions */
+            assumptions: string[];
+            /** Funded Ratio */
+            funded_ratio: string;
+            /** Future Target */
+            future_target: string;
+            /** Months Remaining */
+            months_remaining: number;
+            /** Projected From Current */
+            projected_from_current: string;
+            /** Projected From Monthly */
+            projected_from_monthly: string;
+            /** Projected Total */
+            projected_total: string;
+            /** Required Monthly Additional */
+            required_monthly_additional: string;
+            /** Shortfall */
+            shortfall: string;
+        };
+        /** GoalIn */
+        GoalIn: {
+            /**
+             * Current Funding
+             * @default 0
+             */
+            current_funding: number | string;
+            /**
+             * Monthly Funding
+             * @default 0
+             */
+            monthly_funding: number | string;
+            /** Name */
+            name: string;
+            /**
+             * Priority
+             * @default important
+             * @enum {string}
+             */
+            priority: "essential" | "important" | "aspirational";
+            /** Target Amount Today */
+            target_amount_today: number | string;
+            /**
+             * Target Date
+             * Format: date
+             */
+            target_date: string;
+        };
+        /** GoalOut */
+        GoalOut: {
+            /** Current Funding */
+            current_funding: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Monthly Funding */
+            monthly_funding: string;
+            /** Name */
+            name: string;
+            /** Priority */
+            priority: string;
+            /** Source */
+            source: string;
+            /** Status */
+            status: string;
+            /** Target Amount Today */
+            target_amount_today: string;
+            /**
+             * Target Date
+             * Format: date
+             */
+            target_date: string;
+        };
+        /** GoalPatch */
+        GoalPatch: {
+            /** Current Funding */
+            current_funding?: number | string | null;
+            /** Monthly Funding */
+            monthly_funding?: number | string | null;
+            /** Name */
+            name?: string | null;
+            /** Priority */
+            priority?: ("essential" | "important" | "aspirational") | null;
+            /** Status */
+            status?: ("active" | "achieved" | "archived") | null;
+            /** Target Amount Today */
+            target_amount_today?: number | string | null;
+            /** Target Date */
+            target_date?: string | null;
         };
         /** HTTPValidationError */
         HTTPValidationError: {
@@ -927,6 +1251,53 @@ export interface components {
             /** User Agent */
             user_agent: string | null;
         };
+        /** StaffEscalationOut */
+        StaffEscalationOut: {
+            /** Assigned To */
+            assigned_to: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Note */
+            note: string | null;
+            /** Reason */
+            reason: string;
+            /** Resolution Note */
+            resolution_note: string | null;
+            /** Resolved At */
+            resolved_at: string | null;
+            /**
+             * Sla Due At
+             * Format: date-time
+             */
+            sla_due_at: string;
+            /** Status */
+            status: string;
+            /**
+             * User Id
+             * Format: uuid
+             */
+            user_id: string;
+        };
+        /** StaffEscalationPatch */
+        StaffEscalationPatch: {
+            /**
+             * Assign To Me
+             * @default false
+             */
+            assign_to_me: boolean;
+            /** Resolution Note */
+            resolution_note?: string | null;
+            /** Status */
+            status?: ("open" | "assigned" | "resolved" | "closed") | null;
+        };
         /** StatusOut */
         StatusOut: {
             /** Status */
@@ -946,10 +1317,22 @@ export interface components {
         };
         /** TurnOut */
         TurnOut: {
+            /**
+             * Advice Class
+             * @default information
+             */
+            advice_class: string;
             /** Assistant Text */
             assistant_text: string;
             /** Disclosure */
             disclosure: string;
+            /** Escalation Id */
+            escalation_id?: string | null;
+            /**
+             * Escalation Suggested
+             * @default false
+             */
+            escalation_suggested: boolean;
             /**
              * Message Id
              * Format: uuid
@@ -1024,6 +1407,94 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    staff_queue_api_v1_admin_escalations_get: {
+        parameters: {
+            query?: {
+                status?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StaffEscalationOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    staff_update_api_v1_admin_escalations__esc_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                esc_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StaffEscalationPatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StaffEscalationOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    disclosure_api_v1_ai_disclosure_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: string;
+                    };
+                };
+            };
+        };
+    };
     login_api_v1_auth_login_post: {
         parameters: {
             query?: never;
@@ -1505,6 +1976,285 @@ export interface operations {
             };
         };
     };
+    my_escalations_api_v1_escalations_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EscalationOut"][];
+                };
+            };
+        };
+    };
+    create_escalation_api_v1_escalations_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EscalationCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EscalationOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    my_escalation_api_v1_escalations__esc_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                esc_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EscalationOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_goals_api_v1_goals_get: {
+        parameters: {
+            query?: {
+                include_archived?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GoalOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_goal_api_v1_goals_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GoalIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GoalOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_goal_api_v1_goals__goal_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                goal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GoalOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_goal_api_v1_goals__goal_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                goal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    patch_goal_api_v1_goals__goal_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                goal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GoalPatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GoalOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    goal_funding_api_v1_goals__goal_id__funding_get: {
+        parameters: {
+            query: {
+                /** @description Annual return you assume (required: no default is approved) */
+                assumed_return_pct: number | string;
+                /** @description Annual inflation you assume (required) */
+                inflation_pct: number | string;
+            };
+            header?: never;
+            path: {
+                goal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FundingOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     live_api_v1_health_live_get: {
         parameters: {
             query?: never;
@@ -1837,6 +2587,97 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
                 };
+            };
+        };
+    };
+    data_export_api_v1_users_me_data_export_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
+    erasure_status_api_v1_users_me_erasure_request_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErasureStatusOut"];
+                };
+            };
+        };
+    };
+    request_erasure_api_v1_users_me_erasure_request_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ErasureRequestIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErasureStatusOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    cancel_erasure_api_v1_users_me_erasure_request_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

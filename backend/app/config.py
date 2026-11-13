@@ -27,6 +27,7 @@ class Settings(BaseSettings):
     ai_provider: Literal["none", "anthropic"] = "none"
     anthropic_api_key: SecretStr | None = None
     anthropic_model: str = "claude-haiku-5-5"
+    erasure_cooling_days: int = 7  # PLACEHOLDER: retention/legal-hold rules PENDING (D-B16)
     mail_dir: str | None = None  # local dev only (never in staging/production)
     mail_from: str = "no-reply@5nance.local"
 

@@ -35,6 +35,7 @@ export default function ProtectedLayout({ children }: { children: ReactNode }) {
               ["/app/interview", "Talk"],
               ["/app/score", "Score"],
               ["/app/dna", "DNA"],
+              ["/app/goals", "Goals"],
               ["/app/memory", "Memory"],
               ["/app/settings", "Settings"],
             ].map(([href, label]) => (

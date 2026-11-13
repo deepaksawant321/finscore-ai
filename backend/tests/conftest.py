@@ -95,7 +95,7 @@ async def mailer(engine) -> MemoryMailer:  # type: ignore[no-untyped-def]
 @pytest_asyncio.fixture
 async def app(settings: Settings, engine, mailer: MemoryMailer):  # type: ignore[no-untyped-def]
     async with engine.begin() as c:
-        await c.execute(text("TRUNCATE users, audit_log RESTART IDENTITY CASCADE"))
+        await c.execute(text("TRUNCATE users, audit_log, data_requests RESTART IDENTITY CASCADE"))
     limiter.reset()
     application = create_app(settings, mailer)
     application.state.sessionmaker = make_sessionmaker(engine)

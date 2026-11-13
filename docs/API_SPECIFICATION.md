@@ -43,3 +43,8 @@ Base: `/api/v1` · JSON · errors as RFC 7807 `application/problem+json` · auth
 - Error codes: `validation_error`, `unauthorized`, `forbidden`, `not_found`, `conflict`, `rate_limited`, `rulebook_not_approved`, `ai_unavailable`, `consent_required`, `entitlement_required`.
 - Rate limits: documented per route group in OpenAPI `x-ratelimit`.
 - Webhook signature verification mandatory for billing.
+
+## Implemented in MVP 2 follow-up (governance + goals)
+`GET /ai/disclosure` · `POST/GET /escalations`, `GET /escalations/{id}` · staff: `GET /admin/escalations`, `PATCH /admin/escalations/{id}` (roles support|compliance|admin, checked in DB) · `GET /users/me/data-export` · `GET/POST/DELETE /users/me/erasure-request` · `GET/POST /goals`, `GET/PATCH/DELETE /goals/{id}`, `GET /goals/{id}/funding?assumed_return_pct=&inflation_pct=` (both required; no defaults).
+Interview turn responses now include `advice_class`, `escalation_suggested`, `escalation_id`.
+Authoritative contract: `backend/openapi.json` (generated).

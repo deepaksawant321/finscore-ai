@@ -43,6 +43,8 @@ Status values: OPEN / PROPOSED-AWAITING-APPROVAL / APPROVED / REJECTED.
 | D-B19 🟡 | Gamification XP economy approval; badges catalogue | MVP 5 | Product |
 | D-B20 🟠 | Regulated data sources (Account Aggregator FIU registration, MF/insurance APIs) | MVP 5+ | Product/Legal |
 | D-B22 🟠 | Minimum data/confidence required before a wealth stage may be shown (engineering placeholder: 50% of pillar weight scored; below that the UI says "early estimate" and hides the stage) | MVP 2 | Product + Quant |
+| D-B23 🟠 | Erasure rules: cooling-off length (placeholder 7 days), what must be retained (audit ids, completion record, any financial-record retention law), who can request on behalf of a user | MVP 6 | Legal |
+| D-B24 🟠 | Escalation policy: reasons, SLA (placeholder 4h distress / 48h other), staffing, tooling for staff; helpline wording per country | MVP 3 | Compliance/CS |
 | D-B21 🟡 | Human-agent staffing/tool for escalation (internal inbox, CRM?) | MVP 3 | CS |
 
 ## C. Technical decisions made (informational; challenge any)

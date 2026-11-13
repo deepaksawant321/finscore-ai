@@ -52,3 +52,9 @@ Environment separation (dev/staging/prod), branch protection + required reviews,
 
 ## 11. Security gates by phase
 MVP 1: auth, hashing, validation, rate limit, headers, secret scan, audit skeleton · MVP 2: encryption of sensitive fields, consent, provenance · MVP 3: AI guardrails, escalation, disclosure · MVP 6: MFA, pen-test, DPIA, SOC2-style controls review, production readiness.
+
+## 12. Implementation notes (MVP 2 follow-up)
+- Access tokens are validated against the live session family on every request (logout, session revoke, password reset and erasure take effect immediately).
+- DB writes are committed before the HTTP response is sent (function-scoped session), so clients never read stale data after a successful write.
+- Staff endpoints re-read roles from the database; staff reads of user escalation notes are audit-logged; escalation notes and resolution text are encrypted at rest.
+- Export and erasure require authentication; erasure additionally requires password re-confirmation; both are rate limited and audited.

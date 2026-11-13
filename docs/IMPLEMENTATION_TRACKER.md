@@ -60,6 +60,20 @@ Evidence: backend `pytest` 93 passed (engines 37, unit 27, integration 29 incl. 
 | M2-E5 | Interview (intents, extraction, confirm chips, coverage, selector) | Completed (rule-based) | LLM extraction is optional and unexercised against a real model; replies are templates |
 | M2-E6 | Scoring + Explain + stage resolver | Completed (demo rules) | additivity/determinism/monotonicity tests; stage provisional; **early-estimate rule** (PLACEHOLDER) |
 | M2-E7 | DNA + Persona | Completed (demo rules, 2 traits, 3 demo personas) | Trait history/evolution not yet stored (K-18) |
-| M2-E8 | Governance | **In Progress** | Consent gate + audit + AI disclosure done; **data export/erasure, advice classification and escalation stub NOT done** |
+| M2-E8 | Governance | Completed (2026-11-13, second pass) | Consent gate, audit, AI disclosure; **export, erasure, advice classification, regulated-ask guard, distress path, escalations (user + staff APIs)** — see MVP 2 follow-up below |
 | M2-E9 | Frontend (interview, home/score, explain, DNA, memory) | Completed | Manual browser run; Playwright e2e not extended (K-13) |
-| — | Goals CRUD, events skeleton, entitlement hooks (roadmap R4–R6) | **Not started** | |
+| — | Goals CRUD (roadmap R4) | Completed (second pass) | CRUD + funding view under user-chosen assumptions; AI goal discovery stays in MVP 4 |
+| — | Events skeleton, entitlement hooks (roadmap R5, R6) | **Not started** | |
+
+### MVP 2 follow-up: governance gaps + goals (2026-11-13)
+Evidence: backend `pytest` 122 passed (+29: advice/goals unit 19, governance/goals integration 10, commit-order regression 1, token-liveness 1 in auth); ruff/mypy/import-linter clean; frontend tsc/lint clean, build ok; verified in the in-app browser: goals + funding, support request, data export download, consent toggle, erasure schedule/cancel, regulated-question decline + human escalation.
+| ID | Item | Status | Evidence / remarks |
+|---|---|---|---|
+| G-01 | Data export (`GET /users/me/data-export`) | Completed | Complete bundle for the owner, decrypted conversations; test proves no other user's data, no password hash/tokens; rate limited; recorded in `data_requests` |
+| G-02 | Erasure (`/users/me/erasure-request`) | Completed (interim policy) | Password re-auth, 7-day cooling-off (PLACEHOLDER, D-B16), cancellable, purge job (`scripts/admin_cli.py purge-due`) cascades to all personal data; completion record + hash-chained audit survive with opaque ids. **Purge needs a scheduler in deployment (K-25)** |
+| G-03 | Advice classification + guard | Completed (keyword baseline) | Every assistant message tagged; `regulated` class blocked by default; requests for stock/fund picks or guaranteed returns are declined and a human review is offered. Perimeter itself still PENDING (D-B9) |
+| G-04 | Human escalation | Completed (API + user UI; no staff UI) | Create/list own, staff queue + update (roles re-checked in DB per request), staff reads are audited, notes encrypted, short placeholder SLA for distress (4h) else 48h (D-B10) |
+| G-05 | Distress path | Completed (baseline) | Supportive message + helpline + auto-flag for a human; sensitive text is NOT copied into the ticket |
+| G-06 | Goals CRUD + funding view | Completed | Validation, ownership (404 on others), 50-goal cap, audit; funding endpoint REQUIRES explicit return/inflation assumptions (no hidden defaults) and returns them |
+| G-07 | Access token liveness | Completed (bug found while testing) | Access tokens now die immediately on logout, session revoke, password reset and erasure (one indexed query per request) |
+| G-08 | Commit-before-response | Completed (bug found while testing) | DB commit previously ran AFTER the response was sent, so a fast UI refetch could miss a just-written row. Fixed with function-scoped session dependency; regression test fails without the fix |

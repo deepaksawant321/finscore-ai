@@ -2,6 +2,17 @@
 
 Format: Keep a Changelog; semver for the product, separate semver for the Rulebook.
 
+## [0.2.1-dev] — Governance gaps and goals — 2026-11-13
+### Added
+- Data-subject rights: complete JSON export; account erasure with password re-confirmation, cooling-off, cancel, purge job and admin CLI (`scripts/admin_cli.py`: grant/revoke role, purge-due).
+- Advice classification of every assistant message; regulated-advice requests declined with a human-review offer; distress detection with helpline text and automatic human flag.
+- Escalations: user create/list, staff queue/update with DB-checked roles and audited reads; encrypted notes.
+- Goals: CRUD, funding view with user-supplied assumptions, UI for goals, privacy (export, erasure, AI consent toggle) and support requests.
+- Migration 0003 (goals, escalations, data_requests, messages.advice_class).
+### Fixed
+- Write responses could be sent before the transaction committed (stale refetch). Now committed first; regression test added.
+- Access tokens outlived logout/session revocation/password reset until expiry. Now rejected immediately.
+
 ## [0.2.0-dev] — MVP 2 Core Financial Intelligence (partial) — 2026-11-13
 ### Added
 - Deterministic engines: Indian amount parsing, cash-flow, EMI/debt, SIP/lumpsum/required-SIP/inflation, retirement corpus, generic score framework, stage resolver, rule-based traits/persona. Decimal-only; floats rejected.
