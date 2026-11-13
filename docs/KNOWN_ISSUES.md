@@ -1,0 +1,21 @@
+# FinScore AI — Known Issues & Open Risks
+
+| ID | Type | Description | Impact | Owner | Status |
+|---|---|---|---|---|---|
+| K-1 | Source doc | Two different meanings of "20 pillars" (see D-A1) | Spec ambiguity | Product | Open |
+| K-2 | Source doc | Deck slide 5 says "★ Priority pillars highlighted" but highlighting is only visual in the PPTX and was not recoverable by text extraction; I did **not** guess which are priority | MVP prioritisation may differ | Product to confirm | Open |
+| K-3 | Source doc | Slide notes empty except slides 1 and 16 (talk tracks, no requirements) | none | — | Noted |
+| K-4 | Source doc | Deck illustrative numbers (665→756, +₹48L, 3.2yr recovery, "Independence in 9 months" vs 689 already in band) are inconsistent/illustrative (D-A4, D-A12) | Must not ship as facts | Product | Open |
+| K-5 | Source doc | Blueprint contains stray citation tokens & unverified external research claims | Not requirements | — | Noted |
+| K-6 | Scope | Deck proposes ML models (SHAP, trained DNA classifier, ML score predictor); MVP uses deterministic/rule-based approach (AI_ARCHITECTURE §4); ML needs outcome data that does not exist yet | Deliberate deferral | PO | For approval |
+| K-7 | Scope | Account Aggregator / MF / insurance / bank pipelines (S14) are regulated sources — excluded until approval | No live data at launch; manual + conversational input only | PO/Legal | Gate |
+| K-8 | Compliance | Regulatory perimeter (education vs advice, SEBI IA/RA) unknown | Could restrict Coach & Portfolio features | Legal | Open |
+| K-9 | Risk | Official FinScore cannot be produced until D-B1–B4 delivered; demo rules are non-official | Launch blocker | Product | Open |
+| K-10 | Environment | Local machine: Python 3.13, Node 24, git present; **Docker and PostgreSQL are NOT installed** | Docker artefacts could not be built/run here | Eng | **Open — verify on a Docker host** |
+| K-11 | Workspace | `finscore-ai/` is its own git repository (no remote yet; GitHub remote/branch protection need your decision) | none | PO | Open |
+| K-12 | MVP 1 verification gap | `Dockerfile`s, `docker-compose.yml` and the CI workflow are written but **never executed** (no Docker; CI needs a GitHub remote). Local verification used an embedded PostgreSQL 16 (pixeltable-pgserver) + `uvicorn` + `next start`. | Compose/CI may need small fixes on first real run | Eng | Open |
+| K-13 | MVP 1 verification gap | Playwright e2e spec exists (`frontend/e2e`) but was not run (needs Mailpit + browsers). The same journey was exercised manually in the in-app browser. | | Eng | Open |
+| K-14 | Deviation | Access JWT uses **HS256** with a shared secret (Phase 0 said asymmetric + `kid` rotation). Fine for a single-service monolith; move to RS256/EdDSA + key rotation before production or when a second service verifies tokens. | Security hardening item for MVP 6 | Eng | Open |
+| K-15 | Deviation | Rate limiter is in-memory (single process) — ineffective across multiple replicas. Redis-backed limiter planned MVP 4. Do not scale API horizontally before then. | | Eng | Open |
+| K-16 | Deferred from MVP 1 plan | Not yet built: data export/erasure endpoints, MFA, breached-password check, Storybook, Sentry/metrics endpoint, DB-role grants making `audit_log` insert-only, `roles` admin tooling. Scheduled per roadmap (MVP 2 export/erasure; MVP 6 MFA/hardening). | | Eng | Planned |
+| K-17 | Python version | Python 3.12 build could not be downloaded here; dev venv is 3.13 while Dockerfile/CI target 3.12. Code is 3.12-compatible but untested on 3.12 locally. | | Eng | Open |

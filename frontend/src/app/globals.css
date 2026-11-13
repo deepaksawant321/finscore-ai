@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Design tokens — PROVISIONAL 5nance identity (UI_UX_GUIDELINES §2). Brand can replace values without code changes. */
+:root {
+  --surface: 255 255 255;
+  --surface-2: 244 247 250;
+  --ink: 11 27 43;
+  --muted: 91 107 124;
+  --line: 224 230 237;
+  --brand: 15 181 166;
+  --brand-ink: 4 70 64;
+  --ai: 79 70 229;
+  --positive: 16 140 90;
+  --warn: 196 120 6;
+  --negative: 207 48 52;
+  color-scheme: light;
+}
+:root[data-theme="dark"] {
+  --surface: 14 24 36;
+  --surface-2: 20 33 48;
+  --ink: 232 238 245;
+  --muted: 150 166 184;
+  --line: 40 56 74;
+  --brand: 45 212 196;
+  --brand-ink: 190 250 244;
+  --ai: 129 140 248;
+  --positive: 52 211 153;
+  --warn: 245 165 36;
+  --negative: 248 113 113;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --surface: 14 24 36;
+    --surface-2: 20 33 48;
+    --ink: 232 238 245;
+    --muted: 150 166 184;
+    --line: 40 56 74;
+    --brand: 45 212 196;
+    --brand-ink: 190 250 244;
+    --ai: 129 140 248;
+    --positive: 52 211 153;
+    --warn: 245 165 36;
+    --negative: 248 113 113;
+    color-scheme: dark;
+  }
+}
+
+html { font-feature-settings: "tnum" 1; }
+body { @apply bg-surface-2 text-ink antialiased; }
+:focus-visible { outline: 2px solid rgb(var(--ai)); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }

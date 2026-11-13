@@ -1,0 +1,66 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["app*"]
+
+[project]
+name = "finscore-backend"
+version = "0.1.0"
+description = "FinScore AI backend (modular monolith)"
+requires-python = ">=3.12"
+dependencies = [
+  "fastapi>=0.115", "uvicorn[standard]>=0.30", "sqlalchemy[asyncio]>=2.0.30", "asyncpg>=0.29",
+  "alembic>=1.13", "pydantic>=2.7", "pydantic-settings>=2.3", "email-validator>=2.1",
+  "argon2-cffi>=23.1", "pyjwt>=2.8", "structlog>=24.1",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "pytest-asyncio>=0.23", "httpx>=0.27", "hypothesis>=6.100", "ruff>=0.5", "mypy>=1.10",
+       "import-linter>=2.0", "psycopg2-binary>=2.9", "pixeltable-pgserver>=0.3"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "session"
+asyncio_default_test_loop_scope = "session"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 130
+target-version = "py312"
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "S"]
+ignore = ["S101", "B008"]
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S105", "S106"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+plugins = ["pydantic.mypy"]
+[[tool.mypy.overrides]]
+module = ["pixeltable_pgserver.*", "tests.*"]
+ignore_errors = true
+
+[tool.importlinter]
+root_package = "app"
+include_external_packages = true
+
+[[tool.importlinter.contracts]]
+name = "engines are pure (no I/O, DB, web, AI)"
+type = "forbidden"
+source_modules = ["app.engines"]
+forbidden_modules = ["app.infra", "app.api", "app.domains", "app.ai", "sqlalchemy", "fastapi", "httpx"]
+
+[[tool.importlinter.contracts]]
+name = "domains do not import the api layer"
+type = "forbidden"
+source_modules = ["app.domains"]
+forbidden_modules = ["app.api"]
+
+[[tool.importlinter.contracts]]
+name = "governance does not import identity"
+type = "forbidden"
+source_modules = ["app.domains.governance"]
+forbidden_modules = ["app.domains.identity"]
