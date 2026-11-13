@@ -1,6 +1,156 @@
 {
   "components": {
     "schemas": {
+      "CoachConversationOut": {
+        "properties": {
+          "disclosure": {
+            "title": "Disclosure",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "messages": {
+            "items": {
+              "$ref": "#/components/schemas/CoachMessageOut"
+            },
+            "title": "Messages",
+            "type": "array"
+          },
+          "suggested_prompts": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Suggested Prompts",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "disclosure",
+          "messages",
+          "suggested_prompts"
+        ],
+        "title": "CoachConversationOut",
+        "type": "object"
+      },
+      "CoachMessageOut": {
+        "properties": {
+          "advice_class": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Advice Class"
+          },
+          "content": {
+            "title": "Content",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "role": {
+            "title": "Role",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "role",
+          "content"
+        ],
+        "title": "CoachMessageOut",
+        "type": "object"
+      },
+      "CoachSendIn": {
+        "properties": {
+          "content": {
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Content",
+            "type": "string"
+          }
+        },
+        "required": [
+          "content"
+        ],
+        "title": "CoachSendIn",
+        "type": "object"
+      },
+      "CoachTurnOut": {
+        "properties": {
+          "advice_class": {
+            "title": "Advice Class",
+            "type": "string"
+          },
+          "ai_rewritten": {
+            "title": "Ai Rewritten",
+            "type": "boolean"
+          },
+          "assistant_text": {
+            "title": "Assistant Text",
+            "type": "string"
+          },
+          "disclosure": {
+            "title": "Disclosure",
+            "type": "string"
+          },
+          "escalation_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Escalation Id"
+          },
+          "escalation_suggested": {
+            "title": "Escalation Suggested",
+            "type": "boolean"
+          },
+          "message_id": {
+            "format": "uuid",
+            "title": "Message Id",
+            "type": "string"
+          },
+          "mode": {
+            "title": "Mode",
+            "type": "string"
+          },
+          "tools": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Tools",
+            "type": "array"
+          }
+        },
+        "required": [
+          "message_id",
+          "assistant_text",
+          "mode",
+          "tools",
+          "advice_class",
+          "escalation_suggested",
+          "escalation_id",
+          "ai_rewritten",
+          "disclosure"
+        ],
+        "title": "CoachTurnOut",
+        "type": "object"
+      },
       "CompareOut": {
         "properties": {
           "delta": {
@@ -2473,6 +2623,168 @@
         "summary": "Verify Email",
         "tags": [
           "auth"
+        ]
+      }
+    },
+    "/api/v1/coach/conversations": {
+      "post": {
+        "operationId": "start_api_v1_coach_conversations_post",
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CoachConversationOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Start",
+        "tags": [
+          "coach"
+        ]
+      }
+    },
+    "/api/v1/coach/conversations/{conv_id}": {
+      "get": {
+        "operationId": "get_conversation_api_v1_coach_conversations__conv_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "conv_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Conv Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CoachConversationOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Conversation",
+        "tags": [
+          "coach"
+        ]
+      }
+    },
+    "/api/v1/coach/conversations/{conv_id}/messages": {
+      "post": {
+        "operationId": "send_api_v1_coach_conversations__conv_id__messages_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "conv_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Conv Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CoachSendIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CoachTurnOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Send",
+        "tags": [
+          "coach"
+        ]
+      }
+    },
+    "/api/v1/coach/suggested-prompts": {
+      "get": {
+        "operationId": "suggested_prompts_api_v1_coach_suggested_prompts_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "title": "Response Suggested Prompts Api V1 Coach Suggested Prompts Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Suggested Prompts",
+        "tags": [
+          "coach"
         ]
       }
     },

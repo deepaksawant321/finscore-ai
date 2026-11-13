@@ -2,6 +2,15 @@
 
 Format: Keep a Changelog; semver for the product, separate semver for the Rulebook.
 
+## [0.3.0-dev] — MVP 3 AI Financial Assistant (partial) — 2026-11-13
+### Added
+- Coach: consent-gated conversations (`/api/v1/coach/*`), deterministic router and nine read-only tools (score, explain, change, stages, profile, missing data, goals, goal check with user-supplied assumptions), suggested prompts, disclosure, coach page in the web app.
+- Optional LLM rewrite of engine facts, accepted only when every number is grounded and the advice class is safe; otherwise the template text is used. Prompt `coach_explain/v1`.
+- Guards reused in the coach: distress, regulated-advice ask, request for a human (opens an escalation).
+- `coach_runs` audit table (migration 0004).
+### Not done
+- Action suggestions (needs approved action library), free-form scenarios, staff inbox UI, real-model evaluation. See KNOWN_ISSUES K-29..K-31.
+
 ## [0.2.1-dev] — Governance gaps and goals — 2026-11-13
 ### Added
 - Data-subject rights: complete JSON export; account erasure with password re-confirmation, cooling-off, cancel, purge job and admin CLI (`scripts/admin_cli.py`: grant/revoke role, purge-due).

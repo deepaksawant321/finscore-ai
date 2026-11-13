@@ -48,3 +48,6 @@ Base: `/api/v1` · JSON · errors as RFC 7807 `application/problem+json` · auth
 `GET /ai/disclosure` · `POST/GET /escalations`, `GET /escalations/{id}` · staff: `GET /admin/escalations`, `PATCH /admin/escalations/{id}` (roles support|compliance|admin, checked in DB) · `GET /users/me/data-export` · `GET/POST/DELETE /users/me/erasure-request` · `GET/POST /goals`, `GET/PATCH/DELETE /goals/{id}`, `GET /goals/{id}/funding?assumed_return_pct=&inflation_pct=` (both required; no defaults).
 Interview turn responses now include `advice_class`, `escalation_suggested`, `escalation_id`.
 Authoritative contract: `backend/openapi.json` (generated).
+
+## Implemented in MVP 3 (coach, partial)
+`POST /coach/conversations` (needs `ai_processing` consent) · `GET /coach/conversations/{id}` · `POST /coach/conversations/{id}/messages` (JSON, no streaming yet) · `GET /coach/suggested-prompts`. Turn response: `assistant_text`, `mode` (explain|diagnose|simulate|act|other), `tools`, `advice_class`, `escalation_suggested`, `escalation_id`, `ai_rewritten`, `disclosure`. Coach conversations are separate from interview conversations (each API returns 404 for the other's ids).

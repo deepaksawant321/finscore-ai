@@ -103,7 +103,9 @@ class InterviewService:
 
     async def _get_conv(self, user_id: uuid.UUID, conv_id: uuid.UUID) -> Conversation:
         c = await self.s.get(Conversation, conv_id)
-        if c is None or c.user_id != user_id:  # never reveal other users' conversations
+        if (
+            c is None or c.user_id != user_id or c.mode == "coach"
+        ):  # never reveal other users' conversations; coach has its own API
             raise AppError(404, "not_found", "Conversation not found")
         return c
 

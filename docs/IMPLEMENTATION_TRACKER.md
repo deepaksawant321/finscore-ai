@@ -77,3 +77,18 @@ Evidence: backend `pytest` 122 passed (+29: advice/goals unit 19, governance/goa
 | G-06 | Goals CRUD + funding view | Completed | Validation, ownership (404 on others), 50-goal cap, audit; funding endpoint REQUIRES explicit return/inflation assumptions (no hidden defaults) and returns them |
 | G-07 | Access token liveness | Completed (bug found while testing) | Access tokens now die immediately on logout, session revoke, password reset and erasure (one indexed query per request) |
 | G-08 | Commit-before-response | Completed (bug found while testing) | DB commit previously ran AFTER the response was sent, so a fast UI refetch could miss a just-written row. Fixed with function-scoped session dependency; regression test fails without the fix |
+
+## MVP 3 — AI Financial Assistant (started 2026-11-13, partial)
+Evidence: backend `pytest` 162 passed (+40: coach unit 28 incl. routing golden set and red-team lists, coach integration 12); ruff/mypy/import-linter clean; frontend tsc/lint/tests/build clean; coach checked in the in-app browser (explain, goal check without goals, regulated-question decline). The real LLM was NOT exercised (no provider approved); LLM paths are tested with a mock only.
+| ID | Item | Status | Evidence / remarks |
+|---|---|---|---|
+| M3-01 | Coach API (`/coach/*`), consent-gated, disclosure, suggested prompts | Completed | `test_coach_requires_ai_consent_and_shows_disclosure`; transcript persisted, messages encrypted |
+| M3-02 | Deterministic router + 9 read-only tools (score, explain, change, stages, profile, missing data, goals, goal status, act) | Completed (English keyword baseline) | routing golden tests; tools take the caller's user id from the session only |
+| M3-03 | Modes: Explain, Diagnose, Simulate (goal check only), Act | Partial | **Act is a stub**: no approved action library (D-B6), so it says so and shows drivers instead. **Simulate** only checks stored goals with assumptions the user states (D-B7); free-form scenarios arrive in MVP 4 |
+| M3-04 | Grounding guard on LLM text | Completed (mock-tested) | Reply used only if every number appears in the engine facts; else template fallback + `coach_runs` row (`ungrounded_number`, `unsafe_class`, `llm_unavailable`). Numbers planted in the user's message are NOT allowed through (injection test) |
+| M3-05 | Guards: distress, regulated ask, "talk to a human" | Completed | Reuse governance rules; human request opens a `user_request` escalation |
+| M3-06 | Coach audit (`coach_runs`, audit `coach.turn`) | Completed | Migration 0004; stores mode/tools/flags only, no text or values |
+| M3-07 | Coach UI (`/app/coach`) | Completed | Suggested prompts, "numbers from engine" badge, consent step |
+| M3-08 | Escalation admin inbox UI | **Not started** | staff still use the API (K-26) |
+| M3-09 | Eval suite: "0 ungrounded numbers", red-team 100% | Partial | Small unit/integration set only (13 routing cases, 8 regulated + 4 distress red-team lines, injection + fallback tests); no larger golden set, no real-model run |
+| M3-10 | Free-form conversational answers / general education content | **Not built by design** | Anything outside the nine tools gets a capability menu; approved education content and the advice perimeter (D-B9) are needed first |

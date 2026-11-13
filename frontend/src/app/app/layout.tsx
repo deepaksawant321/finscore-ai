@@ -33,6 +33,7 @@ export default function ProtectedLayout({ children }: { children: ReactNode }) {
           <div className="flex items-center gap-2">
             {[
               ["/app/interview", "Talk"],
+              ["/app/coach", "Coach"],
               ["/app/score", "Score"],
               ["/app/dna", "DNA"],
               ["/app/goals", "Goals"],
