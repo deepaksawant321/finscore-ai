@@ -26,14 +26,22 @@ export default function ProtectedLayout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen">
       <header className="border-b border-line bg-surface">
-        <nav className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3" aria-label="Main">
+        <nav className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-2 px-4 py-3" aria-label="Main">
           <Link href="/app" className="font-bold">
             <span className="text-brand">5nance</span> FinScore AI
           </Link>
           <div className="flex items-center gap-2">
-            <Link href="/app/settings" className="rounded-md px-3 py-2 text-sm hover:bg-surface-2">
-              Settings
-            </Link>
+            {[
+              ["/app/interview", "Talk"],
+              ["/app/score", "Score"],
+              ["/app/dna", "DNA"],
+              ["/app/memory", "Memory"],
+              ["/app/settings", "Settings"],
+            ].map(([href, label]) => (
+              <Link key={href} href={href as string} className="rounded-md px-3 py-2 text-sm hover:bg-surface-2">
+                {label}
+              </Link>
+            ))}
             <Button
               variant="secondary"
               onClick={async () => {

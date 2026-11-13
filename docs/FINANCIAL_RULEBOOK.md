@@ -32,6 +32,7 @@ The Rulebook is the single version-controlled specification (B§28 "critical dep
 | 0–100 weighted → 300–900 mapping | **PENDING** (linear is an obvious default but not approved) | D-B3 |
 | Confidence/freshness adjustment method | PROPOSED concept only | B§6, D-B8 |
 | Freshness windows per fact class | **PENDING** (B§5 gives only coarse cadence: annual/monthly/daily…) | D-B8 |
+| Minimum confidence before announcing a stage (`score.min_confidence_for_stage`, demo value 0.5) | PLACEHOLDER | D-B22 |
 | Persona catalogue & mapping | **PENDING** (only "The Builder" example) | D-B5 |
 | DNA dimensions (10) | PROPOSED | B§7 |
 | DNA trait value sets & thresholds | **PENDING** | D-B5 |

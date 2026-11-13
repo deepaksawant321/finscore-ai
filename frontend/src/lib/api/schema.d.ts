@@ -158,6 +158,108 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/conversations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Start Conversation */
+        post: operations["start_conversation_api_v1_conversations_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/conversations/{conv_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Conversation */
+        get: operations["get_conversation_api_v1_conversations__conv_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/conversations/{conv_id}/facts/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Confirm Facts */
+        post: operations["confirm_facts_api_v1_conversations__conv_id__facts_confirm_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/conversations/{conv_id}/messages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Send Message */
+        post: operations["send_message_api_v1_conversations__conv_id__messages_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/coverage": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Coverage */
+        get: operations["coverage_api_v1_coverage_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dna": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Dna */
+        get: operations["dna_api_v1_dna_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/health/live": {
         parameters: {
             query?: never;
@@ -184,6 +286,162 @@ export interface paths {
         };
         /** Ready */
         get: operations["ready_api_v1_health_ready_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/memory/facts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Facts */
+        get: operations["list_facts_api_v1_memory_facts_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/memory/facts/{key}/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Fact History */
+        get: operations["fact_history_api_v1_memory_facts__key__history_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/profile/facts/{key}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Correct Fact
+         * @description User correction: always allowed to supersede (creates a new version; the old one stays in history).
+         */
+        patch: operations["correct_fact_api_v1_profile_facts__key__patch"];
+        trace?: never;
+    };
+    "/api/v1/rulebook/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Rulebook Status */
+        get: operations["rulebook_status_api_v1_rulebook_status_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/score/compare": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Compare */
+        get: operations["compare_api_v1_score_compare_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/score/compute": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Compute Score Ep */
+        post: operations["compute_score_ep_api_v1_score_compute_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/score/current": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Current Score */
+        get: operations["current_score_api_v1_score_current_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/score/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Score History */
+        get: operations["score_history_api_v1_score_history_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/score/{run_id}/explain": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Explain */
+        get: operations["explain_api_v1_score__run_id__explain_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -248,6 +506,22 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** CompareOut */
+        CompareOut: {
+            /** Delta */
+            delta: string | null;
+            /** From Score */
+            from_score: string | null;
+            /** Material Changes */
+            material_changes: components["schemas"]["MaterialChange"][];
+            /** To Score */
+            to_score: string | null;
+        };
+        /** ConfirmIn */
+        ConfirmIn: {
+            /** Decisions */
+            decisions: components["schemas"]["Decision"][];
+        };
         /** ConsentIn */
         ConsentIn: {
             /** Purpose */
@@ -278,6 +552,144 @@ export interface components {
             /** Text Version */
             text_version: string;
         };
+        /** ConversationOut */
+        ConversationOut: {
+            /** Disclosure */
+            disclosure: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Messages */
+            messages: components["schemas"]["MessageOut"][];
+            /** Mode */
+            mode: string;
+        };
+        /** ConversationStart */
+        ConversationStart: {
+            /**
+             * Mode
+             * @default problem
+             * @enum {string}
+             */
+            mode: "problem" | "full";
+        };
+        /** CoverageItem */
+        CoverageItem: {
+            /** Calculator */
+            calculator: boolean;
+            /** Missing */
+            missing: string[];
+            /** Name */
+            name: string;
+            /** Pillar Id */
+            pillar_id: string;
+            /** State */
+            state: string;
+        };
+        /** Decision */
+        Decision: {
+            /**
+             * Action
+             * @enum {string}
+             */
+            action: "accept" | "edit" | "reject";
+            /** Proposal Id */
+            proposal_id: string;
+            /** Value */
+            value?: string | null;
+        };
+        /** DnaOut */
+        DnaOut: {
+            /** Official */
+            official: boolean;
+            persona: components["schemas"]["PersonaOut"] | null;
+            /** Traits */
+            traits: components["schemas"]["DnaTraitOut"][];
+            /** Watermark */
+            watermark: string | null;
+        };
+        /** DnaTraitOut */
+        DnaTraitOut: {
+            /** Confidence */
+            confidence: string | null;
+            /** Evidence */
+            evidence: string[];
+            /** Evidence Count */
+            evidence_count: number;
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            /** Value */
+            value: string;
+            /** Wording */
+            wording: string;
+        };
+        /** ExplainOut */
+        ExplainOut: {
+            /** Additivity Note */
+            additivity_note: string;
+            /** Missing Inputs */
+            missing_inputs: string[];
+            /** Negative Drivers */
+            negative_drivers: components["schemas"]["PillarOut"][];
+            /** Not Scored */
+            not_scored: components["schemas"]["PillarOut"][];
+            /** Overall */
+            overall: string;
+            /** Positive Drivers */
+            positive_drivers: components["schemas"]["PillarOut"][];
+            /** Reference */
+            reference: string;
+            /** Watermark */
+            watermark: string | null;
+        };
+        /** FactChangeOut */
+        FactChangeOut: {
+            /** Changed */
+            changed: boolean;
+            fact: components["schemas"]["FactOut"];
+            /** Material Change */
+            material_change: boolean;
+        };
+        /** FactOut */
+        FactOut: {
+            /** Confidence */
+            confidence: string;
+            /** Display Unit */
+            display_unit: string | null;
+            /** Field Key */
+            field_key: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Label */
+            label: string;
+            /** Source Ref */
+            source_ref: string | null;
+            /** Source Type */
+            source_type: string;
+            /**
+             * Valid From
+             * Format: date-time
+             */
+            valid_from: string;
+            /** Valid To */
+            valid_to: string | null;
+            /** Value */
+            value: string;
+            /** Verification State */
+            verification_state: ("stated" | "verified" | "disputed") | string;
+        };
+        /** FactPatch */
+        FactPatch: {
+            /** Value */
+            value: string;
+        };
         /** ForgotIn */
         ForgotIn: {
             /**
@@ -301,6 +713,101 @@ export interface components {
             /** Password */
             password: string;
         };
+        /** MaterialChange */
+        MaterialChange: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /** Points Change */
+            points_change: string | null;
+            /** Score After */
+            score_after: string | null;
+            /** Score Before */
+            score_before: string | null;
+        };
+        /** MessageOut */
+        MessageOut: {
+            /** Content */
+            content: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Role */
+            role: string;
+        };
+        /** NextQuestion */
+        NextQuestion: {
+            /** Field Key */
+            field_key: string;
+            /** Text */
+            text: string;
+            /** Why */
+            why: string;
+        };
+        /** PersonaOut */
+        PersonaOut: {
+            /** Description */
+            description: string;
+            /** Name */
+            name: string;
+        };
+        /** PillarOut */
+        PillarOut: {
+            /** Contribution */
+            contribution: string | null;
+            /** Effective Weight */
+            effective_weight: string | null;
+            /** Id */
+            id: string;
+            /** Missing Inputs */
+            missing_inputs: string[];
+            /** Name */
+            name: string;
+            /** Score */
+            score: string | null;
+            /** Weight */
+            weight: string;
+        };
+        /** ProposalOut */
+        ProposalOut: {
+            /** Confidence */
+            confidence: string;
+            /** Display */
+            display: string;
+            /** Evidence */
+            evidence: string;
+            /** Field Key */
+            field_key: string;
+            /** Id */
+            id: string;
+            /** Label */
+            label: string;
+            /** Origin */
+            origin: string;
+            /** Rationale */
+            rationale: string;
+            /** Status */
+            status: string;
+            /** Value */
+            value: string;
+        };
+        /** RecordedFact */
+        RecordedFact: {
+            /** Field Key */
+            field_key: string;
+            /** Material Change */
+            material_change: boolean;
+            /** Value */
+            value: string;
+        };
         /** RegisterIn */
         RegisterIn: {
             /**
@@ -319,6 +826,82 @@ export interface components {
             new_password: string;
             /** Token */
             token: string;
+        };
+        /** RulebookStatus */
+        RulebookStatus: {
+            /** Blocking Items */
+            blocking_items: string[];
+            /** Official */
+            official: boolean;
+            /** Rule Set */
+            rule_set: string;
+            /** Status Counts */
+            status_counts: {
+                [key: string]: number;
+            };
+            /** Version */
+            version: string;
+        };
+        /** ScoreOut */
+        ScoreOut: {
+            /**
+             * Computed At
+             * Format: date-time
+             */
+            computed_at: string;
+            /** Confidence */
+            confidence: string;
+            /**
+             * Early Estimate
+             * @description True when confidence is below the (placeholder) threshold: do not announce a stage.
+             */
+            early_estimate: boolean;
+            /** Engine Version */
+            engine_version: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Missing Inputs */
+            missing_inputs: string[];
+            /** Official */
+            official: boolean;
+            /** Overall */
+            overall: string;
+            /** Pillars */
+            pillars: components["schemas"]["PillarOut"][];
+            /** Rule Set */
+            rule_set: string;
+            /** Rulebook Version */
+            rulebook_version: string;
+            /**
+             * Score Range
+             * @default [
+             *       300,
+             *       900
+             *     ]
+             */
+            score_range: [
+                number,
+                number
+            ];
+            /** Stage */
+            stage: string;
+            /** Stage Provisional */
+            stage_provisional: boolean;
+            /** Trend */
+            trend: string;
+            /**
+             * Watermark
+             * @description Set when the result is NOT an official FinScore (demo rules).
+             */
+            watermark: string | null;
+        };
+        /** SendIn */
+        SendIn: {
+            /** Content */
+            content: string;
         };
         /** SessionOut */
         SessionOut: {
@@ -360,6 +943,27 @@ export interface components {
              * @default bearer
              */
             token_type: string;
+        };
+        /** TurnOut */
+        TurnOut: {
+            /** Assistant Text */
+            assistant_text: string;
+            /** Disclosure */
+            disclosure: string;
+            /**
+             * Message Id
+             * Format: uuid
+             */
+            message_id: string;
+            next_question: components["schemas"]["NextQuestion"] | null;
+            /** Progress */
+            progress: {
+                [key: string]: number;
+            };
+            /** Proposals */
+            proposals: components["schemas"]["ProposalOut"][];
+            /** Ready For Score */
+            ready_for_score: boolean;
         };
         /** UserOut */
         UserOut: {
@@ -727,6 +1331,180 @@ export interface operations {
             };
         };
     };
+    start_conversation_api_v1_conversations_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConversationStart"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConversationOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_conversation_api_v1_conversations__conv_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                conv_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConversationOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    confirm_facts_api_v1_conversations__conv_id__facts_confirm_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                conv_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConfirmIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RecordedFact"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    send_message_api_v1_conversations__conv_id__messages_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                conv_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SendIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TurnOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    coverage_api_v1_coverage_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CoverageItem"][];
+                };
+            };
+        };
+    };
+    dna_api_v1_dna_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DnaOut"];
+                };
+            };
+        };
+    };
     live_api_v1_health_live_get: {
         parameters: {
             query?: never;
@@ -765,6 +1543,246 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+        };
+    };
+    list_facts_api_v1_memory_facts_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FactOut"][];
+                };
+            };
+        };
+    };
+    fact_history_api_v1_memory_facts__key__history_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FactOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    correct_fact_api_v1_profile_facts__key__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FactPatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FactChangeOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    rulebook_status_api_v1_rulebook_status_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RulebookStatus"];
+                };
+            };
+        };
+    };
+    compare_api_v1_score_compare_get: {
+        parameters: {
+            query: {
+                from_run: string;
+                to_run: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CompareOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    compute_score_ep_api_v1_score_compute_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScoreOut"];
+                };
+            };
+        };
+    };
+    current_score_api_v1_score_current_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScoreOut"];
+                };
+            };
+        };
+    };
+    score_history_api_v1_score_history_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScoreOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    explain_api_v1_score__run_id__explain_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExplainOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

@@ -2,6 +2,20 @@
 
 Format: Keep a Changelog; semver for the product, separate semver for the Rulebook.
 
+## [0.2.0-dev] — MVP 2 Core Financial Intelligence (partial) — 2026-11-13
+### Added
+- Deterministic engines: Indian amount parsing, cash-flow, EMI/debt, SIP/lumpsum/required-SIP/inflation, retirement corpus, generic score framework, stage resolver, rule-based traits/persona. Decimal-only; floats rejected.
+- Versioned Rulebook with a watermarked **demo** rule set (`0.0.0-demo`); production refuses to produce a score from an unapproved rulebook (503 `rulebook_not_approved`).
+- Financial memory: versioned facts with provenance, source-precedence rule, user correction, history; encrypted conversation text (Fernet).
+- AI interview: consent-gated conversations, rule-based fact extraction, optional LLM extraction (grounded, validated), confirm-before-save proposals, deterministic next-question selector, coverage map, grounding guard.
+- Scoring: immutable score runs with frozen input snapshot, confidence (data coverage), trend, provisional stage, early-estimate flag, exact explanation and run comparison; DNA traits and demo persona.
+- Frontend: interview chat with captured-fact chips, score ring + explanation, DNA/persona, memory with corrections.
+### Changed / Fixed
+- Auth forms now `method="post"` so a submit before hydration cannot put credentials in the URL.
+- Migration 0002 (facts, input_snapshots, score_runs, conversations, messages, message_extractions).
+### Not done in MVP 2 yet
+See IMPLEMENTATION_TRACKER (M2-E4, M2-E8) and KNOWN_ISSUES K-18…K-23.
+
 ## [0.1.0] — MVP 1 Platform Foundation — 2026-11-13
 ### Added
 - Monorepo: `backend/` (FastAPI, SQLAlchemy 2 async, Alembic), `frontend/` (Next.js 14, Tailwind, React Query), Docker/compose, CI workflow, README.

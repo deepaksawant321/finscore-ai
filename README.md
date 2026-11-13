@@ -1,6 +1,6 @@
 # FinScore AI — 5nance AI Financial Operating System
 
-Monorepo. **Status: MVP 1 (platform foundation) implemented; MVP 2+ not started.** Design and plan: [`docs/`](docs/PHASE0_DESIGN_REVIEW.md).
+Monorepo. **Status: MVP 1 done; MVP 2 (core financial intelligence) partially done — see docs/IMPLEMENTATION_TRACKER.md.** Design and plan: [`docs/`](docs/PHASE0_DESIGN_REVIEW.md).
 
 ```
 backend/   FastAPI modular monolith (Python 3.12+), SQLAlchemy 2 async, Alembic, PostgreSQL

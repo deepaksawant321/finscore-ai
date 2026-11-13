@@ -32,7 +32,7 @@ function Reset() {
       {state === "done" ? (
         <Alert tone="success">Password updated. All other sessions were signed out.</Alert>
       ) : (
-        <form onSubmit={onSubmit} className="space-y-4" noValidate>
+        <form method="post" onSubmit={onSubmit} className="space-y-4" noValidate>
           {error ? <Alert tone="error">{error}</Alert> : null}
           <Input
             name="password"

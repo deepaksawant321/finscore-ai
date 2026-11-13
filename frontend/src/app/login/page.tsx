@@ -28,7 +28,7 @@ export default function LoginPage() {
 
   return (
     <AuthShell title="Welcome back" subtitle="Log in to continue your financial journey.">
-      <form onSubmit={onSubmit} className="space-y-4" noValidate>
+      <form method="post" onSubmit={onSubmit} className="space-y-4" noValidate>
         {error ? <Alert tone="error">{error}</Alert> : null}
         <Input name="email" type="email" label="Email" autoComplete="email" required />
         <Input name="password" type="password" label="Password" autoComplete="current-password" required />

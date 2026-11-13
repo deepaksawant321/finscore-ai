@@ -7,6 +7,7 @@ from pathlib import Path
 
 os.environ.setdefault("DATABASE_URL", "postgresql+asyncpg://unused/unused")
 os.environ.setdefault("JWT_SECRET", "openapi-export-only")
+os.environ.setdefault("DATA_ENCRYPTION_KEY", "A" * 43 + "=")
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "backend"))
 
 from app.main import create_app  # noqa: E402

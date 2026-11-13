@@ -1,6 +1,75 @@
 {
   "components": {
     "schemas": {
+      "CompareOut": {
+        "properties": {
+          "delta": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Delta"
+          },
+          "from_score": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "From Score"
+          },
+          "material_changes": {
+            "items": {
+              "$ref": "#/components/schemas/MaterialChange"
+            },
+            "title": "Material Changes",
+            "type": "array"
+          },
+          "to_score": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "To Score"
+          }
+        },
+        "required": [
+          "from_score",
+          "to_score",
+          "delta",
+          "material_changes"
+        ],
+        "title": "CompareOut",
+        "type": "object"
+      },
+      "ConfirmIn": {
+        "properties": {
+          "decisions": {
+            "items": {
+              "$ref": "#/components/schemas/Decision"
+            },
+            "maxItems": 30,
+            "title": "Decisions",
+            "type": "array"
+          }
+        },
+        "required": [
+          "decisions"
+        ],
+        "title": "ConfirmIn",
+        "type": "object"
+      },
       "ConsentIn": {
         "properties": {
           "purpose": {
@@ -87,6 +156,423 @@
         "title": "ConsentOut",
         "type": "object"
       },
+      "ConversationOut": {
+        "properties": {
+          "disclosure": {
+            "title": "Disclosure",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "messages": {
+            "items": {
+              "$ref": "#/components/schemas/MessageOut"
+            },
+            "title": "Messages",
+            "type": "array"
+          },
+          "mode": {
+            "title": "Mode",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "mode",
+          "messages",
+          "disclosure"
+        ],
+        "title": "ConversationOut",
+        "type": "object"
+      },
+      "ConversationStart": {
+        "properties": {
+          "mode": {
+            "default": "problem",
+            "enum": [
+              "problem",
+              "full"
+            ],
+            "title": "Mode",
+            "type": "string"
+          }
+        },
+        "title": "ConversationStart",
+        "type": "object"
+      },
+      "CoverageItem": {
+        "properties": {
+          "calculator": {
+            "title": "Calculator",
+            "type": "boolean"
+          },
+          "missing": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Missing",
+            "type": "array"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "pillar_id": {
+            "title": "Pillar Id",
+            "type": "string"
+          },
+          "state": {
+            "title": "State",
+            "type": "string"
+          }
+        },
+        "required": [
+          "pillar_id",
+          "name",
+          "state",
+          "calculator",
+          "missing"
+        ],
+        "title": "CoverageItem",
+        "type": "object"
+      },
+      "Decision": {
+        "properties": {
+          "action": {
+            "enum": [
+              "accept",
+              "edit",
+              "reject"
+            ],
+            "title": "Action",
+            "type": "string"
+          },
+          "proposal_id": {
+            "title": "Proposal Id",
+            "type": "string"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "maxLength": 60,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          }
+        },
+        "required": [
+          "proposal_id",
+          "action"
+        ],
+        "title": "Decision",
+        "type": "object"
+      },
+      "DnaOut": {
+        "properties": {
+          "official": {
+            "title": "Official",
+            "type": "boolean"
+          },
+          "persona": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PersonaOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "traits": {
+            "items": {
+              "$ref": "#/components/schemas/DnaTraitOut"
+            },
+            "title": "Traits",
+            "type": "array"
+          },
+          "watermark": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Watermark"
+          }
+        },
+        "required": [
+          "traits",
+          "persona",
+          "official",
+          "watermark"
+        ],
+        "title": "DnaOut",
+        "type": "object"
+      },
+      "DnaTraitOut": {
+        "properties": {
+          "confidence": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confidence"
+          },
+          "evidence": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Evidence",
+            "type": "array"
+          },
+          "evidence_count": {
+            "title": "Evidence Count",
+            "type": "integer"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "value": {
+            "title": "Value",
+            "type": "string"
+          },
+          "wording": {
+            "title": "Wording",
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "label",
+          "value",
+          "confidence",
+          "evidence_count",
+          "evidence",
+          "wording"
+        ],
+        "title": "DnaTraitOut",
+        "type": "object"
+      },
+      "ExplainOut": {
+        "properties": {
+          "additivity_note": {
+            "title": "Additivity Note",
+            "type": "string"
+          },
+          "missing_inputs": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Missing Inputs",
+            "type": "array"
+          },
+          "negative_drivers": {
+            "items": {
+              "$ref": "#/components/schemas/PillarOut"
+            },
+            "title": "Negative Drivers",
+            "type": "array"
+          },
+          "not_scored": {
+            "items": {
+              "$ref": "#/components/schemas/PillarOut"
+            },
+            "title": "Not Scored",
+            "type": "array"
+          },
+          "overall": {
+            "title": "Overall",
+            "type": "string"
+          },
+          "positive_drivers": {
+            "items": {
+              "$ref": "#/components/schemas/PillarOut"
+            },
+            "title": "Positive Drivers",
+            "type": "array"
+          },
+          "reference": {
+            "title": "Reference",
+            "type": "string"
+          },
+          "watermark": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Watermark"
+          }
+        },
+        "required": [
+          "overall",
+          "reference",
+          "additivity_note",
+          "positive_drivers",
+          "negative_drivers",
+          "not_scored",
+          "missing_inputs",
+          "watermark"
+        ],
+        "title": "ExplainOut",
+        "type": "object"
+      },
+      "FactChangeOut": {
+        "properties": {
+          "changed": {
+            "title": "Changed",
+            "type": "boolean"
+          },
+          "fact": {
+            "$ref": "#/components/schemas/FactOut"
+          },
+          "material_change": {
+            "title": "Material Change",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "fact",
+          "changed",
+          "material_change"
+        ],
+        "title": "FactChangeOut",
+        "type": "object"
+      },
+      "FactOut": {
+        "properties": {
+          "confidence": {
+            "title": "Confidence",
+            "type": "string"
+          },
+          "display_unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Display Unit"
+          },
+          "field_key": {
+            "title": "Field Key",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "source_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Ref"
+          },
+          "source_type": {
+            "title": "Source Type",
+            "type": "string"
+          },
+          "valid_from": {
+            "format": "date-time",
+            "title": "Valid From",
+            "type": "string"
+          },
+          "valid_to": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Valid To"
+          },
+          "value": {
+            "title": "Value",
+            "type": "string"
+          },
+          "verification_state": {
+            "anyOf": [
+              {
+                "enum": [
+                  "stated",
+                  "verified",
+                  "disputed"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Verification State"
+          }
+        },
+        "required": [
+          "id",
+          "field_key",
+          "label",
+          "value",
+          "display_unit",
+          "source_type",
+          "source_ref",
+          "verification_state",
+          "confidence",
+          "valid_from",
+          "valid_to"
+        ],
+        "title": "FactOut",
+        "type": "object"
+      },
+      "FactPatch": {
+        "properties": {
+          "value": {
+            "maxLength": 60,
+            "title": "Value",
+            "type": "string"
+          }
+        },
+        "required": [
+          "value"
+        ],
+        "title": "FactPatch",
+        "type": "object"
+      },
       "ForgotIn": {
         "properties": {
           "email": {
@@ -132,6 +618,279 @@
           "password"
         ],
         "title": "LoginIn",
+        "type": "object"
+      },
+      "MaterialChange": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "points_change": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Points Change"
+          },
+          "score_after": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Score After"
+          },
+          "score_before": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Score Before"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "score_before",
+          "score_after",
+          "points_change"
+        ],
+        "title": "MaterialChange",
+        "type": "object"
+      },
+      "MessageOut": {
+        "properties": {
+          "content": {
+            "title": "Content",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "role": {
+            "title": "Role",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "role",
+          "content",
+          "created_at"
+        ],
+        "title": "MessageOut",
+        "type": "object"
+      },
+      "NextQuestion": {
+        "properties": {
+          "field_key": {
+            "title": "Field Key",
+            "type": "string"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          },
+          "why": {
+            "title": "Why",
+            "type": "string"
+          }
+        },
+        "required": [
+          "field_key",
+          "text",
+          "why"
+        ],
+        "title": "NextQuestion",
+        "type": "object"
+      },
+      "PersonaOut": {
+        "properties": {
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "description"
+        ],
+        "title": "PersonaOut",
+        "type": "object"
+      },
+      "PillarOut": {
+        "properties": {
+          "contribution": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Contribution"
+          },
+          "effective_weight": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Effective Weight"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "missing_inputs": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Missing Inputs",
+            "type": "array"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "score": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Score"
+          },
+          "weight": {
+            "title": "Weight",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "score",
+          "weight",
+          "effective_weight",
+          "contribution",
+          "missing_inputs"
+        ],
+        "title": "PillarOut",
+        "type": "object"
+      },
+      "ProposalOut": {
+        "properties": {
+          "confidence": {
+            "title": "Confidence",
+            "type": "string"
+          },
+          "display": {
+            "title": "Display",
+            "type": "string"
+          },
+          "evidence": {
+            "title": "Evidence",
+            "type": "string"
+          },
+          "field_key": {
+            "title": "Field Key",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "origin": {
+            "title": "Origin",
+            "type": "string"
+          },
+          "rationale": {
+            "title": "Rationale",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "value": {
+            "title": "Value",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "field_key",
+          "label",
+          "value",
+          "display",
+          "evidence",
+          "rationale",
+          "confidence",
+          "origin",
+          "status"
+        ],
+        "title": "ProposalOut",
+        "type": "object"
+      },
+      "RecordedFact": {
+        "properties": {
+          "field_key": {
+            "title": "Field Key",
+            "type": "string"
+          },
+          "material_change": {
+            "title": "Material Change",
+            "type": "boolean"
+          },
+          "value": {
+            "title": "Value",
+            "type": "string"
+          }
+        },
+        "required": [
+          "field_key",
+          "value",
+          "material_change"
+        ],
+        "title": "RecordedFact",
         "type": "object"
       },
       "RegisterIn": {
@@ -183,6 +942,178 @@
           "new_password"
         ],
         "title": "ResetIn",
+        "type": "object"
+      },
+      "RulebookStatus": {
+        "properties": {
+          "blocking_items": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Blocking Items",
+            "type": "array"
+          },
+          "official": {
+            "title": "Official",
+            "type": "boolean"
+          },
+          "rule_set": {
+            "title": "Rule Set",
+            "type": "string"
+          },
+          "status_counts": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Status Counts",
+            "type": "object"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "version",
+          "rule_set",
+          "official",
+          "status_counts",
+          "blocking_items"
+        ],
+        "title": "RulebookStatus",
+        "type": "object"
+      },
+      "ScoreOut": {
+        "properties": {
+          "computed_at": {
+            "format": "date-time",
+            "title": "Computed At",
+            "type": "string"
+          },
+          "confidence": {
+            "title": "Confidence",
+            "type": "string"
+          },
+          "early_estimate": {
+            "description": "True when confidence is below the (placeholder) threshold: do not announce a stage.",
+            "title": "Early Estimate",
+            "type": "boolean"
+          },
+          "engine_version": {
+            "title": "Engine Version",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "missing_inputs": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Missing Inputs",
+            "type": "array"
+          },
+          "official": {
+            "title": "Official",
+            "type": "boolean"
+          },
+          "overall": {
+            "title": "Overall",
+            "type": "string"
+          },
+          "pillars": {
+            "items": {
+              "$ref": "#/components/schemas/PillarOut"
+            },
+            "title": "Pillars",
+            "type": "array"
+          },
+          "rule_set": {
+            "title": "Rule Set",
+            "type": "string"
+          },
+          "rulebook_version": {
+            "title": "Rulebook Version",
+            "type": "string"
+          },
+          "score_range": {
+            "default": [
+              300,
+              900
+            ],
+            "maxItems": 2,
+            "minItems": 2,
+            "prefixItems": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "title": "Score Range",
+            "type": "array"
+          },
+          "stage": {
+            "title": "Stage",
+            "type": "string"
+          },
+          "stage_provisional": {
+            "title": "Stage Provisional",
+            "type": "boolean"
+          },
+          "trend": {
+            "title": "Trend",
+            "type": "string"
+          },
+          "watermark": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Set when the result is NOT an official FinScore (demo rules).",
+            "title": "Watermark"
+          }
+        },
+        "required": [
+          "id",
+          "overall",
+          "confidence",
+          "trend",
+          "stage",
+          "stage_provisional",
+          "early_estimate",
+          "official",
+          "rule_set",
+          "rulebook_version",
+          "engine_version",
+          "computed_at",
+          "pillars",
+          "missing_inputs",
+          "watermark"
+        ],
+        "title": "ScoreOut",
+        "type": "object"
+      },
+      "SendIn": {
+        "properties": {
+          "content": {
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Content",
+            "type": "string"
+          }
+        },
+        "required": [
+          "content"
+        ],
+        "title": "SendIn",
         "type": "object"
       },
       "SessionOut": {
@@ -274,6 +1205,62 @@
           "expires_in"
         ],
         "title": "TokenOut",
+        "type": "object"
+      },
+      "TurnOut": {
+        "properties": {
+          "assistant_text": {
+            "title": "Assistant Text",
+            "type": "string"
+          },
+          "disclosure": {
+            "title": "Disclosure",
+            "type": "string"
+          },
+          "message_id": {
+            "format": "uuid",
+            "title": "Message Id",
+            "type": "string"
+          },
+          "next_question": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/NextQuestion"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "progress": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Progress",
+            "type": "object"
+          },
+          "proposals": {
+            "items": {
+              "$ref": "#/components/schemas/ProposalOut"
+            },
+            "title": "Proposals",
+            "type": "array"
+          },
+          "ready_for_score": {
+            "title": "Ready For Score",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "message_id",
+          "assistant_text",
+          "proposals",
+          "next_question",
+          "progress",
+          "ready_for_score",
+          "disclosure"
+        ],
+        "title": "TurnOut",
         "type": "object"
       },
       "UserOut": {
@@ -851,6 +1838,276 @@
         ]
       }
     },
+    "/api/v1/conversations": {
+      "post": {
+        "operationId": "start_conversation_api_v1_conversations_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConversationStart"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversationOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Start Conversation",
+        "tags": [
+          "intelligence"
+        ]
+      }
+    },
+    "/api/v1/conversations/{conv_id}": {
+      "get": {
+        "operationId": "get_conversation_api_v1_conversations__conv_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "conv_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Conv Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversationOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Conversation",
+        "tags": [
+          "intelligence"
+        ]
+      }
+    },
+    "/api/v1/conversations/{conv_id}/facts/confirm": {
+      "post": {
+        "operationId": "confirm_facts_api_v1_conversations__conv_id__facts_confirm_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "conv_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Conv Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/RecordedFact"
+                  },
+                  "title": "Response Confirm Facts Api V1 Conversations  Conv Id  Facts Confirm Post",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Confirm Facts",
+        "tags": [
+          "intelligence"
+        ]
+      }
+    },
+    "/api/v1/conversations/{conv_id}/messages": {
+      "post": {
+        "operationId": "send_message_api_v1_conversations__conv_id__messages_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "conv_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Conv Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TurnOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Send Message",
+        "tags": [
+          "intelligence"
+        ]
+      }
+    },
+    "/api/v1/coverage": {
+      "get": {
+        "operationId": "coverage_api_v1_coverage_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/CoverageItem"
+                  },
+                  "title": "Response Coverage Api V1 Coverage Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Coverage",
+        "tags": [
+          "intelligence"
+        ]
+      }
+    },
+    "/api/v1/dna": {
+      "get": {
+        "operationId": "dna_api_v1_dna_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DnaOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Dna",
+        "tags": [
+          "intelligence"
+        ]
+      }
+    },
     "/api/v1/health/live": {
       "get": {
         "operationId": "live_api_v1_health_live_get",
@@ -892,6 +2149,383 @@
         "summary": "Ready",
         "tags": [
           "health"
+        ]
+      }
+    },
+    "/api/v1/memory/facts": {
+      "get": {
+        "operationId": "list_facts_api_v1_memory_facts_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/FactOut"
+                  },
+                  "title": "Response List Facts Api V1 Memory Facts Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Facts",
+        "tags": [
+          "intelligence"
+        ]
+      }
+    },
+    "/api/v1/memory/facts/{key}/history": {
+      "get": {
+        "operationId": "fact_history_api_v1_memory_facts__key__history_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "key",
+            "required": true,
+            "schema": {
+              "title": "Key",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/FactOut"
+                  },
+                  "title": "Response Fact History Api V1 Memory Facts  Key  History Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Fact History",
+        "tags": [
+          "intelligence"
+        ]
+      }
+    },
+    "/api/v1/profile/facts/{key}": {
+      "patch": {
+        "description": "User correction: always allowed to supersede (creates a new version; the old one stays in history).",
+        "operationId": "correct_fact_api_v1_profile_facts__key__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "key",
+            "required": true,
+            "schema": {
+              "title": "Key",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FactPatch"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FactChangeOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Correct Fact",
+        "tags": [
+          "intelligence"
+        ]
+      }
+    },
+    "/api/v1/rulebook/status": {
+      "get": {
+        "operationId": "rulebook_status_api_v1_rulebook_status_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RulebookStatus"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Rulebook Status",
+        "tags": [
+          "intelligence"
+        ]
+      }
+    },
+    "/api/v1/score/compare": {
+      "get": {
+        "operationId": "compare_api_v1_score_compare_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "from_run",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "From Run",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "to_run",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "To Run",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompareOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Compare",
+        "tags": [
+          "intelligence"
+        ]
+      }
+    },
+    "/api/v1/score/compute": {
+      "post": {
+        "operationId": "compute_score_ep_api_v1_score_compute_post",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScoreOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Compute Score Ep",
+        "tags": [
+          "intelligence"
+        ]
+      }
+    },
+    "/api/v1/score/current": {
+      "get": {
+        "operationId": "current_score_api_v1_score_current_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScoreOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Current Score",
+        "tags": [
+          "intelligence"
+        ]
+      }
+    },
+    "/api/v1/score/history": {
+      "get": {
+        "operationId": "score_history_api_v1_score_history_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ScoreOut"
+                  },
+                  "title": "Response Score History Api V1 Score History Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Score History",
+        "tags": [
+          "intelligence"
+        ]
+      }
+    },
+    "/api/v1/score/{run_id}/explain": {
+      "get": {
+        "operationId": "explain_api_v1_score__run_id__explain_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExplainOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Explain",
+        "tags": [
+          "intelligence"
         ]
       }
     },

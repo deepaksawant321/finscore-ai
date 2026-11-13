@@ -48,3 +48,18 @@ Updated: Phase 0. Status: Pending / In Progress / Completed / Blocked. Priority:
 | M4-E3 | Infra | Redis + worker | High | — | cost approval |
 | M5-E1..E8 | Companion, Gamification, Health, Household, Portfolio, News, Copilot, Wealth OS | High/Med | M4 | D-B19, news/AA gates |
 | M6-E1..E5 | Billing, B2B, security hardening, perf/monitoring, UAT+deploy | Critical | M5 | D-B13, D-B14; deploy approval |
+
+## MVP 2 — Core Financial Intelligence: progress (2026-11-13) — **partially complete**
+Evidence: backend `pytest` 93 passed (engines 37, unit 27, integration 29 incl. migrations); ruff/mypy/import-linter clean; frontend tsc/lint/vitest(6)/build clean; full journey exercised in the in-app browser against real PostgreSQL.
+| ID | Epic | Status | Evidence / remarks |
+|---|---|---|---|
+| M2-E1 | Profile/Memory (versioned facts, provenance, correction, history) | Completed | `test_user_correction_creates_version…`, precedence test, partial unique index; encrypted conversation text test |
+| M2-E2 | Engines v1 (money parsing, cashflow, debt/EMI, growth/SIP, retirement, score, stage, traits) | Completed | 37 engine tests incl. independent-simulation and hypothesis property tests; EMI golden ₹43,391.16 |
+| M2-E3 | Rulebook framework + demo rules + production guard | Completed | `test_production_settings…`, `test_score_needs_data_and_is_blocked_in_production` (503 in production) |
+| M2-E4 | AI layer (gateway, prompt registry, grounding guard, evals) | **In Progress** | Gateway + mock + Anthropic adapter written; **Anthropic adapter never called (no key/approval)**; eval set is unit tests only, no golden-set metrics yet |
+| M2-E5 | Interview (intents, extraction, confirm chips, coverage, selector) | Completed (rule-based) | LLM extraction is optional and unexercised against a real model; replies are templates |
+| M2-E6 | Scoring + Explain + stage resolver | Completed (demo rules) | additivity/determinism/monotonicity tests; stage provisional; **early-estimate rule** (PLACEHOLDER) |
+| M2-E7 | DNA + Persona | Completed (demo rules, 2 traits, 3 demo personas) | Trait history/evolution not yet stored (K-18) |
+| M2-E8 | Governance | **In Progress** | Consent gate + audit + AI disclosure done; **data export/erasure, advice classification and escalation stub NOT done** |
+| M2-E9 | Frontend (interview, home/score, explain, DNA, memory) | Completed | Manual browser run; Playwright e2e not extended (K-13) |
+| — | Goals CRUD, events skeleton, entitlement hooks (roadmap R4–R6) | **Not started** | |

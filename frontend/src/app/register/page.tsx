@@ -38,7 +38,7 @@ export default function RegisterPage() {
 
   return (
     <AuthShell title="Create your account" subtitle="Free to start. No questionnaire — just a conversation.">
-      <form onSubmit={onSubmit} className="space-y-4" noValidate>
+      <form method="post" onSubmit={onSubmit} className="space-y-4" noValidate>
         {error ? <Alert tone="error">{error}</Alert> : null}
         <Input name="full_name" label="Name (optional)" autoComplete="name" />
         <Input name="email" type="email" label="Email" autoComplete="email" required />

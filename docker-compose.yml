@@ -26,6 +26,8 @@ services:
       ENV: local
       DATABASE_URL: postgresql+asyncpg://finscore:${POSTGRES_PASSWORD}@db:5432/finscore
       JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET in .env}
+      DATA_ENCRYPTION_KEY: ${DATA_ENCRYPTION_KEY:?set DATA_ENCRYPTION_KEY in .env}
+      AI_PROVIDER: none
       CORS_ORIGINS: '["http://localhost:3000"]'
       FRONTEND_URL: http://localhost:3000
       SMTP_HOST: mailpit

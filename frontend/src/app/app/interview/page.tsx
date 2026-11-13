@@ -1,0 +1,206 @@
+"use client";
+
+import { useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import type { FormEvent } from "react";
+
+import { Alert, Badge, Button, Card } from "@/design-system/ui";
+import { api, problemMessage } from "@/lib/api/client";
+import type { components } from "@/lib/api/schema";
+
+type Proposal = components["schemas"]["ProposalOut"];
+type Msg = { id: string; role: string; content: string };
+
+export default function InterviewPage() {
+  const router = useRouter();
+  const qc = useQueryClient();
+  const [phase, setPhase] = useState<"consent" | "loading" | "chat">("loading");
+  const [convId, setConvId] = useState<string | null>(null);
+  const [disclosure, setDisclosure] = useState("");
+  const [messages, setMessages] = useState<Msg[]>([]);
+  const [proposals, setProposals] = useState<Proposal[]>([]);
+  const [progress, setProgress] = useState<{ known: number; total: number } | null>(null);
+  const [ready, setReady] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const endRef = useRef<HTMLDivElement>(null);
+
+  async function begin() {
+    setError(null);
+    const { data, response, error: err } = await api.POST("/api/v1/conversations", { body: { mode: "problem" } });
+    if (data) {
+      setConvId(data.id);
+      setDisclosure(data.disclosure);
+      setMessages(data.messages.map((m) => ({ id: m.id, role: m.role, content: m.content })));
+      setPhase("chat");
+    } else if ((err as { code?: string } | undefined)?.code === "consent_required") setPhase("consent");
+    else {
+      setError(problemMessage(err, `Could not start (${response.status}).`));
+      setPhase("consent");
+    }
+  }
+
+  useEffect(() => {
+    void begin();
+  }, []);
+  useEffect(() => {
+    endRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  async function grantConsent() {
+    await api.POST("/api/v1/consents", { body: { purpose: "ai_processing", text_version: "v1" } });
+    setPhase("loading");
+    await begin();
+  }
+
+  async function send(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const content = String(new FormData(form).get("content") ?? "").trim();
+    if (!content || !convId) return;
+    form.reset();
+    setBusy(true);
+    setError(null);
+    setMessages((m) => [...m, { id: `u${m.length}`, role: "user", content }]);
+    const { data, error: err } = await api.POST("/api/v1/conversations/{conv_id}/messages", { params: { path: { conv_id: convId } }, body: { content } });
+    setBusy(false);
+    if (!data) return setError(problemMessage(err));
+    setMessages((m) => [...m, { id: data.message_id, role: "assistant", content: data.assistant_text }]);
+    setProposals((p) => [...p, ...data.proposals]);
+    setProgress(data.progress as { known: number; total: number });
+    setReady(data.ready_for_score);
+  }
+
+  async function decide(p: Proposal, action: "accept" | "reject" | "edit", value?: string) {
+    if (!convId) return;
+    const { error: err } = await api.POST("/api/v1/conversations/{conv_id}/facts/confirm", {
+      params: { path: { conv_id: convId } },
+      body: { decisions: [{ proposal_id: p.id, action, value: value ?? null }] },
+    });
+    if (err) return setError(problemMessage(err));
+    setProposals((all) => all.filter((x) => x.id !== p.id));
+    if (action !== "reject") setProgress((pr) => (pr ? { ...pr, known: pr.known + 1 } : pr));
+    void qc.invalidateQueries({ queryKey: ["facts"] });
+  }
+
+  async function reveal() {
+    setBusy(true);
+    const { error: err } = await api.POST("/api/v1/score/compute");
+    setBusy(false);
+    if (err) return setError(problemMessage(err));
+    await qc.invalidateQueries({ queryKey: ["score"] });
+    router.push("/app");
+  }
+
+  if (phase === "loading") return <p className="text-muted">Loading…</p>;
+
+  if (phase === "consent")
+    return (
+      <Card className="max-w-xl space-y-4">
+        <h1 className="text-xl font-bold">Before we talk</h1>
+        {error && <Alert tone="error">{error}</Alert>}
+        <p className="text-sm text-muted">
+          To understand your situation I process what you type using an AI model. I only keep facts you confirm, you can see and correct them any
+          time, and you can withdraw this permission in Settings. I am an AI assistant, not a human adviser.
+        </p>
+        <Button onClick={grantConsent}>I agree — let&apos;s talk</Button>
+      </Card>
+    );
+
+  return (
+    <div className="grid gap-6 lg:grid-cols-[1fr_20rem]">
+      <section aria-label="Conversation" className="flex min-h-[60vh] flex-col gap-3">
+        <Alert>{disclosure}</Alert>
+        <Card className="flex flex-1 flex-col gap-3 overflow-y-auto" >
+          <ul className="space-y-3" aria-live="polite">
+            {messages.map((m) => (
+              <li key={m.id} className={m.role === "user" ? "ml-auto max-w-[85%] rounded-lg bg-brand/15 px-3 py-2" : "max-w-[85%] rounded-lg bg-surface-2 px-3 py-2"}>
+                <span className="sr-only">{m.role === "user" ? "You: " : "FinScore AI: "}</span>
+                {m.content}
+              </li>
+            ))}
+            {busy && <li className="text-sm text-muted">Thinking…</li>}
+          </ul>
+          <div ref={endRef} />
+        </Card>
+        {error && <Alert tone="error">{error}</Alert>}
+        <form onSubmit={send} className="flex gap-2">
+          <label htmlFor="msg" className="sr-only">
+            Your message
+          </label>
+          <input id="msg" name="content" autoComplete="off" maxLength={2000} placeholder="Tell me in your own words…" className="min-h-[44px] flex-1 rounded-md border border-line bg-surface px-3 text-sm" />
+          <Button type="submit" loading={busy}>
+            Send
+          </Button>
+        </form>
+      </section>
+
+      <aside className="space-y-4" aria-label="Captured facts">
+        <Card className="space-y-3">
+          <h2 className="font-semibold">What I understood</h2>
+          <p className="text-xs text-muted">Nothing is saved until you confirm it.</p>
+          {proposals.length === 0 && <p className="text-sm text-muted">Nothing waiting for confirmation.</p>}
+          <ul className="space-y-3">
+            {proposals.map((p) => (
+              <ProposalCard key={p.id} p={p} onDecide={decide} />
+            ))}
+          </ul>
+        </Card>
+        {progress && (
+          <Card>
+            <p className="text-sm">
+              <span className="font-semibold tabular-nums">
+                {progress.known}/{progress.total}
+              </span>{" "}
+              details confirmed
+            </p>
+            <div className="mt-2 h-2 rounded-full bg-line" role="progressbar" aria-valuemin={0} aria-valuemax={progress.total} aria-valuenow={progress.known}>
+              <div className="h-2 rounded-full bg-brand transition-all" style={{ width: `${(progress.known / progress.total) * 100}%` }} />
+            </div>
+          </Card>
+        )}
+        {ready && (
+          <Button onClick={reveal} loading={busy} className="w-full">
+            Show my FinScore
+          </Button>
+        )}
+      </aside>
+    </div>
+  );
+}
+
+function ProposalCard({ p, onDecide }: { p: Proposal; onDecide: (p: Proposal, a: "accept" | "reject" | "edit", v?: string) => void }) {
+  const [editing, setEditing] = useState(false);
+  const [val, setVal] = useState(p.value);
+  return (
+    <li className="space-y-2 rounded-md border border-line p-3">
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-sm font-medium">{p.label}</span>
+        {Number(p.confidence) < 0.8 && <Badge tone="demo">Please check</Badge>}
+      </div>
+      {editing ? (
+        <div className="flex gap-2">
+          <input aria-label={`Corrected ${p.label}`} value={val} onChange={(e) => setVal(e.target.value)} className="min-h-[40px] w-full rounded-md border border-line bg-surface px-2 text-sm" />
+          <Button onClick={() => onDecide(p, "edit", val)}>Save</Button>
+        </div>
+      ) : (
+        <p className="text-lg font-semibold tabular-nums">{p.display}</p>
+      )}
+      <p className="text-xs text-muted">
+        You said: “{p.evidence}” · {p.rationale}
+      </p>
+      {!editing && (
+        <div className="flex gap-2">
+          <Button onClick={() => onDecide(p, "accept")}>Confirm</Button>
+          <Button variant="secondary" onClick={() => setEditing(true)}>
+            Edit
+          </Button>
+          <Button variant="ghost" onClick={() => onDecide(p, "reject")}>
+            Wrong
+          </Button>
+        </div>
+      )}
+    </li>
+  );
+}

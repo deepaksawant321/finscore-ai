@@ -42,6 +42,7 @@ Status values: OPEN / PROPOSED-AWAITING-APPROVAL / APPROVED / REJECTED.
 | D-B18 🟡 | Persona/communication style guidelines, brand voice, 5nance logo/colours (Original identity requested) | MVP 1 UI | Brand |
 | D-B19 🟡 | Gamification XP economy approval; badges catalogue | MVP 5 | Product |
 | D-B20 🟠 | Regulated data sources (Account Aggregator FIU registration, MF/insurance APIs) | MVP 5+ | Product/Legal |
+| D-B22 🟠 | Minimum data/confidence required before a wealth stage may be shown (engineering placeholder: 50% of pillar weight scored; below that the UI says "early estimate" and hides the stage) | MVP 2 | Product + Quant |
 | D-B21 🟡 | Human-agent staffing/tool for escalation (internal inbox, CRM?) | MVP 3 | CS |
 
 ## C. Technical decisions made (informational; challenge any)

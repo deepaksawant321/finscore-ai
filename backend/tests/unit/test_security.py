@@ -73,10 +73,14 @@ def test_strong_password_accepted() -> None:
 
 def test_production_settings_guards() -> None:
     with pytest.raises(ValidationError):
-        Settings(_env_file=None, env="production", database_url="x", jwt_secret="short", cookie_secure=True)  # type: ignore[arg-type]
+        Settings(
+            _env_file=None, data_encryption_key="k", env="production", database_url="x", jwt_secret="short", cookie_secure=True
+        )  # type: ignore[arg-type]
     with pytest.raises(ValidationError):
-        Settings(_env_file=None, env="production", database_url="x", jwt_secret="s" * 40, cookie_secure=False)  # type: ignore[arg-type]
-    Settings(_env_file=None, env="production", database_url="x", jwt_secret="s" * 40, cookie_secure=True)  # type: ignore[arg-type]
+        Settings(
+            _env_file=None, data_encryption_key="k", env="production", database_url="x", jwt_secret="s" * 40, cookie_secure=False
+        )  # type: ignore[arg-type]
+    Settings(_env_file=None, data_encryption_key="k", env="production", database_url="x", jwt_secret="s" * 40, cookie_secure=True)  # type: ignore[arg-type]
 
 
 def test_audit_hash_chain_is_deterministic_and_order_sensitive() -> None:

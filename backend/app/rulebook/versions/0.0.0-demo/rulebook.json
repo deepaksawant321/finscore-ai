@@ -1,0 +1,320 @@
+{
+  "version": "0.0.0-demo",
+  "rule_set": "DEMO RULES — NOT OFFICIAL",
+  "note": "Engineering placeholder values so the pipeline can be built and tested. NONE of these numbers is the FinScore methodology. Pillar NAMES are the Blueprint section 6 PROPOSAL (PROPOSED). Production refuses to use this rulebook.",
+  "items": {
+    "score.range": {
+      "status": "SOURCE_DEFINED",
+      "source": "deck slide 4",
+      "value": {
+        "min": 300,
+        "max": 900
+      }
+    },
+    "score.stages": {
+      "status": "SOURCE_DEFINED",
+      "source": "deck slide 4",
+      "value": [
+        [
+          "Dependency",
+          300,
+          374
+        ],
+        [
+          "Survival",
+          375,
+          449
+        ],
+        [
+          "Security",
+          450,
+          524
+        ],
+        [
+          "Stability",
+          525,
+          599
+        ],
+        [
+          "Accumulation",
+          600,
+          674
+        ],
+        [
+          "Independence",
+          675,
+          749
+        ],
+        [
+          "Freedom",
+          750,
+          824
+        ],
+        [
+          "Abundance",
+          825,
+          900
+        ]
+      ]
+    },
+    "score.stage_matrix": {
+      "status": "PENDING PRODUCT APPROVAL",
+      "value": null
+    },
+    "score.pillars": {
+      "status": "PROPOSED",
+      "source": "blueprint section 6",
+      "value": [
+        {
+          "id": "SP-01",
+          "name": "Cash-flow / savings"
+        },
+        {
+          "id": "SP-02",
+          "name": "Emergency readiness"
+        },
+        {
+          "id": "SP-03",
+          "name": "Debt health"
+        },
+        {
+          "id": "SP-04",
+          "name": "Investment discipline"
+        },
+        {
+          "id": "SP-05",
+          "name": "Portfolio alignment"
+        },
+        {
+          "id": "SP-06",
+          "name": "Protection"
+        },
+        {
+          "id": "SP-07",
+          "name": "Tax efficiency"
+        },
+        {
+          "id": "SP-08",
+          "name": "Goal readiness"
+        },
+        {
+          "id": "SP-09",
+          "name": "Retirement readiness"
+        },
+        {
+          "id": "SP-10",
+          "name": "Financial behaviour"
+        },
+        {
+          "id": "SP-11",
+          "name": "Liquidity"
+        },
+        {
+          "id": "SP-12",
+          "name": "Net worth trajectory"
+        },
+        {
+          "id": "SP-13",
+          "name": "Financial knowledge"
+        },
+        {
+          "id": "SP-14",
+          "name": "Income resilience"
+        },
+        {
+          "id": "SP-15",
+          "name": "Family resilience"
+        },
+        {
+          "id": "SP-16",
+          "name": "Real-estate leverage"
+        },
+        {
+          "id": "SP-17",
+          "name": "Lifestyle sustainability"
+        },
+        {
+          "id": "SP-18",
+          "name": "Goal prioritisation"
+        },
+        {
+          "id": "SP-19",
+          "name": "Financial monitoring"
+        },
+        {
+          "id": "SP-20",
+          "name": "Action execution"
+        }
+      ]
+    },
+    "score.weights": {
+      "status": "PLACEHOLDER",
+      "value": {
+        "SP-01": "0.05",
+        "SP-02": "0.05",
+        "SP-03": "0.05",
+        "SP-04": "0.05",
+        "SP-05": "0.05",
+        "SP-06": "0.05",
+        "SP-07": "0.05",
+        "SP-08": "0.05",
+        "SP-09": "0.05",
+        "SP-10": "0.05",
+        "SP-11": "0.05",
+        "SP-12": "0.05",
+        "SP-13": "0.05",
+        "SP-14": "0.05",
+        "SP-15": "0.05",
+        "SP-16": "0.05",
+        "SP-17": "0.05",
+        "SP-18": "0.05",
+        "SP-19": "0.05",
+        "SP-20": "0.05"
+      }
+    },
+    "score.reference_pillar_score": {
+      "status": "PLACEHOLDER",
+      "value": "50"
+    },
+    "score.measures": {
+      "status": "PLACEHOLDER",
+      "value": {
+        "SP-01": {
+          "kind": "linear",
+          "inputs": [
+            "savings_rate"
+          ],
+          "lo": "0",
+          "hi": "0.30"
+        },
+        "SP-02": {
+          "kind": "linear",
+          "inputs": [
+            "emergency_months"
+          ],
+          "lo": "0",
+          "hi": "6"
+        },
+        "SP-03": {
+          "kind": "linear",
+          "inputs": [
+            "debt_to_income"
+          ],
+          "lo": "0.50",
+          "hi": "0"
+        },
+        "SP-06": {
+          "kind": "boolean_sum",
+          "inputs": [
+            "has_term_insurance",
+            "has_health_insurance"
+          ]
+        }
+      }
+    },
+    "dna.traits": {
+      "status": "PLACEHOLDER",
+      "value": [
+        {
+          "key": "savings_identity",
+          "label": "Savings identity",
+          "input": "savings_rate",
+          "bands": [
+            [
+              "Spender",
+              "0.10"
+            ],
+            [
+              "Balanced",
+              "0.25"
+            ],
+            [
+              "Saver",
+              null
+            ]
+          ]
+        },
+        {
+          "key": "debt_behaviour",
+          "label": "Debt behaviour",
+          "input": "debt_to_income",
+          "bands": [
+            [
+              "Avoidant",
+              "0.0001"
+            ],
+            [
+              "Controlled",
+              "0.35"
+            ],
+            [
+              "Leveraged",
+              null
+            ]
+          ]
+        }
+      ]
+    },
+    "dna.confidence_single_input": {
+      "status": "PLACEHOLDER",
+      "value": "0.4"
+    },
+    "persona.catalogue": {
+      "status": "PLACEHOLDER",
+      "value": [
+        {
+          "name": "The Builder (demo)",
+          "when": {
+            "savings_identity": [
+              "Saver"
+            ],
+            "debt_behaviour": [
+              "Avoidant",
+              "Controlled"
+            ]
+          },
+          "description": "Demo persona: strong savings with controlled debt."
+        },
+        {
+          "name": "The Balancer (demo)",
+          "when": {
+            "savings_identity": [
+              "Balanced"
+            ]
+          },
+          "description": "Demo persona: balanced savings."
+        },
+        {
+          "name": "The Starter (demo)",
+          "when": {
+            "savings_identity": [
+              "Spender"
+            ]
+          },
+          "description": "Demo persona: spending exceeds savings capacity."
+        }
+      ]
+    },
+    "freshness.windows": {
+      "status": "PENDING PRODUCT APPROVAL",
+      "value": null
+    },
+    "actions.library": {
+      "status": "PENDING PRODUCT APPROVAL",
+      "value": null
+    },
+    "simulation.assumptions": {
+      "status": "PENDING PRODUCT APPROVAL",
+      "value": null
+    },
+    "compliance.advice_classification": {
+      "status": "PENDING PRODUCT APPROVAL",
+      "value": null
+    },
+    "score.min_confidence_for_stage": {
+      "status": "PLACEHOLDER",
+      "value": "0.5",
+      "note": "Below this confidence the UI labels the score an 'early estimate' and does not announce a wealth stage. Not an approved rule."
+    }
+  }
+}

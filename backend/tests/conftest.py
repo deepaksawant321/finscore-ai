@@ -15,8 +15,10 @@ from sqlalchemy import text
 BACKEND = Path(__file__).resolve().parent.parent
 os.environ.setdefault("JWT_SECRET", "test-secret-test-secret-test-secret-123")
 os.environ.setdefault("DATABASE_URL", "postgresql+asyncpg://unused/unused")
+os.environ.setdefault("DATA_ENCRYPTION_KEY", "X" * 43 + "=")
 
 from app.config import Settings  # noqa: E402
+from app.infra.crypto import generate_key
 from app.infra.db import make_engine, make_sessionmaker  # noqa: E402
 from app.infra.mailer import MemoryMailer  # noqa: E402
 from app.infra.ratelimit import limiter  # noqa: E402
@@ -72,6 +74,7 @@ def settings(db_url: str) -> Settings:
         env="test",
         database_url=db_url,
         jwt_secret="test-secret-test-secret-test-secret-123",  # type: ignore[arg-type]
+        data_encryption_key=generate_key(),  # type: ignore[arg-type]
         rate_limit_enabled=False,
         cors_origins=["http://localhost:3000"],
     )

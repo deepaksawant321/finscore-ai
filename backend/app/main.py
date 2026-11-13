@@ -6,9 +6,11 @@ import structlog
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.ai.gateway import LLMProvider, build_provider
 from app.api.errors import register_error_handlers
 from app.api.v1.router import api_router
 from app.config import Settings, get_settings
+from app.infra.crypto import configure_encryption
 from app.infra.db import make_engine, make_sessionmaker
 from app.infra.logging import configure_logging
 from app.infra.mailer import FileMailer, LogMailer, Mailer, SmtpMailer
@@ -16,9 +18,10 @@ from app.infra.mailer import FileMailer, LogMailer, Mailer, SmtpMailer
 log = structlog.get_logger()
 
 
-def create_app(settings: Settings | None = None, mailer: Mailer | None = None) -> FastAPI:
+def create_app(settings: Settings | None = None, mailer: Mailer | None = None, llm: LLMProvider | None = None) -> FastAPI:
     cfg = settings or get_settings()
     configure_logging(cfg.env)
+    configure_encryption(cfg.data_encryption_key.get_secret_value())
 
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
@@ -43,6 +46,7 @@ def create_app(settings: Settings | None = None, mailer: Mailer | None = None) -
     elif cfg.mail_dir:
         default_mailer = FileMailer(cfg.mail_dir)
     app.state.mailer = mailer or default_mailer
+    app.state.llm = llm or build_provider(cfg)
 
     app.add_middleware(
         CORSMiddleware,

@@ -74,6 +74,7 @@ jobs:
       - run: |
           echo "POSTGRES_PASSWORD=ci-pass" > .env
           echo "JWT_SECRET=ci-secret-ci-secret-ci-secret-ci-secret" >> .env
+          echo "DATA_ENCRYPTION_KEY=$(python3 -c 'import base64,os;print(base64.urlsafe_b64encode(os.urandom(32)).decode())')" >> .env
           docker compose up -d --build --wait db backend frontend mailpit
       - uses: actions/setup-node@v4
         with: { node-version: 20 }

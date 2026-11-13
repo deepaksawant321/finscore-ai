@@ -23,6 +23,10 @@ class Settings(BaseSettings):
     lockout_minutes: int = 15
     smtp_host: str | None = None
     smtp_port: int = 1025
+    data_encryption_key: SecretStr = Field(...)  # Fernet key(s), comma-separated; first encrypts
+    ai_provider: Literal["none", "anthropic"] = "none"
+    anthropic_api_key: SecretStr | None = None
+    anthropic_model: str = "claude-haiku-5-5"
     mail_dir: str | None = None  # local dev only (never in staging/production)
     mail_from: str = "no-reply@5nance.local"
 
@@ -33,6 +37,8 @@ class Settings(BaseSettings):
                 raise ValueError("JWT_SECRET must be >= 32 chars in staging/production")
             if not self.cookie_secure:
                 raise ValueError("COOKIE_SECURE must be true in staging/production")
+            if self.ai_provider == "anthropic" and not self.anthropic_api_key:
+                raise ValueError("ANTHROPIC_API_KEY required when AI_PROVIDER=anthropic")
             if self.mail_dir:
                 raise ValueError("MAIL_DIR is for local development only")
         return self

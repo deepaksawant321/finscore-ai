@@ -25,7 +25,7 @@ export default function ForgotPasswordPage() {
       {sent ? (
         <Alert tone="success">If an account exists for that email, a reset link has been sent.</Alert>
       ) : (
-        <form onSubmit={onSubmit} className="space-y-4">
+        <form method="post" onSubmit={onSubmit} className="space-y-4">
           <Input name="email" type="email" label="Email" autoComplete="email" required />
           <Button type="submit" loading={busy} className="w-full">
             Send reset link
