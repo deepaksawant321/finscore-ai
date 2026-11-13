@@ -58,4 +58,5 @@ MVP 1: auth, hashing, validation, rate limit, headers, secret scan, audit skelet
 - DB writes are committed before the HTTP response is sent (function-scoped session), so clients never read stale data after a successful write.
 - Staff endpoints re-read roles from the database; staff reads of user escalation notes are audit-logged; escalation notes and resolution text are encrypted at rest.
 - Export and erasure require authentication; erasure additionally requires password re-confirmation; both are rate limited and audited.
+- The erasure purge runs itself: an in-process scheduler executes due requests on a timer (immediately on app start, then every `PURGE_INTERVAL_SECONDS`), so an account does not depend on an operator remembering to run the purge CLI (K-25).
 - Coach (MVP 3): tools are read-only and take the user id from the authenticated session, never from model output; the model receives only engine facts plus the user's question (no ids, names or emails) and its text is discarded unless every number is present in those facts; numbers typed by the user do not count as grounded. `coach_runs` records mode, tools and flags without user text.

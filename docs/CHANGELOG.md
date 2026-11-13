@@ -2,6 +2,10 @@
 
 Format: Keep a Changelog; semver for the product, separate semver for the Rulebook.
 
+## [0.5.3-dev] - Erasure purge scheduler - 2026-11-13
+### Added
+- In-process scheduler runs the erasure purge job automatically (immediately on startup, then every `PURGE_INTERVAL_SECONDS`), closing K-25. No new infrastructure or recurring cost; `scripts/admin_cli.py purge-due` remains for manual use. Config: `PURGE_SCHEDULER_ENABLED` (default on), `PURGE_INTERVAL_SECONDS` (placeholder 3600).
+
 ## [0.5.2-dev] - MVP 5 slice 3: AI Financial Copilot - 2026-11-13
 ### Added
 - Pre-action checks (AC-18): affordability (income vs. everything committed each month) and action-specific notes (large spending cut, EMI changes need a lender, insurance is a hand-off). `/copilot/actions/{id}/check`, `/copilot/goals/check`; wired into the Actions and Goals pages. Read-only: never executes anything, never recommends a product; a hand-off only offers to open a support request.

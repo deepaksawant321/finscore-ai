@@ -30,6 +30,10 @@ class Settings(BaseSettings):
     erasure_cooling_days: int = 7  # PLACEHOLDER: retention/legal-hold rules PENDING (D-B16)
     mail_dir: str | None = None  # local dev only (never in staging/production)
     mail_from: str = "no-reply@5nance.local"
+    # In-process erasure purge scheduler (K-25). Interim, single-process solution: no new infra/recurring cost.
+    # Safe to enable on more than one instance — purge_due only touches rows still pending and due.
+    purge_scheduler_enabled: bool = True
+    purge_interval_seconds: int = Field(default=3600, ge=60)  # PLACEHOLDER cadence; not an approved operational SLA
 
     @model_validator(mode="after")
     def _prod_guards(self) -> "Settings":

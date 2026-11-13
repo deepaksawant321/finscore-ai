@@ -70,7 +70,7 @@ Evidence: backend `pytest` 122 passed (+29: advice/goals unit 19, governance/goa
 | ID | Item | Status | Evidence / remarks |
 |---|---|---|---|
 | G-01 | Data export (`GET /users/me/data-export`) | Completed | Complete bundle for the owner, decrypted conversations; test proves no other user's data, no password hash/tokens; rate limited; recorded in `data_requests` |
-| G-02 | Erasure (`/users/me/erasure-request`) | Completed (interim policy) | Password re-auth, 7-day cooling-off (PLACEHOLDER, D-B16), cancellable, purge job (`scripts/admin_cli.py purge-due`) cascades to all personal data; completion record + hash-chained audit survive with opaque ids. **Purge needs a scheduler in deployment (K-25)** |
+| G-02 | Erasure (`/users/me/erasure-request`) | Completed (interim policy) | Password re-auth, 7-day cooling-off (PLACEHOLDER, D-B16), cancellable, purge runs itself via an in-process scheduler (see slice below, K-25 resolved) and cascades to all personal data; completion record + hash-chained audit survive with opaque ids. |
 | G-03 | Advice classification + guard | Completed (keyword baseline) | Every assistant message tagged; `regulated` class blocked by default; requests for stock/fund picks or guaranteed returns are declined and a human review is offered. Perimeter itself still PENDING (D-B9) |
 | G-04 | Human escalation | Completed (API + user UI; no staff UI) | Create/list own, staff queue + update (roles re-checked in DB per request), staff reads are audited, notes encrypted, short placeholder SLA for distress (4h) else 48h (D-B10) |
 | G-05 | Distress path | Completed (baseline) | Supportive message + helpline + auto-flag for a human; sensitive text is NOT copied into the ticket |
@@ -166,3 +166,12 @@ Evidence: backend `pytest` 268 passed (+23: copilot engine 12, copilot API 11); 
 | C-05 | `/copilot/actions/{id}/check`, `/copilot/goals/check` | Completed | private (404 for other users), audited (rule/level/hand-off only, no message text or amounts), no new table (reuses the audit log) |
 | C-06 | Actions and Goals page integration | Completed | "Check before you accept" per action; "Check affordability first" on the new-goal form |
 | C-07 | Wealth OS (event-driven orchestration across all 20 capabilities) | **Not started** | current domains call each other directly (e.g. nudges call the health checker); an event/outbox layer is a larger architectural piece, not yet justified by load |
+
+## Cross-cutting: erasure purge scheduler (2026-11-13)
+Evidence: backend `pytest` 280 passed (+12: scheduler timing unit tests 9, end-to-end lifespan-driven purge integration tests 3, including a manual browser/API run that registered an account, requested erasure, restarted the app and confirmed the account was gone and login then failed with no CLI step); ruff/mypy/import-linter clean.
+| ID | Item | Status | Evidence / remarks |
+|---|---|---|---|
+| P-01 | In-process purge scheduler (`app/domains/privacy/scheduler.py`) | Completed | runs `PrivacyService.purge_due` immediately on app start, then every `PURGE_INTERVAL_SECONDS` (placeholder 3600); `PURGE_SCHEDULER_ENABLED` (default on) |
+| P-02 | Resolves K-25 | Completed | erasure no longer depends on an operator remembering to run the CLI; the CLI command remains for manual/ad hoc use |
+| P-03 | Safe under a bad run or multiple instances | Completed | one failing run is logged and does not stop future runs (tested); `purge_due` only touches rows still pending and due, so more than one instance running it is redundant, not harmful |
+| P-04 | A real job queue (Redis + worker, T-6) | **Not started by design** | this is explicitly the interim, no-new-infra answer; a real worker is the right call once horizontal scaling needs one for other async work too |

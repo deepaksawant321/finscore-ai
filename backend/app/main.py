@@ -10,6 +10,7 @@ from app.ai.gateway import LLMProvider, build_provider
 from app.api.errors import register_error_handlers
 from app.api.v1.router import api_router
 from app.config import Settings, get_settings
+from app.domains.privacy.scheduler import PurgeScheduler, for_privacy
 from app.infra.crypto import configure_encryption
 from app.infra.db import make_engine, make_sessionmaker
 from app.infra.logging import configure_logging
@@ -28,7 +29,14 @@ def create_app(settings: Settings | None = None, mailer: Mailer | None = None, l
         engine = make_engine(cfg.database_url)
         app.state.engine = engine
         app.state.sessionmaker = make_sessionmaker(engine)
+        scheduler: PurgeScheduler | None = None
+        if cfg.purge_scheduler_enabled:
+            scheduler = for_privacy(app.state.sessionmaker, cfg)
+            scheduler.start()
+        app.state.purge_scheduler = scheduler
         yield
+        if scheduler is not None:
+            await scheduler.stop()
         await engine.dispose()
 
     app = FastAPI(

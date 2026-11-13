@@ -4,6 +4,10 @@
     python ../scripts/admin_cli.py revoke-role <email> <role>
     python ../scripts/admin_cli.py purge-due        # execute erasure requests whose cooling-off period has ended
 
+The running app already does this on a timer by itself (PURGE_SCHEDULER_ENABLED, default on; see
+app/domains/privacy/scheduler.py and docs/KNOWN_ISSUES.md K-25) — this command is for an immediate manual run, or for
+an environment where the app process is not kept running continuously.
+
 Every action is written to the audit log. Role changes take effect on the user's next login (staff endpoints re-check the DB).
 """
 
