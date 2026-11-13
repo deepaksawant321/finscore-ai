@@ -26,7 +26,12 @@ _RULES: list[tuple[re.Pattern[str], Route]] = [
         ),
         Route("simulate", ("goal_status",)),
     ),
-    (re.compile(r"\b(what if|simulate|scenario|how long (will|would) it take)\b", re.I), Route("simulate", ("goal_status",))),
+    (
+        re.compile(
+            r"\b(what if|simulate|scenario|how long (will|would) it take|if i (invest|save|cut|reduce|lower|spend))\b", re.I
+        ),
+        Route("simulate", ("what_if",)),
+    ),
     (re.compile(r"\b(on track|how is my goal|goal status|check my goal)\b", re.I), Route("simulate", ("goal_status",))),
     (re.compile(r"\b(my goals|list goals|what goals)\b", re.I), Route("diagnose", ("goals_overview",))),
     (

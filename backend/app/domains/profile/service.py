@@ -39,6 +39,26 @@ def _material(old: str, new: str, kind: str) -> bool:
     return abs(n - o) / o > MATERIAL_CHANGE_RATIO
 
 
+def derive_inputs(raw: dict[str, Decimal | bool | None]) -> dict[str, Decimal | bool | None]:
+    """Pure: add derived measures (savings rate, emergency months, debt-to-income) to typed stated facts.
+    Shared by scoring and by what-if simulations so both use identical derivations."""
+    out = dict(raw)
+    income = out.get("annual_income")
+    monthly_income = income / 12 if isinstance(income, Decimal) else None
+    out["monthly_income"] = monthly_income
+    exp, liquid, emi = out.get("monthly_expenses"), out.get("liquid_assets"), out.get("monthly_emi_total")
+    out["savings_rate"] = (
+        cashflow.savings_rate(monthly_income, exp) if isinstance(monthly_income, Decimal) and isinstance(exp, Decimal) else None
+    )
+    out["emergency_months"] = (
+        cashflow.emergency_months(liquid, exp) if isinstance(liquid, Decimal) and isinstance(exp, Decimal) else None
+    )
+    out["debt_to_income"] = (
+        debt.debt_to_income(emi, monthly_income) if isinstance(emi, Decimal) and isinstance(monthly_income, Decimal) else None
+    )
+    return out
+
+
 class ProfileService:
     def __init__(self, session: AsyncSession) -> None:
         self.s = session
@@ -96,26 +116,15 @@ class ProfileService:
                           "material_change": material})  # fmt: skip
         return RecordResult(new, True, current, material)
 
-    async def inputs(self, user_id: uuid.UUID) -> dict[str, Decimal | bool | None]:
-        """Scoring/trait inputs: stated facts plus values DERIVED by the deterministic engines."""
+    async def raw_inputs(self, user_id: uuid.UUID) -> dict[str, Decimal | bool | None]:
+        """Stated facts only, typed (no derived values)."""
         facts = {f.field_key: f.value for f in await self.current_facts(user_id)}
         out: dict[str, Decimal | bool | None] = {}
         for k, v in facts.items():
             kind = FIELDS[k].kind
             out[k] = v == "true" if kind == "bool" else (D(v) if kind in ("money", "int") else None)
-        income = out.get("annual_income")
-        monthly_income = income / 12 if isinstance(income, Decimal) else None
-        out["monthly_income"] = monthly_income
-        exp, liquid, emi = out.get("monthly_expenses"), out.get("liquid_assets"), out.get("monthly_emi_total")
-        out["savings_rate"] = (
-            cashflow.savings_rate(monthly_income, exp)
-            if isinstance(monthly_income, Decimal) and isinstance(exp, Decimal) else None
-        )  # fmt: skip
-        out["emergency_months"] = (
-            cashflow.emergency_months(liquid, exp) if isinstance(liquid, Decimal) and isinstance(exp, Decimal) else None
-        )
-        out["debt_to_income"] = (
-            debt.debt_to_income(emi, monthly_income)
-            if isinstance(emi, Decimal) and isinstance(monthly_income, Decimal) else None
-        )  # fmt: skip
         return out
+
+    async def inputs(self, user_id: uuid.UUID) -> dict[str, Decimal | bool | None]:
+        """Scoring/trait inputs: stated facts plus values DERIVED by the deterministic engines."""
+        return derive_inputs(await self.raw_inputs(user_id))

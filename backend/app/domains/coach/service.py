@@ -132,6 +132,8 @@ class CoachService:
                 return await tools.missing_data()
             case "goals_overview":
                 return await tools.goals_overview()
+            case "what_if":
+                return await tools.what_if(text)
             case "goal_status":
                 return await tools.goal_status(text)
             case "act":

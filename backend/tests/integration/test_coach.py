@@ -260,3 +260,38 @@ async def test_eval_adversarial_model_never_changes_any_reply(client: httpx.Asyn
             assert t["ai_rewritten"] is False
         assert t["assistant_text"] == expected, prompt
         assert "777" not in t["assistant_text"] and "99999999" not in t["assistant_text"]
+
+
+async def test_coach_what_if_invest_uses_the_simulation_engine_and_asks_for_missing_assumptions(
+    client: httpx.AsyncClient, mailer
+) -> None:  # type: ignore[no-untyped-def]
+    h = await auth_client(client, mailer)
+    cid = await coach(client, h)
+    ask_more = await ask(client, h, cid, "What if I invest 10k a month for 10 years?")
+    assert (
+        ask_more["tools"] == ["what_if"] and "yearly return you want to assume" in ask_more["assistant_text"]
+    )  # no default return
+    t = await ask(client, h, cid, "What if I invest 10k a month for 10 years at 12% return?")
+    assert t["mode"] == "simulate" and "₹23,00,386" in t["assistant_text"] and "₹12,00,000" in t["assistant_text"]
+    assert "Projection, not a guarantee" in t["assistant_text"]
+    sims = (await client.get(f"{API}/simulations", headers=h)).json()
+    assert [s["kind"] for s in sims] == ["invest"] and sims[0]["result"]["final_value"] == "2300386.89"  # same number as the API
+
+
+async def test_coach_what_if_expenses_compares_scores_and_saves_nothing(client: httpx.AsyncClient, mailer) -> None:  # type: ignore[no-untyped-def]
+    h = await auth_client(client, mailer)
+    for k, v in (("annual_income", "2000000"), ("monthly_expenses", "150000")):
+        await client.patch(f"{API}/profile/facts/{k}", headers=h, json={"value": v})
+    await client.post(f"{API}/score/compute", headers=h)
+    cid = await coach(client, h)
+    t = await ask(client, h, cid, "What if I cut my expenses by 50k a month?")
+    assert "₹1,00,000 instead of ₹1,50,000" in t["assistant_text"] and "would move by +" in t["assistant_text"]
+    assert "Nothing was saved" in t["assistant_text"] and "DEMO rules" in t["assistant_text"]
+    facts = {f["field_key"]: f["value"] for f in (await client.get(f"{API}/memory/facts", headers=h)).json()}
+    assert facts["monthly_expenses"] == "150000.00"
+    no_data = await auth_client(client, mailer, "nodata@example.com")
+    cid2 = await coach(client, no_data)
+    assert (
+        "don't know your monthly expenses"
+        in (await ask(client, no_data, cid2, "What if I reduce expenses by 5k?"))["assistant_text"]
+    )

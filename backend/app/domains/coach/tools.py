@@ -6,6 +6,7 @@ import uuid
 from dataclasses import dataclass, field
 from datetime import date
 from decimal import Decimal
+from typing import Any
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -17,7 +18,10 @@ from app.domains.profile.catalog import FIELDS
 from app.domains.profile.service import ProfileService
 from app.domains.scoring.models import ScoreRun
 from app.domains.scoring.service import ScoringService
-from app.engines.money import D, round_money
+from app.domains.simulation.service import SimulationService
+from app.domains.simulation.specs import Invest, ScoreWhatIf
+from app.engines.money import D, find_amounts, round_money
+from app.infra.errors import AppError
 from app.rulebook.loader import DEFAULT_VERSION, load_rulebook
 
 DEMO_NOTE = "These numbers use DEMO rules, not an official FinScore."
@@ -209,6 +213,79 @@ class CoachTools:
         else:
             lines.append(f"On track: projected to exceed the target by {inr(-v.shortfall)}.")
         return ToolResult("goal_status", lines, caveats=[*v.assumptions])
+
+    # ---- what-if (Simulate mode) ----
+    async def what_if(self, text: str) -> ToolResult:
+        """Understands two phrasings deterministically: investing a monthly amount, and a change to monthly expenses.
+        Anything else falls back to the goal check. All maths is done by the simulation engines."""
+        low = text.lower()
+        amounts = find_amounts(text)
+        if re.search(r"\b(invest|sip|put aside|save)\b", low) and amounts and not re.search(r"\bexpenses?\b", low):
+            return await self._what_if_invest(text, amounts[0].value)
+        if re.search(r"\b(expenses?|spend\w*)\b", low) and amounts:
+            return await self._what_if_expenses(low, amounts[0].value)
+        return await self.goal_status(text)
+
+    async def _what_if_invest(self, text: str, monthly: Decimal) -> ToolResult:
+        ret, infl = parse_assumptions(text)
+        yrs = re.search(r"(\d{1,2})\s*(?:years?|yrs?)", text, re.I)
+        if ret is None or yrs is None:
+            return ToolResult(
+                "what_if",
+                [
+                    "To project that I need two things from you: how many years, and the yearly return you want to assume. I don't use default returns."
+                ],
+                ok=False,
+                caveats=["For example: 'What if I invest 10k a month for 10 years at 12% return?'"],
+            )
+        try:
+            sim = await SimulationService(self.s, self.cfg).run(
+                self.uid, Invest(monthly_amount=monthly, years=int(yrs.group(1)), return_pct=ret, inflation_pct=infl)
+            )
+        except AppError as e:
+            return ToolResult("what_if", [f"I couldn't run that: {e.title}."], ok=False)
+        r: dict[str, Any] = sim.result
+        lines = [
+            f"If you invest {inr(monthly)} a month for {yrs.group(1)} years at {ret}% a year, you would have about {inr(str(r['final_value']))}.",
+            f"You would put in {inr(str(r['total_contributed']))}; the growth would be about {inr(str(r['gain']))}.",
+        ]
+        if r["real_value"] is not None:
+            lines.append(f"In today's money that is roughly {inr(str(r['real_value']))}.")
+        return ToolResult("what_if", lines, caveats=list(r["assumptions"]))
+
+    async def _what_if_expenses(self, low: str, amount: Decimal) -> ToolResult:
+        cur = await ProfileService(self.s).current_fact(self.uid, "monthly_expenses")
+        if cur is None:
+            return ToolResult(
+                "what_if",
+                ["I don't know your monthly expenses yet, so I can't compare. Tell me in the interview first."],
+                ok=False,
+            )
+        now = D(cur.value)
+        if re.search(r"\b(cut|reduce|lower|decrease|save)\b", low):
+            new = max(Decimal(0), now - amount)
+        elif re.search(r"\b(increase|raise|add)\b", low):
+            new = now + amount
+        else:
+            new = amount
+        try:
+            sim = await SimulationService(self.s, self.cfg).run(self.uid, ScoreWhatIf(overrides={"monthly_expenses": str(new)}))
+        except AppError as e:
+            return ToolResult(
+                "what_if",
+                [f"I couldn't run that: {e.title}."],
+                ok=False,
+                caveats=[e.detail] if e.detail else [],
+            )
+        r: dict[str, Any] = sim.result
+        b, sc = r["baseline"], r["scenario"]
+        delta = D(str(r["delta"]))
+        move = "would not change" if delta == 0 else f"would move by {points(delta)} points"
+        lines = [
+            f"If your monthly expenses were {inr(new)} instead of {inr(now)}, your score {move}: from {_whole(D(b['overall']))} to {_whole(D(sc['overall']))}.",
+            "Nothing was saved: this is only a what-if.",
+        ]
+        return ToolResult("what_if", lines, caveats=[] if sim.official else [DEMO_NOTE])
 
     # ---- Act mode ----
     @staticmethod

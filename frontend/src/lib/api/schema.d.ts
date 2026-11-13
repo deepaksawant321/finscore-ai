@@ -658,6 +658,41 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/simulations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Runs */
+        get: operations["list_runs_api_v1_simulations_get"];
+        put?: never;
+        /** Run */
+        post: operations["run_api_v1_simulations_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/simulations/{sim_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Run */
+        get: operations["get_run_api_v1_simulations__sim_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/users/me": {
         parameters: {
             query?: never;
@@ -1147,10 +1182,50 @@ export interface components {
             /** Target Date */
             target_date?: string | null;
         };
+        /** GoalWhatIf */
+        GoalWhatIf: {
+            /**
+             * Goal Id
+             * Format: uuid
+             */
+            goal_id: string;
+            /** Inflation Pct */
+            inflation_pct: number | string;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "goal_what_if";
+            /** New Monthly Funding */
+            new_monthly_funding: number | string;
+            /** Return Pct */
+            return_pct: number | string;
+        };
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
+        };
+        /** Invest */
+        Invest: {
+            /** Inflation Pct */
+            inflation_pct?: number | string | null;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "invest";
+            /**
+             * Lumpsum
+             * @default 0
+             */
+            lumpsum: number | string;
+            /** Monthly Amount */
+            monthly_amount: number | string;
+            /** Return Pct */
+            return_pct: number | string;
+            /** Years */
+            years: number;
         };
         /** LoginIn */
         LoginIn: {
@@ -1347,6 +1422,21 @@ export interface components {
              */
             watermark: string | null;
         };
+        /**
+         * ScoreWhatIf
+         * @description Change some of your stated facts and see how the (demo) score would move. Nothing is saved.
+         */
+        ScoreWhatIf: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "score_what_if";
+            /** Overrides */
+            overrides: {
+                [key: string]: string;
+            };
+        };
         /** SendIn */
         SendIn: {
             /** Content */
@@ -1375,6 +1465,37 @@ export interface components {
             ip: string | null;
             /** User Agent */
             user_agent: string | null;
+        };
+        /** SimulationOut */
+        SimulationOut: {
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Engine Version */
+            engine_version: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Kind */
+            kind: string;
+            /** Official */
+            official: boolean;
+            /** Result */
+            result: {
+                [key: string]: unknown;
+            };
+            /** Rulebook Version */
+            rulebook_version: string;
+            /** Scenario */
+            scenario: {
+                [key: string]: unknown;
+            };
+            /** Watermark */
+            watermark: string | null;
         };
         /** StaffEscalationOut */
         StaffEscalationOut: {
@@ -2755,6 +2876,101 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ExplainOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_runs_api_v1_simulations_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SimulationOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    run_api_v1_simulations_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ScoreWhatIf"] | components["schemas"]["Invest"] | components["schemas"]["GoalWhatIf"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SimulationOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_run_api_v1_simulations__sim_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                sim_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SimulationOut"];
                 };
             };
             /** @description Validation Error */

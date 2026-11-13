@@ -92,3 +92,19 @@ Evidence: backend `pytest` 162 passed (+40: coach unit 28 incl. routing golden s
 | M3-08 | Staff inbox UI (`/app/staff`) | Completed | Visible only to support/compliance/admin (API re-checks roles in DB); filter, assign to me, resolve with note; checked in the in-app browser. Roles are still granted by CLI; no escalation detail view or user messaging |
 | M3-09 | Eval suite: "0 ungrounded numbers", red-team 100% | Partial | 13 routing cases, 8 regulated + 4 distress red-team lines, injection + fallback tests, and an adversarial-model eval over 12 prompts (a model that always invents numbers never changes any reply). Still no large golden set and no real-model run |
 | M3-10 | Free-form conversational answers / general education content | **Not built by design** | Anything outside the nine tools gets a capability menu; approved education content and the advice perimeter (D-B9) are needed first |
+
+## MVP 4 - Prediction and Action (started 2026-11-13, slice 1: what-if simulator)
+Evidence: backend `pytest` 185 passed (+22: simulate engine 11 incl. a property test against the closed-form SIP formula, simulation API 7, coach what-if 2, routing 2); ruff/mypy/import-linter clean; frontend tsc/lint/build clean; simulator checked in the in-app browser (invest result matches the independent formula; score what-if shows the demo badge).
+| ID | Item | Status | Evidence / remarks |
+|---|---|---|---|
+| M4-01 | Projection core (`engines/simulate.py`) | Completed | Pure, Decimal, month-end contributions, no default rates; iteration agrees with closed form within 0.02 (property test) |
+| M4-02 | Simulations API (`/simulations`) + table (migration 0005) | Completed | 3 scenario kinds, discriminated union, encrypted at rest, private (404 for others), in data export, rate limited |
+| M4-03 | Scenario: invest monthly | Completed | Return is required, inflation optional (adds today's-rupees value); nothing is stored but the run itself |
+| M4-04 | Scenario: change my numbers (score what-if) | Completed (demo rules) | Reuses the exact scoring derivations (`derive_inputs`); saves no facts or score runs; production returns 503 until rules are approved; watermarked |
+| M4-05 | Scenario: fund a goal differently | Completed | Before/after via the same funding view as the goals page; the stored goal is untouched |
+| M4-06 | Coach what-if (invest, expenses) + What-if page | Completed | Coach parses amounts/years/return deterministically and asks for missing assumptions |
+| M4-07 | Score Predictor (score over time) | **Not started** | Needs approved action deltas and persistence rules (D-B6) |
+| M4-08 | Action library, prioritiser, state machine, verification, Timeline | **Not started** | Blocked on D-B6 (approved actions and score effects); only a demo-flagged library could be built |
+| M4-09 | Monte Carlo ranges (seeded) | **Not started** | Method and ranges are PENDING (D-B7) |
+| M4-10 | Goal builder (discovery with confirmation) | **Not started** | |
+| M4-11 | Redis + worker | **Deferred by design** | Not needed for synchronous what-ifs; adopting it is an infrastructure/cost decision for you |

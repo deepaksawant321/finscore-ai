@@ -2,6 +2,13 @@
 
 Format: Keep a Changelog; semver for the product, separate semver for the Rulebook.
 
+## [0.4.0-dev] - MVP 4 Prediction and Action (slice 1) - 2026-11-13
+### Added
+- What-if simulator: pure projection engine, `/api/v1/simulations` (invest monthly, change my numbers, fund a goal differently), What-if page, coach what-if answers. Migration 0005.
+- Every rate is supplied by the user; score what-ifs use the demo rules and are watermarked; nothing is saved to facts, goals or score history.
+### Not done
+- Score predictor, action library/state machine/timeline, seeded Monte Carlo ranges, goal discovery, Redis/worker. See tracker M4-07..M4-11.
+
 ## [0.3.0-dev] — MVP 3 AI Financial Assistant (partial) — 2026-11-13
 ### Added
 - Coach: consent-gated conversations (`/api/v1/coach/*`), deterministic router and nine read-only tools (score, explain, change, stages, profile, missing data, goals, goal check with user-supplied assumptions), suggested prompts, disclosure, coach page in the web app.

@@ -51,3 +51,6 @@ Authoritative contract: `backend/openapi.json` (generated).
 
 ## Implemented in MVP 3 (coach, partial)
 `POST /coach/conversations` (needs `ai_processing` consent) · `GET /coach/conversations/{id}` · `POST /coach/conversations/{id}/messages` (JSON, no streaming yet) · `GET /coach/suggested-prompts`. Turn response: `assistant_text`, `mode` (explain|diagnose|simulate|act|other), `tools`, `advice_class`, `escalation_suggested`, `escalation_id`, `ai_rewritten`, `disclosure`. Coach conversations are separate from interview conversations (each API returns 404 for the other's ids).
+
+## Implemented in MVP 4, slice 1 (simulations)
+`POST /simulations` (body: `{"kind":"invest"|"score_what_if"|"goal_what_if", ...}`) - `GET /simulations` - `GET /simulations/{id}`. Assumption fields (`return_pct`, `inflation_pct`) are required where used; there are no defaults. Responses carry `official` and `watermark`. Streaming, NL parsing in the API and comparison endpoints are not built (the coach parses simple phrasings).

@@ -21,6 +21,7 @@ from app.domains.identity.models import User, UserRole
 from app.domains.interview.models import Conversation, Message
 from app.domains.profile.models import Fact
 from app.domains.scoring.models import ScoreRun
+from app.domains.simulation.models import Simulation
 from app.infra.errors import AppError
 from app.infra.security import verify_password
 
@@ -142,6 +143,16 @@ class PrivacyService:
                 }
                 for g in goals
             ],  # fmt: skip
+            "simulations": [
+                {
+                    "created_at": _iso(x.created_at),
+                    "kind": x.kind,
+                    "scenario": x.scenario,
+                    "result": x.result,
+                    "official": x.official,
+                }
+                for x in await self._all(Simulation, Simulation.user_id == user_id, Simulation.created_at)
+            ],
             "support_requests": [
                 {
                     "reason": e.reason,

@@ -17,7 +17,9 @@ ROUTING_GOLDEN = [
     ("What have you saved about me?", "diagnose", "profile_summary"),
     ("Show my goals", "diagnose", "goals_overview"),
     ("Is my goal on track assuming 8% return and 6% inflation?", "simulate", "goal_status"),
-    ("What if I save more each month?", "simulate", "goal_status"),
+    ("What if I save more each month?", "simulate", "what_if"),
+    ("What if I invest 10k a month for 10 years at 12% return?", "simulate", "what_if"),
+    ("What if I cut my expenses by 50k?", "simulate", "what_if"),
     ("How can I improve my score?", "act", "act"),
     ("What should I do next?", "act", "act"),
 ]

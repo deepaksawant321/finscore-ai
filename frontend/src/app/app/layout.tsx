@@ -37,6 +37,7 @@ export default function ProtectedLayout({ children }: { children: ReactNode }) {
               ["/app/score", "Score"],
               ["/app/dna", "DNA"],
               ["/app/goals", "Goals"],
+              ["/app/simulate", "What-if"],
               ["/app/memory", "Memory"],
               ["/app/settings", "Settings"],
               ...((user?.roles ?? []).some((r) => ["support", "compliance", "admin"].includes(r)) ? [["/app/staff", "Staff"]] : []),
