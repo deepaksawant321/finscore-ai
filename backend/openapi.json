@@ -1,6 +1,125 @@
 {
   "components": {
     "schemas": {
+      "ActionOut": {
+        "properties": {
+          "allowed": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Allowed",
+            "type": "array"
+          },
+          "cta": {
+            "title": "Cta",
+            "type": "string"
+          },
+          "effort": {
+            "title": "Effort",
+            "type": "string"
+          },
+          "expected_score_change": {
+            "title": "Expected Score Change",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "official": {
+            "title": "Official",
+            "type": "boolean"
+          },
+          "pillar_id": {
+            "title": "Pillar Id",
+            "type": "string"
+          },
+          "priority": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PriorityOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "snoozed_until": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Snoozed Until"
+          },
+          "state": {
+            "title": "State",
+            "type": "string"
+          },
+          "time_to_impact_weeks": {
+            "title": "Time To Impact Weeks",
+            "type": "integer"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          },
+          "verified": {
+            "title": "Verified",
+            "type": "boolean"
+          },
+          "watermark": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Watermark"
+          },
+          "why": {
+            "title": "Why",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "key",
+          "title",
+          "why",
+          "cta",
+          "pillar_id",
+          "state",
+          "allowed",
+          "priority",
+          "expected_score_change",
+          "effort",
+          "time_to_impact_weeks",
+          "snoozed_until",
+          "verified",
+          "official",
+          "watermark",
+          "updated_at"
+        ],
+        "title": "ActionOut",
+        "type": "object"
+      },
       "CoachConversationOut": {
         "properties": {
           "disclosure": {
@@ -1552,6 +1671,49 @@
         "title": "PillarOut",
         "type": "object"
       },
+      "PriorityOut": {
+        "properties": {
+          "confidence": {
+            "title": "Confidence",
+            "type": "string"
+          },
+          "ease": {
+            "title": "Ease",
+            "type": "string"
+          },
+          "financial_impact": {
+            "title": "Financial Impact",
+            "type": "string"
+          },
+          "goal_alignment": {
+            "title": "Goal Alignment",
+            "type": "string"
+          },
+          "impact": {
+            "title": "Impact",
+            "type": "string"
+          },
+          "total": {
+            "title": "Total",
+            "type": "string"
+          },
+          "urgency": {
+            "title": "Urgency",
+            "type": "string"
+          }
+        },
+        "required": [
+          "impact",
+          "financial_impact",
+          "urgency",
+          "ease",
+          "confidence",
+          "goal_alignment",
+          "total"
+        ],
+        "title": "PriorityOut",
+        "type": "object"
+      },
       "ProposalOut": {
         "properties": {
           "confidence": {
@@ -2145,6 +2307,29 @@
         "title": "StatusOut",
         "type": "object"
       },
+      "TimelineItem": {
+        "properties": {
+          "at": {
+            "title": "At",
+            "type": "string"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "at",
+          "kind",
+          "title"
+        ],
+        "title": "TimelineItem",
+        "type": "object"
+      },
       "TokenOut": {
         "properties": {
           "access_token": {
@@ -2166,6 +2351,25 @@
           "expires_in"
         ],
         "title": "TokenOut",
+        "type": "object"
+      },
+      "TransitionIn": {
+        "properties": {
+          "days": {
+            "anyOf": [
+              {
+                "maximum": 90.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Days"
+          }
+        },
+        "title": "TransitionIn",
         "type": "object"
       },
       "TurnOut": {
@@ -2411,6 +2615,170 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/api/v1/actions": {
+      "get": {
+        "operationId": "list_actions_api_v1_actions_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "include_closed",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Include Closed",
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ActionOut"
+                  },
+                  "title": "Response List Actions Api V1 Actions Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Actions",
+        "tags": [
+          "actions"
+        ]
+      }
+    },
+    "/api/v1/actions/refresh": {
+      "post": {
+        "operationId": "refresh_actions_api_v1_actions_refresh_post",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ActionOut"
+                  },
+                  "title": "Response Refresh Actions Api V1 Actions Refresh Post",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Refresh Actions",
+        "tags": [
+          "actions"
+        ]
+      }
+    },
+    "/api/v1/actions/{action_id}/{verb}": {
+      "post": {
+        "operationId": "transition_api_v1_actions__action_id___verb__post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "action_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Action Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "verb",
+            "required": true,
+            "schema": {
+              "enum": [
+                "accept",
+                "skip",
+                "snooze",
+                "start",
+                "complete",
+                "reopen"
+              ],
+              "title": "Verb",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/TransitionIn"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Body"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActionOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Transition",
+        "tags": [
+          "actions"
+        ]
+      }
+    },
     "/api/v1/admin/escalations": {
       "get": {
         "operationId": "staff_queue_api_v1_admin_escalations_get",
@@ -4426,6 +4794,60 @@
         "summary": "Get Run",
         "tags": [
           "simulations"
+        ]
+      }
+    },
+    "/api/v1/timeline": {
+      "get": {
+        "operationId": "timeline_api_v1_timeline_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 30,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/TimelineItem"
+                  },
+                  "title": "Response Timeline Api V1 Timeline Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Timeline",
+        "tags": [
+          "actions"
         ]
       }
     },

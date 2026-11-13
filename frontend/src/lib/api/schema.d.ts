@@ -4,6 +4,57 @@
  */
 
 export interface paths {
+    "/api/v1/actions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Actions */
+        get: operations["list_actions_api_v1_actions_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/actions/refresh": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Refresh Actions */
+        post: operations["refresh_actions_api_v1_actions_refresh_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/actions/{action_id}/{verb}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Transition */
+        post: operations["transition_api_v1_actions__action_id___verb__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/escalations": {
         parameters: {
             query?: never;
@@ -693,6 +744,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/timeline": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Timeline */
+        get: operations["timeline_api_v1_timeline_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/users/me": {
         parameters: {
             query?: never;
@@ -785,6 +853,48 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** ActionOut */
+        ActionOut: {
+            /** Allowed */
+            allowed: string[];
+            /** Cta */
+            cta: string;
+            /** Effort */
+            effort: string;
+            /** Expected Score Change */
+            expected_score_change: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Key */
+            key: string;
+            /** Official */
+            official: boolean;
+            /** Pillar Id */
+            pillar_id: string;
+            priority: components["schemas"]["PriorityOut"] | null;
+            /** Snoozed Until */
+            snoozed_until: string | null;
+            /** State */
+            state: string;
+            /** Time To Impact Weeks */
+            time_to_impact_weeks: number;
+            /** Title */
+            title: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Verified */
+            verified: boolean;
+            /** Watermark */
+            watermark: string | null;
+            /** Why */
+            why: string;
+        };
         /** CoachConversationOut */
         CoachConversationOut: {
             /** Disclosure */
@@ -1300,6 +1410,23 @@ export interface components {
             /** Weight */
             weight: string;
         };
+        /** PriorityOut */
+        PriorityOut: {
+            /** Confidence */
+            confidence: string;
+            /** Ease */
+            ease: string;
+            /** Financial Impact */
+            financial_impact: string;
+            /** Goal Alignment */
+            goal_alignment: string;
+            /** Impact */
+            impact: string;
+            /** Total */
+            total: string;
+            /** Urgency */
+            urgency: string;
+        };
         /** ProposalOut */
         ProposalOut: {
             /** Confidence */
@@ -1549,6 +1676,15 @@ export interface components {
             /** Status */
             status: string;
         };
+        /** TimelineItem */
+        TimelineItem: {
+            /** At */
+            at: string;
+            /** Kind */
+            kind: string;
+            /** Title */
+            title: string;
+        };
         /** TokenOut */
         TokenOut: {
             /** Access Token */
@@ -1560,6 +1696,11 @@ export interface components {
              * @default bearer
              */
             token_type: string;
+        };
+        /** TransitionIn */
+        TransitionIn: {
+            /** Days */
+            days?: number | null;
         };
         /** TurnOut */
         TurnOut: {
@@ -1653,6 +1794,93 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    list_actions_api_v1_actions_get: {
+        parameters: {
+            query?: {
+                include_closed?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ActionOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    refresh_actions_api_v1_actions_refresh_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ActionOut"][];
+                };
+            };
+        };
+    };
+    transition_api_v1_actions__action_id___verb__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                action_id: string;
+                verb: "accept" | "skip" | "snooze" | "start" | "complete" | "reopen";
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["TransitionIn"] | null;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ActionOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     staff_queue_api_v1_admin_escalations_get: {
         parameters: {
             query?: {
@@ -2971,6 +3199,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SimulationOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    timeline_api_v1_timeline_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TimelineItem"][];
                 };
             };
             /** @description Validation Error */

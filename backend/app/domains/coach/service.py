@@ -137,7 +137,7 @@ class CoachService:
             case "goal_status":
                 return await tools.goal_status(text)
             case "act":
-                return tools.action_unavailable()
+                return await tools.next_actions()
         raise AppError(500, "internal_error", "Unknown coach tool")
 
     async def _finish(self, conv: Conversation, user_id: uuid.UUID, reply: str, advice: str, mode: str, tools: list[str], *,

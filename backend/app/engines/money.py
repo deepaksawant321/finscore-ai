@@ -55,3 +55,17 @@ def find_amounts(text: str) -> list[AmountMention]:
         unit = (m.group("unit") or "").lower()
         out.append(AmountMention(num * _UNITS.get(unit, Decimal(1)), m.span(), m.group(0).strip()))
     return out
+
+
+def format_inr(v: Decimal | str | int) -> str:
+    """Display only: rupees with lakh/crore grouping, no decimals (e.g. 1234567 -> '₹12,34,567')."""
+    n = int(round_money(D(str(v))))
+    s = str(abs(n))
+    head, tail = s[:-3], s[-3:]
+    parts: list[str] = []
+    while len(head) > 2:
+        parts.insert(0, head[-2:])
+        head = head[:-2]
+    if head:
+        parts.insert(0, head)
+    return ("-" if n < 0 else "") + "₹" + (",".join([*parts, tail]) if parts else tail)

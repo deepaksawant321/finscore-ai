@@ -54,3 +54,6 @@ Authoritative contract: `backend/openapi.json` (generated).
 
 ## Implemented in MVP 4, slice 1 (simulations)
 `POST /simulations` (body: `{"kind":"invest"|"score_what_if"|"goal_what_if", ...}`) - `GET /simulations` - `GET /simulations/{id}`. Assumption fields (`return_pct`, `inflation_pct`) are required where used; there are no defaults. Responses carry `official` and `watermark`. Streaming, NL parsing in the API and comparison endpoints are not built (the coach parses simple phrasings).
+
+## Implemented in MVP 4, slice 2 (actions)
+`GET /actions[?include_closed=true]` - `POST /actions/refresh` (recomputes and reconciles; idempotent) - `POST /actions/{id}/{accept|skip|snooze|start|complete|reopen}` (snooze body `{"days":1..90}`; illegal moves return 409 `invalid_transition`) - `GET /timeline`. Each action carries `expected_score_change` (engine-computed), the priority breakdown, `official` and a watermark. Refresh returns 503 `rulebook_not_approved` in production until the library is approved. `verify` and `complete`-to-verified are system-driven, not endpoints.

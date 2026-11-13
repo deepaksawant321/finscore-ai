@@ -300,8 +300,146 @@
       "value": null
     },
     "actions.library": {
-      "status": "PENDING PRODUCT APPROVAL",
-      "value": null
+      "status": "PLACEHOLDER",
+      "value": [
+        {
+          "key": "build_emergency_fund",
+          "title": "Build your emergency fund",
+          "why": "A cash buffer keeps one bad month from becoming debt.",
+          "cta": "Build your quick-access savings to {target} (about 6 months of your spending).",
+          "pillar": "SP-02",
+          "applies": {
+            "input": "emergency_months",
+            "op": "lt",
+            "value": "6"
+          },
+          "done": {
+            "input": "emergency_months",
+            "op": "gte",
+            "value": "6"
+          },
+          "change": {
+            "kind": "multiple_of",
+            "field": "liquid_assets",
+            "of": "monthly_expenses",
+            "value": "6"
+          },
+          "effort": "medium",
+          "urgency": "high",
+          "time_to_impact_weeks": 26,
+          "supports_goals": false,
+          "verify_field": "liquid_assets"
+        },
+        {
+          "key": "arrange_health_insurance",
+          "title": "Arrange health insurance",
+          "why": "A medical bill can wipe out years of savings.",
+          "cta": "Arrange a health insurance cover. Compare options yourself or with a qualified adviser.",
+          "pillar": "SP-06",
+          "applies": {
+            "input": "has_health_insurance",
+            "op": "eq",
+            "value": false
+          },
+          "done": {
+            "input": "has_health_insurance",
+            "op": "eq",
+            "value": true
+          },
+          "change": {
+            "kind": "set",
+            "field": "has_health_insurance",
+            "value": true
+          },
+          "effort": "low",
+          "urgency": "high",
+          "time_to_impact_weeks": 2,
+          "supports_goals": false,
+          "verify_field": "has_health_insurance"
+        },
+        {
+          "key": "arrange_term_insurance",
+          "title": "Arrange term life cover",
+          "why": "Income protection matters most when others depend on you.",
+          "cta": "Arrange a term life cover. Compare options yourself or with a qualified adviser.",
+          "pillar": "SP-06",
+          "applies": {
+            "input": "has_term_insurance",
+            "op": "eq",
+            "value": false
+          },
+          "done": {
+            "input": "has_term_insurance",
+            "op": "eq",
+            "value": true
+          },
+          "change": {
+            "kind": "set",
+            "field": "has_term_insurance",
+            "value": true
+          },
+          "effort": "low",
+          "urgency": "medium",
+          "time_to_impact_weeks": 4,
+          "supports_goals": false,
+          "verify_field": "has_term_insurance"
+        },
+        {
+          "key": "raise_savings_rate",
+          "title": "Raise your savings rate",
+          "why": "Saving more each month is what funds every goal.",
+          "cta": "Bring monthly spending down to about {target} so that you save 30% of your income.",
+          "pillar": "SP-01",
+          "applies": {
+            "input": "savings_rate",
+            "op": "lt",
+            "value": "0.30"
+          },
+          "done": {
+            "input": "savings_rate",
+            "op": "gte",
+            "value": "0.30"
+          },
+          "change": {
+            "kind": "target_savings_rate",
+            "field": "monthly_expenses",
+            "value": "0.30"
+          },
+          "effort": "high",
+          "urgency": "medium",
+          "time_to_impact_weeks": 12,
+          "supports_goals": true,
+          "verify_field": "monthly_expenses"
+        },
+        {
+          "key": "lower_emi_burden",
+          "title": "Lower your EMI burden",
+          "why": "Loan payments take a share of income before you can save or invest.",
+          "cta": "Bring total monthly EMIs down to about {target} (25% of income).",
+          "pillar": "SP-03",
+          "applies": {
+            "input": "debt_to_income",
+            "op": "gt",
+            "value": "0.25"
+          },
+          "done": {
+            "input": "debt_to_income",
+            "op": "lte",
+            "value": "0.25"
+          },
+          "change": {
+            "kind": "target_debt_ratio",
+            "field": "monthly_emi_total",
+            "value": "0.25"
+          },
+          "effort": "high",
+          "urgency": "medium",
+          "time_to_impact_weeks": 52,
+          "supports_goals": true,
+          "verify_field": "monthly_emi_total"
+        }
+      ],
+      "note": "DEMO ACTION LIBRARY - NOT APPROVED. Actions, targets (6 months, 30% savings, 25% EMI), effort, urgency and timing are engineering placeholders. Score effects are never stored here: the score engine computes them per user (D-B6)."
     },
     "simulation.assumptions": {
       "status": "PENDING PRODUCT APPROVAL",
@@ -315,6 +453,35 @@
       "status": "PLACEHOLDER",
       "value": "0.5",
       "note": "Below this confidence the UI labels the score an 'early estimate' and does not announce a wealth stage. Not an approved rule."
+    },
+    "priority.weights": {
+      "status": "PROPOSED",
+      "value": {
+        "impact": "30",
+        "financial_impact": "25",
+        "urgency": "20",
+        "ease": "10",
+        "confidence": "10",
+        "goal_alignment": "5",
+        "max_actions": "5"
+      },
+      "note": "Maximum points per factor (blueprint 12 proposal) and the number of actions shown. Not approved."
+    },
+    "priority.scales": {
+      "status": "PLACEHOLDER",
+      "value": {
+        "urgency": {
+          "high": "20",
+          "medium": "10",
+          "low": "5"
+        },
+        "ease": {
+          "low": "10",
+          "medium": "6",
+          "high": "3"
+        }
+      },
+      "note": "How urgency and effort labels map to points. Not approved."
     }
   }
 }

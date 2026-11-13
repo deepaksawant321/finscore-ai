@@ -36,8 +36,8 @@ The Rulebook is the single version-controlled specification (B§28 "critical dep
 | Persona catalogue & mapping | **PENDING** (only "The Builder" example) | D-B5 |
 | DNA dimensions (10) | PROPOSED | B§7 |
 | DNA trait value sets & thresholds | **PENDING** | D-B5 |
-| Action library & score deltas | **PENDING** (deck has illustrative +18/+16… only) | D-B6 |
-| Action priority weights (30/25/20/10/10/5) | PROPOSED | B§12 |
+| Action library & score deltas | **DEMO library in `0.0.0-demo` (PLACEHOLDER)**; official list PENDING (deck has illustrative +18/+16… only). Score deltas are never stored: the score engine computes them per user | D-B6 |
+| Action priority weights (30/25/20/10/10/5), top-5 cap | PROPOSED (`priority.weights`); urgency/effort point scales PLACEHOLDER (`priority.scales`) | B§12 |
 | Simulation assumptions (returns, inflation, step-ups, tax) | **PENDING** | D-B7 |
 | Monte Carlo method & confidence ranges | **PENDING** | D-B7 |
 | Health thresholds (green/amber/red) | **PENDING** (configurable by age/income/household) | B§18 |

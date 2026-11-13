@@ -119,11 +119,11 @@ async def test_goal_check_needs_the_users_own_assumptions_and_matches_the_fundin
     assert "Projection, not a guarantee" in ok["assistant_text"] and "chosen by you" in ok["assistant_text"]
 
 
-async def test_act_mode_does_not_invent_actions(client: httpx.AsyncClient, mailer) -> None:  # type: ignore[no-untyped-def]
+async def test_act_mode_offers_only_actions_with_a_known_gap(client: httpx.AsyncClient, mailer) -> None:  # type: ignore[no-untyped-def]
     h = await with_score(client, mailer)
     cid = await coach(client, h)
     t = await ask(client, h, cid, "How can I improve my score?")
-    assert t["mode"] == "act" and "can't yet tell you which actions" in t["assistant_text"]
+    assert t["mode"] == "act" and "don't see an action" in t["assistant_text"]  # nothing known to improve, so nothing is invented
     assert "holding you back" in t["assistant_text"] or "Helping you most" in t["assistant_text"]
 
 

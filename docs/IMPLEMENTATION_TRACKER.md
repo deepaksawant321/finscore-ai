@@ -104,7 +104,21 @@ Evidence: backend `pytest` 185 passed (+22: simulate engine 11 incl. a property 
 | M4-05 | Scenario: fund a goal differently | Completed | Before/after via the same funding view as the goals page; the stored goal is untouched |
 | M4-06 | Coach what-if (invest, expenses) + What-if page | Completed | Coach parses amounts/years/return deterministically and asks for missing assumptions |
 | M4-07 | Score Predictor (score over time) | **Not started** | Needs approved action deltas and persistence rules (D-B6) |
-| M4-08 | Action library, prioritiser, state machine, verification, Timeline | **Not started** | Blocked on D-B6 (approved actions and score effects); only a demo-flagged library could be built |
+| M4-08 | Action library (DEMO), prioritiser, state machine, verification, Timeline | Completed (demo-flagged) | See slice 2 below. The library, targets and scales are placeholders (D-B6); score effects are computed per user by the score engine |
 | M4-09 | Monte Carlo ranges (seeded) | **Not started** | Method and ranges are PENDING (D-B7) |
 | M4-10 | Goal builder (discovery with confirmation) | **Not started** | |
 | M4-11 | Redis + worker | **Deferred by design** | Not needed for synchronous what-ifs; adopting it is an infrastructure/cost decision for you |
+
+### MVP 4, slice 2: demo action library, prioritiser, state machine, verification, timeline (2026-11-13)
+Evidence: backend `pytest` 200 passed (+15: action engine 8, actions API 7); ruff/mypy/import-linter clean; frontend tsc/lint/build clean; in the in-app browser: ranked list, accept, "I've done it" (stays "waiting for your numbers"), fact updated, refresh verified it, score recomputed, timeline shows each step.
+| ID | Item | Status | Evidence / remarks |
+|---|---|---|---|
+| A-01 | Demo action library in the Rulebook (`actions.library`, 5 actions) | Completed (PLACEHOLDER, watermarked) | Each action is a concrete change to stated facts; targets (6 months of expenses, 30% savings rate, 25% EMI share), effort, urgency and timing are placeholders |
+| A-02 | Score effect per action | Completed | Computed as score(after change) - score(now) by the score engine; test proves it equals the simulator's result; actions with no positive computed effect are not offered |
+| A-03 | Prioritiser (composite 0-100) | Completed (weights PROPOSED) | impact 30 + money 25 + urgency 20 + ease 10 + confidence 10 + goals 5, impact/money relative to today's candidates; breakdown stored and shown; deterministic, ties by key |
+| A-04 | Only known gaps become actions | Completed | Unknown data never creates an action (it is an interview question); closed gaps withdraw the offer |
+| A-05 | State machine + audit + events | Completed | suggested/snoozed/accepted/in_progress/completed/verified/skipped/expired; illegal moves return 409; skipped actions are not re-suggested; snooze 1-90 days (placeholder) |
+| A-06 | Verification | Completed | "Done" is not proof: verified only when the user's own numbers meet the target; linked to the proving fact; recomputes the score |
+| A-07 | Timeline (`/timeline`, Actions page) | Completed | Action events + score runs |
+| A-08 | Coach "what should I do" | Completed | Top 3 with engine numbers and demo caveats; no invented actions |
+| A-09 | Gamification/XP, nudges, reminders for snoozed actions | **Not started** | MVP 5 |

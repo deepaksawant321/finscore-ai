@@ -11,6 +11,7 @@ from typing import Any
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import Settings
+from app.domains.actions.service import ActionService
 from app.domains.goals.models import Goal
 from app.domains.goals.service import GoalService, funding_view
 from app.domains.interview.service import InterviewService, _fmt
@@ -20,7 +21,7 @@ from app.domains.scoring.models import ScoreRun
 from app.domains.scoring.service import ScoringService
 from app.domains.simulation.service import SimulationService
 from app.domains.simulation.specs import Invest, ScoreWhatIf
-from app.engines.money import D, find_amounts, round_money
+from app.engines.money import D, find_amounts, format_inr
 from app.infra.errors import AppError
 from app.rulebook.loader import DEFAULT_VERSION, load_rulebook
 
@@ -40,17 +41,7 @@ class ToolResult:
         return "\n".join([*self.lines, *self.caveats])
 
 
-def inr(v: Decimal | str | int) -> str:
-    n = int(round_money(D(str(v))))
-    s = str(abs(n))
-    head, tail = s[:-3], s[-3:]
-    parts: list[str] = []
-    while len(head) > 2:
-        parts.insert(0, head[-2:])
-        head = head[:-2]
-    if head:
-        parts.insert(0, head)
-    return ("-" if n < 0 else "") + "₹" + (",".join([*parts, tail]) if parts else tail)
+inr = format_inr
 
 
 def points(v: str | Decimal) -> str:
@@ -288,15 +279,36 @@ class CoachTools:
         return ToolResult("what_if", lines, caveats=[] if sim.official else [DEMO_NOTE])
 
     # ---- Act mode ----
-    @staticmethod
-    def action_unavailable() -> ToolResult:
+    async def next_actions(self) -> ToolResult:
+        """Top actions from the DEMO action library. Score effects are computed by the score engine, never typed in."""
+        try:
+            views = await ActionService(self.s, self.cfg).refresh(self.uid)
+        except AppError:
+            return ToolResult(
+                "act",
+                ["I can't suggest actions yet: the official action rules have not been approved."],
+                ok=False,
+                caveats=["I can still show what is holding your score back and which information is missing."],
+            )
+        open_ = [v for v in views if v.row.state in ("suggested", "accepted", "in_progress")][:3]
+        if not open_:
+            return ToolResult(
+                "act",
+                [
+                    "I don't see an action that would raise your score right now. Telling me more about your finances can reveal more."
+                ],
+                ok=False,
+            )
+        lines = ["Here are your top actions from the demo action list, in priority order:"]
+        for i, v in enumerate(open_, 1):
+            lines.append(f"{i}. {v.title}: {v.cta} Expected score change: {points(v.row.expected_delta)} points.")
         return ToolResult(
             "act",
-            [
-                "I can't yet tell you which actions will raise your score. The approved action list and score effects are not available."
+            lines,
+            caveats=[
+                "This is a demo action list, not an approved one. You can accept or skip actions on the Actions page.",
+                DEMO_NOTE,
             ],
-            ok=False,
-            caveats=["I can still show what is holding your score back and which information is missing."],
         )
 
 

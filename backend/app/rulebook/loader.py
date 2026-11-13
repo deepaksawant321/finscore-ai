@@ -6,6 +6,7 @@ from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
+from app.engines.actions import ActionSpec, Change, Cond, PriorityConfig
 from app.engines.score import Measure, PillarSpec, ScoreSpec
 from app.engines.stage import Stage
 from app.engines.traits import Band, PersonaSpec, TraitSpec
@@ -91,6 +92,29 @@ class Rulebook:
 
     def min_confidence_for_stage(self) -> Decimal:
         return Decimal(self.item("score.min_confidence_for_stage").value)
+
+    def action_specs(self) -> tuple[ActionSpec, ...]:
+        def val(v: Any) -> Any:
+            return v if isinstance(v, bool) else Decimal(str(v))
+
+        out = []
+        for a in self.item("actions.library").value or []:
+            ap, dn, ch = a["applies"], a["done"], a["change"]
+            out.append(ActionSpec(
+                a["key"], a["title"], a["why"], a["cta"], a["pillar"], Cond(ap["input"], ap["op"], val(ap["value"])),
+                Cond(dn["input"], dn["op"], val(dn["value"])),
+                Change(ch["kind"], ch["field"], val(ch["value"]) if ch.get("value") is not None else None, ch.get("of")),
+                a["effort"], a["urgency"], int(a["time_to_impact_weeks"]), bool(a["supports_goals"]), a["verify_field"],
+            ))  # fmt: skip
+        return tuple(out)
+
+    def priority_config(self) -> PriorityConfig:
+        w = dict(self.item("priority.weights").value)
+        sc = self.item("priority.scales").value
+        return PriorityConfig(
+            {k: Decimal(v) for k, v in w.items() if k != "max_actions"},
+            {k: Decimal(v) for k, v in sc["urgency"].items()}, {k: Decimal(v) for k, v in sc["ease"].items()}, int(w["max_actions"]),
+        )  # fmt: skip
 
     def stage_matrix(self) -> object | None:
         matrix: object | None = self.item("score.stage_matrix").value

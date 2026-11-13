@@ -2,6 +2,14 @@
 
 Format: Keep a Changelog; semver for the product, separate semver for the Rulebook.
 
+## [0.4.1-dev] - MVP 4 slice 2: demo action library - 2026-11-13
+### Added
+- Demo-flagged action library in the Rulebook (5 actions) with PROPOSED priority weights; per-user score effects computed by the score engine; ranked suggestions with a stored priority breakdown.
+- Action state machine (accept, start, complete, skip, snooze, reopen), verification against the user's own numbers (recomputes the score), timeline, Actions page, coach "what should I do next". Migration 0006.
+### Changed
+- Coach no longer says it cannot suggest actions; it lists the top demo actions (or says none apply).
+- Engine helper `format_inr` moved to the pure engines package.
+
 ## [0.4.0-dev] - MVP 4 Prediction and Action (slice 1) - 2026-11-13
 ### Added
 - What-if simulator: pure projection engine, `/api/v1/simulations` (invest monthly, change my numbers, fund a goal differently), What-if page, coach what-if answers. Migration 0005.
