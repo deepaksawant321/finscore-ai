@@ -8,6 +8,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import Settings
+from app.domains.events import bus
 from app.domains.governance.service import audit
 from app.domains.profile.models import InputSnapshot
 from app.domains.profile.service import ProfileService
@@ -140,6 +141,7 @@ class ScoringService:
         await audit(self.s, action="score.computed", entity_type="score_run", entity_id=str(run.id), actor_user_id=user_id,
                     request_id=request_id, meta={"rulebook_version": rb.version, "official": rb.is_official,
                                                   "engine_version": ENGINE_VERSION})  # fmt: skip
+        bus.publish(self.s, user_id, bus.SCORE_COMPUTED, {"run_id": str(run.id)})
         return run
 
     @staticmethod

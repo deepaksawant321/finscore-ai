@@ -34,8 +34,8 @@ Status values: OPEN / PROPOSED-AWAITING-APPROVAL / APPROVED / REJECTED.
 | D-B10 🟠 | Human escalation policy (triggers, SLA, who staffs) | MVP 3 | Compliance/CS |
 | D-B11 🟠 | Tax regime rules scope (old/new regime, FY, deductions to model) | MVP 2/4 | Quant |
 | D-B12 🟡 | Risk-profiling methodology (approved questionnaire?) | MVP 2 | Compliance |
-| D-B13 🟡 | Subscription plans, prices, quotas, free-tier limits, trial, currency/GST | MVP 6 | Product/Growth |
-| D-B14 🟡 | B2B scope: who are tenants (advisors, banks, employers)? white-label? admin roles? | MVP 6 | Product |
+| D-B13 🟡 | Subscription plans, prices, quotas, free-tier limits, trial, currency/GST. **Interim placeholders are built (K-46)** in `plans.py` and must be confirmed or replaced | MVP 6 | Product/Growth |
+| D-B14 🟡 | B2B scope: who are tenants (advisors, banks, employers)? white-label? admin roles? **Interim model built**: any business can create a workspace with owner/admin/analyst/viewer roles and white-label branding; confirm or change | MVP 6 | Product |
 | D-B15 🟡 | Global scope: which countries/currencies/tax systems after India? MVP is India-only unless told. | MVP 1 | Product |
 | D-B16 🟡 | Data retention periods, deletion/export rules per data class | MVP 1 | Legal |
 | D-B17 🟡 | Languages (English only at MVP? Hindi?) | MVP 2 | Product |

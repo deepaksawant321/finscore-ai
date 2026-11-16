@@ -10,11 +10,13 @@ from app.ai.gateway import LLMProvider, build_provider
 from app.api.errors import register_error_handlers
 from app.api.v1.router import api_router
 from app.config import Settings, get_settings
-from app.domains.privacy.scheduler import PurgeScheduler, for_privacy
+from app.domains.events.dispatcher import for_wealth_os
+from app.domains.privacy.scheduler import for_privacy
 from app.infra.crypto import configure_encryption
 from app.infra.db import make_engine, make_sessionmaker
 from app.infra.logging import configure_logging
 from app.infra.mailer import FileMailer, LogMailer, Mailer, SmtpMailer
+from app.infra.scheduler import IntervalScheduler
 
 log = structlog.get_logger()
 
@@ -29,14 +31,21 @@ def create_app(settings: Settings | None = None, mailer: Mailer | None = None, l
         engine = make_engine(cfg.database_url)
         app.state.engine = engine
         app.state.sessionmaker = make_sessionmaker(engine)
-        scheduler: PurgeScheduler | None = None
+        scheduler: IntervalScheduler | None = None
         if cfg.purge_scheduler_enabled:
             scheduler = for_privacy(app.state.sessionmaker, cfg)
             scheduler.start()
         app.state.purge_scheduler = scheduler
+        wealth_os: IntervalScheduler | None = None
+        if cfg.wealth_os_enabled:
+            wealth_os = for_wealth_os(app.state.sessionmaker, cfg)
+            wealth_os.start()
+        app.state.wealth_os_scheduler = wealth_os
         yield
         if scheduler is not None:
             await scheduler.stop()
+        if wealth_os is not None:
+            await wealth_os.stop()
         await engine.dispose()
 
     app = FastAPI(

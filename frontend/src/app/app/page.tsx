@@ -2,13 +2,13 @@
 
 import Link from "next/link";
 
-import { Alert, Badge, Card } from "@/design-system/ui";
+import { Alert, Card, buttonClass } from "@/design-system/ui";
+import { NextStepCard } from "@/features/actions/next-step-card";
 import { useAuth } from "@/features/auth/auth-context";
 import { TodayCard } from "@/features/companion/nudges";
-import { ScoreRing } from "@/features/score/score-ring";
+import { MatrixScoreCard } from "@/features/matrix-score/home-card";
 import { useCurrentScore } from "@/features/score/hooks";
-
-const linkBtn = "inline-flex min-h-[44px] items-center rounded-md bg-brand px-4 text-sm font-semibold text-brand-ink";
+import { ScoreCard } from "@/features/score/score-card";
 
 export default function Home() {
   const { user } = useAuth();
@@ -17,18 +17,16 @@ export default function Home() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Welcome{user?.full_name ? `, ${user.full_name}` : ""}</h1>
-
-      <TodayCard />
+      <h1 className="font-display text-3xl font-bold tracking-tight">Welcome{user?.full_name ? `, ${user.full_name}` : ""}</h1>
 
       {score.isLoading && <p className="text-muted">Loading…</p>}
       {score.isError && <Alert tone="error">Could not load your score right now.</Alert>}
 
       {score.isSuccess && !s && (
         <Card className="space-y-3">
-          <h2 className="text-lg font-semibold">Start with one question</h2>
-          <p className="text-muted">What is the one money problem you want to solve right now? Tell me in your own words — no long form.</p>
-          <Link href="/app/interview" className={linkBtn}>
+          <h2 className="font-display text-lg font-semibold">Start with one question</h2>
+          <p className="text-muted">What is the one money problem you want to solve right now? Tell me in your own words, no long form.</p>
+          <Link href="/app/interview" className={buttonClass("primary", "md", "w-fit")}>
             Start the conversation
           </Link>
         </Card>
@@ -42,31 +40,16 @@ export default function Home() {
               FinScore.
             </Alert>
           )}
-          <Card className="grid gap-6 sm:grid-cols-[14rem_1fr] sm:items-center">
-            <ScoreRing value={Number(s.overall)} stage={s.stage} provisional={s.stage_provisional} early={s.early_estimate} />
-            <div className="space-y-3">
-              <div className="flex flex-wrap gap-2">
-                <Badge tone={s.trend === "improving" ? "positive" : "neutral"}>Trend: {s.trend}</Badge>
-                <Badge>Confidence: {Math.round(Number(s.confidence) * 100)}%</Badge>
-                {!s.official && <Badge tone="demo">Demo rules</Badge>}
-                {s.early_estimate && <Badge tone="demo">Early estimate</Badge>}
-              </div>
-              <p className="text-sm text-muted">
-                Confidence is the share of the score we could measure from what you have told us. Missing information lowers confidence — it is never
-                counted as zero.
-              </p>
-              <div className="flex flex-wrap gap-2">
-                <Link href="/app/score" className={linkBtn}>
-                  Why this score?
-                </Link>
-                <Link href="/app/interview" className="inline-flex min-h-[44px] items-center rounded-md border border-line px-4 text-sm font-semibold">
-                  Tell me more
-                </Link>
-              </div>
-            </div>
-          </Card>
+          <ScoreCard run={s} />
         </>
       )}
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        <TodayCard />
+        <NextStepCard />
+      </div>
+
+      {score.isSuccess && <MatrixScoreCard />}
     </div>
   );
 }

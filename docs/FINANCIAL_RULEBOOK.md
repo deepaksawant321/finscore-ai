@@ -67,3 +67,6 @@ Rule change = PR touching `rulebook/versions/`; requires CODEOWNERS (Quant + Pro
 
 ## 7. Explainability text
 Each factor key maps to a template (`explanation_key`) with slots filled from deterministic values; LLM may paraphrase but not alter numbers (grounding guard).
+
+## 6. Workbook-derived rule set (matrix-0.1.0-draft)
+A second, **separate** rule set derived from the business spreadsheets (15 factors x age bands, weights summing to 100, 0-900) lives in `backend/app/rulebook/versions/matrix-0.1.0-draft/matrix_rules.json` (generated from `docs/rules/finscore_rules.json`; a test fails if the two copies differ). Specification and 19 open questions: `docs/rules/FINSCORE_RULES_SPEC.md`. Status of the whole set: **PROPOSED, not APPROVED**: it is watermarked, never `official`, and refused in production. It does not replace the 20-pillar rulebook above; which of the two is "the FinScore" is a Product decision.

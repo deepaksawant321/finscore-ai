@@ -40,7 +40,13 @@ export default function ScoreWhyPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Why is your score {Math.round(Number(run.overall))}?</h1>
+      <h1 className="font-display text-3xl font-bold tracking-tight">Why is your score {Math.round(Number(run.overall))}?</h1>
+      <p className="text-sm text-muted">
+        There is also a second, draft score built from the business spreadsheets.{" "}
+        <Link href="/app/score/matrix" className="text-ai underline">
+          See the workbook-model score
+        </Link>
+      </p>
       {e?.watermark && <Alert tone="info">{e.watermark}. These factors use placeholder rules, not the official methodology.</Alert>}
       {explain.isError && <Alert tone="error">Could not load the explanation.</Alert>}
       {e && (
@@ -59,11 +65,11 @@ export default function ScoreWhyPage() {
                     <div className="relative hidden h-4 sm:block" aria-hidden="true">
                       <div className="absolute left-1/2 top-0 h-4 w-px bg-line" />
                       <div
-                        className={c >= 0 ? "absolute left-1/2 h-4 rounded-r bg-positive" : "absolute h-4 rounded-l bg-negative"}
+                        className={c >= 0 ? "absolute left-1/2 h-4 rounded-r-full bg-gradient-to-r from-brand/70 to-brand" : "absolute h-4 rounded-l-full bg-gradient-to-l from-negative/70 to-negative"}
                         style={c >= 0 ? { width: `${(c / max) * 50}%` } : { right: "50%", width: `${(-c / max) * 50}%` }}
                       />
                     </div>
-                    <span className={`text-right text-sm font-semibold tabular-nums ${c >= 0 ? "text-positive" : "text-negative"}`}>
+                    <span className={`text-right font-display text-sm font-bold tabular-nums ${c >= 0 ? "text-positive" : "text-negative"}`}>
                       {c >= 0 ? "+" : "−"}
                       {Math.abs(c).toFixed(1)}
                     </span>

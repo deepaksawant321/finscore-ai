@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import Settings
 from app.domains.actions.models import ACTIVE_STATES, ActionEvent, UserAction
+from app.domains.events import bus
 from app.domains.goals.service import GoalService
 from app.domains.governance.service import audit
 from app.domains.profile.service import ProfileService, derive_inputs
@@ -140,6 +141,7 @@ class ActionService:
         await self._event(a, a.state, "verified", meta)
         await audit(self.s, action="action.verified", entity_type="user_action", entity_id=str(a.id), actor_user_id=a.user_id,
                     request_id=request_id, meta={"key": a.catalog_key})  # fmt: skip
+        bus.publish(self.s, a.user_id, bus.ACTION_VERIFIED, {"action_id": str(a.id), "catalog_key": a.catalog_key})
         return True
 
     # ---------- suggestion ----------

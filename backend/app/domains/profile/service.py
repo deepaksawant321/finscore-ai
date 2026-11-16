@@ -6,6 +6,7 @@ from decimal import Decimal
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.domains.events import bus
 from app.domains.governance.service import audit
 from app.domains.profile.catalog import FIELDS, SOURCE_RANK, SOURCE_TYPES, InvalidFact, normalise_value
 from app.domains.profile.models import Fact
@@ -114,6 +115,7 @@ class ProfileService:
                     entity_id=str(new.id), actor_user_id=user_id, ip=actor_ip, request_id=request_id,
                     meta={"field": key, "source_type": source_type, "user_correction": user_correction,
                           "material_change": material})  # fmt: skip
+        bus.publish(self.s, user_id, bus.FACT_CHANGED, {"field_key": key})
         return RecordResult(new, True, current, material)
 
     async def raw_inputs(self, user_id: uuid.UUID) -> dict[str, Decimal | bool | None]:

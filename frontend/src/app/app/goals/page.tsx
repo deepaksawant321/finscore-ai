@@ -61,7 +61,7 @@ export default function GoalsPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Your goals</h1>
+      <h1 className="font-display text-3xl font-bold tracking-tight">Your goals</h1>
       <p className="text-sm text-muted">
         Amounts are in today&apos;s rupees. I never create a goal for you without asking — you decide what matters.
       </p>

@@ -175,3 +175,16 @@ Evidence: backend `pytest` 280 passed (+12: scheduler timing unit tests 9, end-t
 | P-02 | Resolves K-25 | Completed | erasure no longer depends on an operator remembering to run the CLI; the CLI command remains for manual/ad hoc use |
 | P-03 | Safe under a bad run or multiple instances | Completed | one failing run is logged and does not stop future runs (tested); `purge_due` only touches rows still pending and due, so more than one instance running it is redundant, not harmful |
 | P-04 | A real job queue (Redis + worker, T-6) | **Not started by design** | this is explicitly the interim, no-new-infra answer; a real worker is the right call once horizontal scaling needs one for other async work too |
+
+## Cross-cutting: fintech UI refresh + SaaS workspace screens (2026-11-16)
+Evidence: frontend `tsc`, `next lint`, `vitest` (72 passed) and `next build` clean; checked in the in-app browser against a throwaway mock API (home, setup, branding, phone layout and More sheet); public pages checked directly.
+| ID | Item | Status | Evidence / remarks |
+|---|---|---|---|
+| UI-01 | Tokens, fonts, white-label theme provider | Completed | `src/lib/theme/*` + 7 unit tests; live re-theme confirmed in browser |
+| UI-02 | Design-system primitives | Completed | `src/design-system/*` + 11 tests |
+| UI-03 | App shell (rail, top bar, mobile tabs), grouped nav, auth screens, landing | Completed | no horizontal overflow at 390 px; nav tests extended |
+| UI-04 | Home score card, stage ladder, next-step card | Completed | ring settles at the exact value (64% for 684) |
+| UI-05 | Restyle of remaining customer pages | Completed (pattern swap) | headings, buttons, chat bubbles, driver bars, Memory source badges; **not individually inspected in a browser** |
+| UI-06 | Workspace admin screens (demo data) | Completed | 5 routes, 12 logic tests; K-42 |
+| UI-07 | Run against the real backend with a real login | Completed (2026-11-16) | login, 13 customer pages, coach question, what-if run, workspace go-live flow, team invite and seat limit, billing toggle, dark mode, logout; no horizontal overflow on any page at 390 px. Found and fixed: early estimate must not announce a stage on the ladder; Team table overflowed on phones; copying the snippet could be blocked by the browser and leave Go live locked |
+| UI-08 | Organisation, API-key, usage and billing backend | Completed (2026-11-16), payments excluded | 5 new tables (migration 0010), 24 endpoints under `/orgs` and `/partner`, 26 new backend tests (428 in total), workspace screens moved to the real API. Verified in a browser against the real backend: create workspace, upgrade, go live, branding stored server-side, invite and accept, role-limited views, key rotation with grace period, invoice. K-45 to K-48 |

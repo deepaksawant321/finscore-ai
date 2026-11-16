@@ -2,6 +2,83 @@
 
 Format: Keep a Changelog; semver for the product, separate semver for the Rulebook.
 
+## [0.7.0-dev] - Organisation, API-key, usage and billing backend (MVP 6) - 2026-11-16
+### Added
+- Organisations (workspaces): create one and you become the owner. Roles owner, admin, analyst and viewer, with a permission matrix enforced on the server. Another workspace's data answers 404, never 403.
+- Team: invite by email (single-use 7-day token stored as a hash), accept with the invited address, change role, remove, seat limit per plan. The owner cannot be changed or removed.
+- API keys: sandbox keys on creation, live keys on go-live. Secret keys are shown once and stored only as a SHA-256 hash; rotation keeps the old key for 24 hours; revoke is immediate. Publishable keys are public by design.
+- Partner API: `POST /api/v1/partner/scores` returns a score from the facts a business sends (same engine and rules as the customer app, nothing stored) and `GET /api/v1/partner/me`. Each successful call is metered atomically per month and environment; rejected calls are not charged.
+- Plans and entitlements in one module: Starter (free, sandbox only, hard cap), Growth, Enterprise (sales-led). Limits enforced for seats, modules, going live and removing the "Powered by" label. Upgrades apply at once; downgrades are scheduled for the end of the month and blocked if the workspace does not fit.
+- Billing: monthly estimate with overage and 18% GST, and one invoice per month. No payment is collected (K-45).
+- Go-live checklist, branding, modules and data-source choices are stored per workspace. The activity feed is read from the hash-chained audit log, without keys or email addresses.
+- Frontend: the workspace screens use the real API. Create-workspace flow, one-time key reveal, invite-acceptance page (`/accept-invite`), role-aware controls, and a "For business" link for people without a workspace.
+- Migration 0010; API schema and typed client regenerated.
+### Changed
+- The admin area no longer depends on the `admin` role or the `NEXT_PUBLIC_WORKSPACE_DEMO` flag (removed). Membership of a workspace decides what a person sees.
+- The REST snippet calls the real endpoint; the embed and React SDK samples say they are not published yet.
+- Removed the demo-only usage chart, KPI tiles and webhook list, which had no real data behind them.
+### Fixed
+- Memory now recalculates the score after a big change, as it promised.
+- Verification link no longer shows an error in development after it had worked.
+### Not done
+- Payment provider, PDFs, webhooks, widget and SDK, SSO and MFA, per-day usage history (K-45 to K-48).
+- Plans, prices and limits are placeholders until Product decides D-B13 and D-B14 (K-46).
+
+## [0.6.0-dev] - Fintech UI refresh and SaaS workspace screens - 2026-11-16
+### Added
+- New look: aurora background, glass cards, a dark glowing score card, gradient actions, floating glass sidebar on desktop and a floating tab bar with a More sheet on phones. Light and dark both designed; a light/dark toggle sits in the top bar. Reference design: `docs/prototype/` (open `index.html`; screenshots in `screens/`).
+- Design tokens extended (`--brand-strong`, `--brand-soft`, `--ai-soft`, glass, mesh, radius, fonts) and fonts loaded with `next/font` (Inter, Space Grotesk; two optional white-label faces).
+- White-label theme (`src/lib/theme/`): workspace name, brand and accent colour, corner radius, typeface, "Powered by" label. Colours are converted to RGB triplets so Tailwind opacity classes keep working; text colour on the brand colour is chosen for contrast; very light colours trigger a warning. Stored in this browser only.
+- Design-system primitives: Switch, SegmentedTabs (arrow-key navigation), ProgressBar, Stat, CodeBlock (copy with fallback), Toast, SourceBadge (You told me / Connected account / Calculated / Inferred / Estimated), DemoBadge, Icon set. Button gains `ai` and `sm`; Card gains `glass | solid | flat | dark`; Badge gains more tones. `buttonClass()` lets links share button styling.
+- Home: new score card (ring, confidence and trend as separate figures, 8-stage ladder from the product deck) and a "next best step" card from the existing actions endpoint. The demo banner appears only when the API marks the score as unofficial.
+- Workspace admin screens under `/app/workspace/*` (Go-live setup, Integrations, Branding, Team & roles, Plans & billing). **Demo data only**, labelled on every screen. Shown to the `admin` role, or to everyone when `NEXT_PUBLIC_WORKSPACE_DEMO=1`.
+- Tests: theme and workspace logic tests, primitive tests, navigation tests extended (72 frontend tests in total).
+### Changed
+- Navigation is now grouped (Your money, Plan, Account, Workspace admin) and adds a Home entry. `mainNavLinks()` keeps its previous behaviour.
+- Page headings use the display font; chat bubbles, score driver bars and the Memory source badges follow the new style. No data flow or API call changed.
+### Fixed (found while testing against the real backend)
+- The stage ladder no longer marks a stage for an early estimate (low confidence), matching the rule that no verdict is announced.
+- Team & roles no longer scrolls sideways on phones.
+- Pressing Copy on the embed snippet now counts for the setup checklist even if the browser blocks clipboard access, so Go live cannot get stuck.
+### Not done
+- Workspace, API-key, usage and billing data are not real: no organisation endpoints exist yet (MVP 6, D-B14). Branding is saved per browser, not per workspace.
+- Playwright e2e not run (needs the Docker/Mailpit stack, K-13).
+
+## [0.5.7-dev] - Menu entry and home card for the draft score - 2026-11-16
+### Added
+- "Draft score" in the main menu (right after "Score") and a "Your draft score, 15 areas" card on the home page. The card only links; it never calculates or shows a number.
+- Navigation links moved to `src/lib/nav.ts` (tested: unique destinations, Staff only for staff roles).
+### Fixed
+- The main navigation row now wraps instead of overflowing, so no page scrolls sideways on narrow screens (checked at 375px, including the full score result).
+
+## [0.5.6-dev] - Workbook-model score screen - 2026-11-16
+### Added
+- `/app/score/matrix`: shows the workbook-based FinScore (draft). Calculates on request only (each calculation is audited), keeps the last result when you come back, shows 0-900 ring, confidence and "N of 15 areas measured", every area with points and "how this was worked out", the biggest gaps, what is still missing (in the interview's order, in plain words, linked to the conversation) and the assumptions made. Early estimates (confidence below the placeholder threshold) show no verdict. Always watermarked as a draft; "not available yet" in production. Linked from the main Score page.
+- `ScoreRing` takes optional `min` and `caption` (default behaviour unchanged). Test setup now unmounts components between tests.
+- 23 new frontend tests; checked in a real browser against a throwaway backend (partial profile: 560 at 44% confidence; complete profile: 766 at 100%).
+### Not done
+- (Navigation entry and home card added in 0.5.7.) No history/trend chart (the score is not stored); the interview does not yet offer a one-click "ask me the missing details".
+### Known, pre-existing
+- (Fixed in 0.5.7.) The main navigation bar did not wrap on narrow screens.
+
+## [0.5.5-dev] - Profile fields for the workbook-based FinScore - 2026-11-16
+### Added
+- 13 profile catalogue fields (loans outstanding, equity / debt / other holdings, pending goals, life and health cover amounts, kids, kids-goal planned, 80C, 80D, planning age, risk comfort), appended to the interview after the original 11 (existing order unchanged). With all of them a user now has all 15 factors scored (confidence 1.0). Short answers ("12 lakh", "none", "balanced") are understood; extra boosts for retirement, debt, insurance and investment questions.
+- Adapter `INPUT_SOURCES` ties every engine input to its catalogue field (tested for completeness); `missing_inputs` in the matrix score response now names catalogue fields so the UI can ask the right question.
+### Decisions to confirm
+- Liquid savings (savings accounts, liquid funds, FDs) are added to debt investments so assets and equity share are not understated; this is stated in the response `assumptions`.
+- `risk_profile` is the user's own description of risk comfort, used only to pick a planning return for the retirement calculation. It is NOT an approved risk-profiling methodology (blueprint section 23); the workbook's 7-question questionnaire is implemented in the engine but has no UI yet.
+- "I have 2 kids" still fills `dependants` (existing rule); the `kids` field is asked separately.
+### Not done
+- No frontend screen for the matrix score. `kids_goal_planned` is asked even when the user has no children (the question says to answer no); the selector has no conditional questions yet.
+
+## [0.5.4-dev] - Workbook-based FinScore engine (draft) - 2026-11-16
+### Added
+- `POST /api/v1/score/matrix/compute`: the 15-factor, age x value-matrix FinScore from the business spreadsheets (0-900), run alongside the existing 20-pillar score. Pure Decimal engine (`app/engines/matrix_score.py`, `finmath.py`: retirement corpus/SIP, life cover need, goal planning, risk profile), rules loaded from `app/rulebook/versions/matrix-0.1.0-draft/matrix_rules.json`, adapter from profile facts (`domains/scoring/matrix_adapter.py`). Spec: `docs/rules/FINSCORE_RULES_SPEC.md`.
+- Unknown facts are never guessed: that factor is excluded, the score is rescaled and confidence falls. Every call is audited (input digest + rule/engine version, no values). Reproduces the workbooks' totals (417.6, 535.5) and calculator outputs in tests.
+### Not done
+- DRAFT, unofficial rule set: always watermarked and refused in production. No persistence/history/trend (stateless, no migration). (Superseded by 0.5.5: the profile catalogue now covers every input.) No frontend screen. Open business questions: spec section 10.
+
 ## [0.5.3-dev] - Erasure purge scheduler - 2026-11-13
 ### Added
 - In-process scheduler runs the erasure purge job automatically (immediately on startup, then every `PURGE_INTERVAL_SECONDS`), closing K-25. No new infrastructure or recurring cost; `scripts/admin_cli.py purge-due` remains for manual use. Config: `PURGE_SCHEDULER_ENABLED` (default on), `PURGE_INTERVAL_SECONDS` (placeholder 3600).

@@ -1,0 +1,999 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FinScore AI Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: persistent left rail on desktop, bottom tabs on phone; answer-first home, conversation as primary input. */
+:root{
+  --bg:#F3F7F8; --surface:#FFFFFF; --surface2:#ECF2F3; --ink:#0B1B2B; --muted:#58697A; --line:#DAE4E7;
+  --brand:#0FB5A6; --brand-strong:#0A8579; --on-brand:#03201C; --brand-soft:#DDF5F2;
+  --ai:#4F46E5; --ai-soft:#E9E8FD; --pos:#0B8F5A; --pos-soft:#DCF3E7;
+  --warn:#9A5B00; --warn-fill:#F5A524; --warn-soft:#FDEFD3; --neg:#C5292F; --neg-fill:#E5484D; --neg-soft:#FCE3E3;
+  --shadow:0 1px 2px rgb(11 27 43/.06),0 8px 24px rgb(11 27 43/.06);
+  --font:'Inter',system-ui,sans-serif; --font-num:'Space Grotesk','Inter',system-ui,sans-serif;
+  --r-md:8px; --r-lg:12px; --r-xl:20px; --rail:236px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#08121C; --surface:#0F1D2B; --surface2:#152738; --ink:#E8F0F3; --muted:#92A6B5; --line:#1F3345;
+  --brand:#2DD4C4; --brand-strong:#2DD4C4; --on-brand:#03201C; --brand-soft:#0E3A3A;
+  --ai:#9A96FF; --ai-soft:#25245A; --pos:#3DDC97; --pos-soft:#0F3326;
+  --warn:#F5B648; --warn-fill:#F5A524; --warn-soft:#3A2B0C; --neg:#FF7A7F; --neg-fill:#E5484D; --neg-soft:#40181B;
+  --shadow:0 1px 2px rgb(0 0 0/.4),0 8px 24px rgb(0 0 0/.35); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#08121C; --surface:#0F1D2B; --surface2:#152738; --ink:#E8F0F3; --muted:#92A6B5; --line:#1F3345;
+  --brand:#2DD4C4; --brand-strong:#2DD4C4; --on-brand:#03201C; --brand-soft:#0E3A3A;
+  --ai:#9A96FF; --ai-soft:#25245A; --pos:#3DDC97; --pos-soft:#0F3326;
+  --warn:#F5B648; --warn-fill:#F5A524; --warn-soft:#3A2B0C; --neg:#FF7A7F; --neg-fill:#E5484D; --neg-soft:#40181B;
+  --shadow:0 1px 2px rgb(0 0 0/.4),0 8px 24px rgb(0 0 0/.35); color-scheme:dark}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 15px/1.5 var(--font);-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--ai);outline-offset:2px;border-radius:6px}
+h1,h2,h3,h4,p{margin:0}
+h1{font:600 28px/1.2 var(--font-num);letter-spacing:-.01em;text-wrap:balance}
+h2{font:600 17px/1.3 var(--font);} h3{font:600 15px/1.3 var(--font)}
+.num{font-family:var(--font-num);font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.muted{color:var(--muted)} .small{font-size:13px} .tiny{font-size:12px}
+.eyebrow{font:600 11px/1 var(--font);letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* shell */
+.app{display:grid;grid-template-columns:var(--rail) minmax(0,1fr);min-height:100%}
+.rail{position:sticky;top:0;height:100vh;padding:20px 14px;border-right:1px solid var(--line);background:var(--surface);display:flex;flex-direction:column;gap:6px}
+.brand{display:flex;align-items:center;gap:10px;padding:4px 10px 18px;font:700 18px var(--font-num)}
+.logo{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--brand),var(--ai));display:grid;place-items:center;color:#fff}
+.nav a{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:var(--r-md);color:var(--muted);text-decoration:none;font-weight:500;min-height:44px}
+.nav a:hover{background:var(--surface2);color:var(--ink)}
+.nav a[aria-current="page"]{background:var(--brand-soft);color:var(--brand-strong);font-weight:600}
+.nav-sep{margin:12px 12px 4px}
+.rail-foot{margin-top:auto;padding:12px;border:1px solid var(--line);border-radius:var(--r-lg);background:var(--surface2)}
+.main{min-width:0;display:flex;flex-direction:column}
+.demo-bar{display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;padding:7px 16px;background:var(--warn-soft);color:var(--warn);font-size:12.5px;font-weight:500;border-bottom:1px solid var(--line)}
+.top{display:flex;align-items:center;gap:12px;padding:14px 28px;position:sticky;top:0;z-index:5;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px)}
+.top .grow{flex:1}
+.search{display:flex;align-items:center;gap:8px;flex:1;max-width:420px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:8px 14px;color:var(--muted)}
+.search input{border:0;background:none;outline:0;width:100%}
+.icon-btn{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center;position:relative}
+.icon-btn:hover{border-color:var(--brand)}
+.dot{position:absolute;top:8px;right:9px;width:8px;height:8px;border-radius:50%;background:var(--neg-fill);border:2px solid var(--surface)}
+.avatar{width:40px;height:40px;border-radius:50%;background:var(--ai-soft);color:var(--ai);display:grid;place-items:center;font-weight:700}
+.view{padding:8px 28px 56px;max-width:1180px;width:100%;margin:0 auto;animation:in .25s ease-out}
+@keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.page-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin:8px 0 20px}
+.page-head p{margin-top:6px;max-width:60ch}
+
+/* primitives */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-xl);padding:20px;box-shadow:var(--shadow)}
+.card.flat{box-shadow:none;border-radius:var(--r-lg)}
+.card-h{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
+.grid{display:grid;gap:16px}
+.g-home{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr)}
+.g-2{grid-template-columns:repeat(2,minmax(0,1fr))}.g-sim{grid-template-columns:minmax(0,.9fr) minmax(0,1.3fr)}.card,.item,section,aside{min-width:0}
+.g-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g-4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.row{display:flex;align-items:center;gap:10px} .wrap{flex-wrap:wrap} .between{justify-content:space-between}
+.stack{display:flex;flex-direction:column;gap:12px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 18px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-weight:600;text-decoration:none;color:var(--ink);transition:transform .15s,background .15s}
+.btn:hover{background:var(--surface2)} .btn:active{transform:scale(.98)}
+.btn.primary{background:var(--brand);border-color:var(--brand);color:var(--on-brand)}
+.btn.primary:hover{filter:brightness(1.06)}
+.btn.ai{background:var(--ai);border-color:var(--ai);color:#fff}
+.btn.sm{min-height:36px;padding:0 14px;font-size:13px}
+.btn.ghost{border-color:transparent;background:none;color:var(--muted)}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-size:13px;font-weight:500;min-height:32px}
+button.chip:hover{border-color:var(--brand);background:var(--brand-soft)}
+.badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:999px;font-size:11.5px;font-weight:600;white-space:nowrap}
+.b-pos{background:var(--pos-soft);color:var(--pos)} .b-warn{background:var(--warn-soft);color:var(--warn)}
+.b-neg{background:var(--neg-soft);color:var(--neg)} .b-ai{background:var(--ai-soft);color:var(--ai)} .b-neutral{background:var(--surface2);color:var(--muted)}
+.b-brand{background:var(--brand-soft);color:var(--brand-strong)}
+.tabs{display:inline-flex;gap:4px;padding:4px;background:var(--surface2);border-radius:999px;overflow-x:auto;max-width:100%}
+.tabs button{border:0;background:none;padding:7px 14px;border-radius:999px;font-weight:600;font-size:13px;color:var(--muted);white-space:nowrap;min-height:36px}
+.tabs button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgb(0 0 0/.12)}
+.bar{height:8px;border-radius:99px;background:var(--surface2);overflow:hidden}
+.bar>i{display:block;height:100%;border-radius:99px;background:var(--brand);transition:width .6s cubic-bezier(.2,.8,.2,1)}
+.hr{height:1px;background:var(--line);margin:14px 0;border:0}
+.tip{position:relative;display:inline-grid;place-items:center;width:18px;height:18px;border-radius:50%;background:var(--surface2);color:var(--muted);font-size:11px;font-weight:700;border:0;cursor:help}
+.tip:hover::after,.tip:focus::after{content:attr(data-tip);position:absolute;bottom:130%;left:50%;transform:translateX(-50%);width:230px;padding:9px 11px;border-radius:10px;background:var(--ink);color:var(--bg);font:500 12px/1.4 var(--font);z-index:20;text-align:left}
+
+/* score hero */
+.hero{display:grid;grid-template-columns:auto minmax(0,1fr);gap:24px;align-items:center}.trio>div{padding:12px}
+.ring{position:relative;width:260px;height:236px}
+.ring svg{display:block;width:100%;height:100%;overflow:visible}
+.ring-c{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding-top:22px}
+.ring-c .big{font:700 62px/1 var(--font-num);letter-spacing:-.03em}
+.trio{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.hero .trio{grid-template-columns:1fr;gap:8px}.hero .trio>div{display:grid;grid-template-columns:110px 1fr auto;align-items:center;gap:10px;padding:10px 14px}.hero .trio .v{margin:0;font-size:20px}.hero .trio p{margin:0!important}.hero .trio .bar{margin:0!important;grid-column:auto;width:70px}.trio .eyebrow{display:flex;align-items:center;gap:4px;white-space:nowrap}.trio .v{white-space:nowrap}
+.trio>div{padding:12px 14px;border:1px solid var(--line);border-radius:var(--r-lg);background:var(--surface2)}
+.trio .v{font:600 22px/1.2 var(--font-num);margin-top:6px}
+.ladder{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;margin-top:6px}
+.ladder i{height:8px;border-radius:4px;background:var(--surface2)} .ladder i.on{background:var(--brand)} .ladder i.cur{background:var(--ai);box-shadow:0 0 0 3px var(--ai-soft)}
+.ladder-l{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;font-size:11px;color:var(--muted);margin-top:6px;text-align:center}.ladder-l span{white-space:nowrap;overflow:visible}.ladder-l span:first-child{text-align:left}.ladder-l span:last-child{text-align:right}
+.ladder-l .cur{color:var(--ai);font-weight:700}
+
+/* lists */
+.item{display:flex;gap:12px;align-items:flex-start;padding:14px;border:1px solid var(--line);border-radius:var(--r-lg);background:var(--surface)}
+.ico{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;flex:none}
+.i-brand{background:var(--brand-soft);color:var(--brand-strong)} .i-ai{background:var(--ai-soft);color:var(--ai)} .i-warn{background:var(--warn-soft);color:var(--warn)} .i-neg{background:var(--neg-soft);color:var(--neg)} .i-pos{background:var(--pos-soft);color:var(--pos)}
+.vital{display:flex;align-items:center;gap:10px;padding:12px;border:1px solid var(--line);border-radius:var(--r-lg);background:var(--surface)}
+.led{width:10px;height:10px;border-radius:50%;flex:none}
+.led.g{background:var(--pos)} .led.a{background:var(--warn-fill)} .led.r{background:var(--neg-fill)}
+
+/* waterfall */
+.wf-row{display:grid;grid-template-columns:150px minmax(0,1fr) 58px;gap:12px;align-items:center;padding:9px 8px;border-radius:var(--r-md);border:0;background:none;width:100%;text-align:left}
+.wf-row:hover,.wf-row[aria-pressed="true"]{background:var(--surface2)}
+.wf-track{position:relative;height:22px}
+.wf-track::before{content:"";position:absolute;left:50%;top:-4px;bottom:-4px;width:1px;background:var(--line)}
+.wf-track i{position:absolute;top:3px;height:16px;border-radius:5px;transition:width .5s cubic-bezier(.2,.8,.2,1)}
+.wf-pos i{left:50%;background:var(--brand)} .wf-neg i{right:50%;background:var(--neg-fill)}
+
+/* chat */
+.chat{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:16px;height:calc(100vh - 210px);min-height:520px}
+.chat-main{display:flex;flex-direction:column;min-height:0;padding:0;overflow:hidden}
+.msgs{flex:1;overflow:auto;padding:20px;display:flex;flex-direction:column;gap:14px}
+.msg{max-width:84%;padding:12px 16px;border-radius:18px;animation:in .25s ease-out}
+.msg.u{align-self:flex-end;background:var(--ink);color:var(--bg);border-bottom-right-radius:6px}
+.msg.a{align-self:flex-start;background:var(--surface2);border-bottom-left-radius:6px}
+.msg .trace{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.composer{padding:12px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:10px;background:var(--surface)}
+.composer form{display:flex;gap:8px}
+.composer input{flex:1;min-height:46px;border-radius:999px;border:1px solid var(--line);padding:0 18px;background:var(--bg);outline:0}
+.composer input:focus{border-color:var(--ai)}
+.fact{display:flex;gap:10px;padding:10px;border-radius:var(--r-md);border:1px dashed var(--line);animation:pop .35s cubic-bezier(.2,1.4,.4,1)}
+.fact.ok{border-style:solid;background:var(--brand-soft)}
+@keyframes pop{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:none}}
+.typing i{display:inline-block;width:6px;height:6px;margin-right:3px;border-radius:50%;background:var(--muted);animation:b 1s infinite}
+.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+@keyframes b{50%{transform:translateY(-4px);opacity:.5}}
+
+/* simulator */
+.slider{display:grid;gap:6px;padding:14px 0;border-bottom:1px solid var(--line)}
+.slider:last-child{border:0}
+input[type=range]{width:100%;accent-color:var(--brand);height:28px}
+.delta{font:700 40px/1 var(--font-num)}
+
+/* timeline */
+.tl{position:relative;padding-left:26px;display:flex;flex-direction:column;gap:18px}
+.tl::before{content:"";position:absolute;left:7px;top:6px;bottom:6px;width:2px;background:var(--line)}
+.tl>div{position:relative}
+.tl>div::before{content:"";position:absolute;left:-25px;top:4px;width:12px;height:12px;border-radius:50%;background:var(--surface);border:3px solid var(--brand)}
+.tl>div.done::before{background:var(--brand)} .tl>div.risk::before{border-color:var(--warn-fill)}
+
+/* dna */
+.trait .meter{display:flex;gap:3px;margin-top:8px}
+.trait .meter i{flex:1;height:6px;border-radius:3px;background:var(--surface2)} .trait .meter i.on{background:var(--ai)}
+.persona{background:linear-gradient(140deg,#0B1B2B,#16335A 60%,#2A2A8F);color:#fff;border:0;position:relative;overflow:hidden}
+.persona .eyebrow{color:#9FB6C9}
+.persona::after{content:"";position:absolute;right:-60px;top:-60px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgb(15 181 166/.45),transparent 65%)}
+
+/* table */
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{font:600 11px var(--font);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:left;padding:8px 10px;border-bottom:1px solid var(--line)}
+.tbl td{padding:12px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+.tbl tr:last-child td{border:0}
+.scroll-x{overflow-x:auto;position:relative}
+.edit{border:1px solid var(--brand);border-radius:8px;padding:6px 10px;background:var(--bg);width:140px;font-variant-numeric:tabular-nums}
+
+/* welcome */
+.welcome{min-height:100vh;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);background:var(--bg)}
+.w-left{padding:48px max(24px,5vw);display:flex;flex-direction:column;justify-content:center;gap:24px;max-width:680px}
+.w-left h1{font-size:clamp(32px,4.4vw,52px);line-height:1.08}
+.ask{display:flex;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px 6px 6px 20px;box-shadow:var(--shadow)}
+.ask input{flex:1;border:0;outline:0;background:none;min-width:0}
+.w-right{background:linear-gradient(160deg,#0B1B2B,#123A5E 55%,#1B2A7A);display:grid;place-items:center;padding:32px;position:relative;overflow:hidden}
+.w-right::before{content:"";position:absolute;width:520px;height:520px;border-radius:50%;left:-120px;bottom:-200px;background:radial-gradient(circle,rgb(15 181 166/.35),transparent 65%)}
+.phone{width:min(300px,100%);background:var(--surface);color:var(--ink);border-radius:32px;padding:22px 20px;box-shadow:0 30px 80px rgb(0 0 0/.45);position:relative;display:flex;flex-direction:column;gap:14px;align-items:center}
+.trust{display:flex;gap:18px;flex-wrap:wrap;color:var(--muted);font-size:13px}
+.trust span{display:inline-flex;gap:6px;align-items:center}
+
+/* mobile tabs */
+.tabbar{display:none}
+.sheet{position:fixed;inset:0;z-index:40;background:rgb(0 0 0/.45);display:none;align-items:flex-end}
+.sheet.open{display:flex}
+.sheet>div{width:100%;background:var(--surface);border-radius:24px 24px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom,0px));display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:999px;font-weight:600;font-size:14px;opacity:0;pointer-events:none;transition:.25s;z-index:60;max-width:92vw}
+.toast.show{opacity:1;transform:translateX(-50%)}
+
+@media (max-width:1100px){.g-sim{grid-template-columns:1fr}.g-4{grid-template-columns:repeat(2,minmax(0,1fr))}.g-home{grid-template-columns:1fr}.chat{grid-template-columns:1fr;height:auto}.chat-main{height:70vh}}
+@media (max-width:900px){
+  .app{grid-template-columns:minmax(0,1fr)} .rail{display:none}
+  .top{padding:12px 16px} .search{display:none}
+  .view{padding:4px max(16px,env(safe-area-inset-left,0px)) 110px max(16px,env(safe-area-inset-right,0px))}
+  .g-3,.g-2{grid-template-columns:1fr}
+  .tabbar{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--surface);border-top:1px solid var(--line);padding:6px max(6px,env(safe-area-inset-left,0px)) calc(6px + env(safe-area-inset-bottom,0px))}
+  .tabbar a,.tabbar button{display:flex;flex-direction:column;align-items:center;gap:3px;border:0;background:none;color:var(--muted);text-decoration:none;font-size:11px;font-weight:600;padding:6px 0;min-height:48px;border-radius:12px}
+  .tabbar [aria-current="page"]{color:var(--brand-strong)}
+  .tabbar [aria-current="page"] svg{background:var(--brand-soft);border-radius:10px;padding:3px;width:30px;height:24px;box-sizing:content-box}
+  h1{font-size:24px}
+  .hero{grid-template-columns:1fr;justify-items:center;gap:18px} .hero>div:last-child{width:100%}
+  .welcome{grid-template-columns:1fr} .w-right{min-height:440px;order:-1} .w-left{padding:28px 16px 40px}
+  .wf-row{grid-template-columns:104px minmax(0,1fr) 46px;gap:8px}
+  .msg{max-width:94%}
+}
+@media (max-width:520px){.g-4{grid-template-columns:1fr}.trio .v{font-size:18px}.ring{width:230px;height:210px}.ring-c .big{font-size:54px}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ===== v2 fintech skin: aurora ground, glass rail, dark glowing score card, gradient actions ===== */
+:root{--mesh1:rgb(15 181 166/.20);--mesh2:rgb(79 70 229/.16);--mesh3:rgb(245 165 36/.10);--glass:rgb(255 255 255/.72);--glass-line:rgb(255 255 255/.7);--shadow:0 1px 1px rgb(11 27 43/.04),0 4px 10px rgb(11 27 43/.04),0 18px 40px rgb(11 27 43/.07);--rail:252px;--r-xl:24px}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--mesh1:rgb(45 212 196/.16);--mesh2:rgb(110 100 255/.20);--mesh3:rgb(245 165 36/.05);--glass:rgb(15 29 43/.68);--glass-line:rgb(255 255 255/.08)}}
+:root[data-theme="dark"]{--mesh1:rgb(45 212 196/.16);--mesh2:rgb(110 100 255/.20);--mesh3:rgb(245 165 36/.05);--glass:rgb(15 29 43/.68);--glass-line:rgb(255 255 255/.08)}
+body{background-image:radial-gradient(900px 520px at 8% -8%,var(--mesh1),transparent 60%),radial-gradient(800px 560px at 100% 0%,var(--mesh2),transparent 60%),radial-gradient(700px 500px at 60% 110%,var(--mesh3),transparent 60%);background-attachment:fixed}
+h1{font-size:34px;letter-spacing:-.025em;line-height:1.1}
+.grad{background:linear-gradient(100deg,var(--brand-strong),var(--ai));-webkit-background-clip:text;background-clip:text;color:transparent}
+.card{border-color:var(--glass-line);background:var(--glass);backdrop-filter:blur(14px) saturate(1.3);transition:transform .25s,box-shadow .25s}
+.card:hover{transform:translateY(-2px)}
+.card.flat{background:var(--surface)}
+.item{transition:transform .2s,border-color .2s,box-shadow .2s}
+.item:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--brand) 55%,var(--line));box-shadow:var(--shadow)}
+.rail{top:12px;height:calc(100vh - 24px);margin:12px 0 12px 12px;border:1px solid var(--glass-line);border-radius:28px;background:var(--glass);backdrop-filter:blur(20px) saturate(1.4);box-shadow:var(--shadow)}
+.nav a{border-radius:16px;transition:background .2s,color .2s,transform .2s}
+.nav a:hover{transform:translateX(2px)}
+.nav a[aria-current="page"]{background:linear-gradient(135deg,#0A8579,#4F46E5);color:#fff;box-shadow:0 8px 20px -6px rgb(79 70 229/.55)}
+.logo{box-shadow:0 6px 16px -4px rgb(79 70 229/.6)}
+.top{background:transparent;backdrop-filter:none}
+.search,.icon-btn{background:var(--glass);backdrop-filter:blur(12px);border-color:var(--glass-line);box-shadow:0 1px 2px rgb(11 27 43/.05)}
+.demo-bar{background:linear-gradient(90deg,var(--warn-soft),color-mix(in srgb,var(--warn-soft) 40%,transparent),var(--warn-soft));backdrop-filter:blur(8px)}
+.btn.primary{background:linear-gradient(135deg,#34E0D0,#0FB5A6);border-color:transparent;box-shadow:0 10px 24px -8px rgb(15 181 166/.7),inset 0 1px 0 rgb(255 255 255/.35)}
+.btn.primary:hover{transform:translateY(-1px);box-shadow:0 14px 28px -8px rgb(15 181 166/.8),inset 0 1px 0 rgb(255 255 255/.35);filter:none}
+.btn.ai{background:linear-gradient(135deg,#6D5BFF,#4F46E5);border-color:transparent;box-shadow:0 10px 24px -8px rgb(79 70 229/.7)}
+.chip{background:var(--glass);backdrop-filter:blur(8px)}
+.tabs{background:var(--glass);border:1px solid var(--glass-line)}
+.tabs button[aria-selected="true"]{background:linear-gradient(135deg,#0A8579,#4F46E5);color:#fff;box-shadow:0 6px 14px -4px rgb(79 70 229/.5)}
+.bar>i{background:linear-gradient(90deg,var(--brand),#7AE7DC)}
+.card.dark{--ink:#F2F7FA;--muted:#A8BCCB;--line:rgb(255 255 255/.12);--surface:#101F3A;--surface2:rgb(255 255 255/.08);--ai:#B3AFFF;--ai-soft:rgb(179 175 255/.16);--pos:#46E3A0;--pos-soft:rgb(70 227 160/.14);--neg:#FF8A8F;--neg-soft:rgb(255 138 143/.14);--brand-strong:#3EE0D0;--brand-soft:rgb(62 224 208/.14);--warn:#F7C066;--warn-soft:rgb(247 192 102/.14);
+  position:relative;overflow:hidden;color:var(--ink);border:1px solid rgb(255 255 255/.10);background:radial-gradient(520px 320px at 12% 0%,rgb(15 181 166/.38),transparent 62%),radial-gradient(520px 340px at 100% 100%,rgb(99 91 255/.45),transparent 60%),linear-gradient(160deg,#0A1A2E,#0F2547 60%,#15205C);box-shadow:0 24px 60px -20px rgb(15 37 71/.7);backdrop-filter:none}
+.card.dark .btn{background:rgb(255 255 255/.08);border-color:rgb(255 255 255/.16);color:#fff}
+.card.dark .btn:hover{background:rgb(255 255 255/.14)}
+.card.dark #rfill{filter:drop-shadow(0 0 10px rgb(45 212 196/.6))}
+.card.dark .big{text-shadow:0 0 36px rgb(110 100 255/.55)}
+.card.dark .trio>div{background:rgb(255 255 255/.06);border-color:rgb(255 255 255/.10);backdrop-filter:blur(8px)}
+.card.dark .hr{background:rgb(255 255 255/.12)}
+.card.dark .tip{background:rgb(255 255 255/.12);color:#fff}
+.card.dark:hover{transform:none}
+.msg.u{background:linear-gradient(135deg,#6D5BFF,#4F46E5);color:#fff;box-shadow:0 8px 20px -8px rgb(79 70 229/.6)}
+.msg.a{background:var(--surface2);border:1px solid var(--line)}
+.composer{background:var(--glass);backdrop-filter:blur(14px)}
+.composer input:focus{border-color:var(--ai);box-shadow:0 0 0 4px var(--ai-soft)}
+.w-right{background:radial-gradient(600px 420px at 20% 10%,rgb(15 181 166/.45),transparent 60%),radial-gradient(640px 480px at 90% 90%,rgb(110 100 255/.6),transparent 60%),linear-gradient(160deg,#07121F,#0E2547 60%,#171C66)}
+.w-right::after{content:"";position:absolute;inset:0;background-image:linear-gradient(rgb(255 255 255/.04) 1px,transparent 1px),linear-gradient(90deg,rgb(255 255 255/.04) 1px,transparent 1px);background-size:44px 44px;-webkit-mask-image:radial-gradient(circle at 50% 50%,#000,transparent 70%);mask-image:radial-gradient(circle at 50% 50%,#000,transparent 70%)}
+.phone{z-index:1;background:var(--surface);border:1px solid rgb(255 255 255/.5)}
+.float{position:absolute;z-index:2;display:flex;align-items:center;gap:8px;padding:9px 14px 9px 10px;border-radius:16px;background:rgb(255 255 255/.12);border:1px solid rgb(255 255 255/.22);backdrop-filter:blur(14px);color:#fff;font-size:13px;font-weight:600;white-space:nowrap;box-shadow:0 14px 30px -10px rgb(0 0 0/.5);animation:bob 5s ease-in-out infinite}
+.float i{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;font-style:normal}
+.float.f1{right:calc(100% - 22px);top:12%} .float.f2{left:calc(100% - 22px);top:44%;animation-delay:-1.6s} .float.f3{right:calc(100% - 22px);bottom:10%;animation-delay:-3.2s}
+@keyframes bob{50%{transform:translateY(-10px)}}
+.ask{background:var(--glass);backdrop-filter:blur(12px)}
+.ask:focus-within{box-shadow:0 0 0 4px var(--ai-soft),var(--shadow);border-color:var(--ai)}
+.persona{box-shadow:0 24px 60px -24px rgb(42 42 143/.7)}
+@media (max-width:900px){
+  .float{display:none}
+  .tabbar{left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom,0px));border:1px solid var(--glass-line);border-radius:26px;background:var(--glass);backdrop-filter:blur(18px) saturate(1.4);box-shadow:0 12px 36px -8px rgb(11 27 43/.35);padding:6px}
+  h1{font-size:26px}
+  .view{padding-bottom:120px}
+}
+
+/* ===== SaaS layer: white-label tokens, workspace admin ===== */
+:root{--grad-a:#0A8579;--grad-b:#4F46E5}
+.nav a[aria-current="page"]{background:linear-gradient(135deg,var(--grad-a),var(--grad-b));box-shadow:0 8px 20px -6px color-mix(in srgb,var(--grad-b) 60%,transparent)}
+.tabs button[aria-selected="true"]{background:linear-gradient(135deg,var(--grad-a),var(--grad-b))}
+.btn.primary{background:linear-gradient(135deg,color-mix(in srgb,var(--brand) 72%,#fff),var(--brand));color:var(--on-brand);box-shadow:0 10px 24px -8px color-mix(in srgb,var(--brand) 70%,transparent),inset 0 1px 0 rgb(255 255 255/.35)}
+.btn.ai,.msg.u{background:linear-gradient(135deg,color-mix(in srgb,var(--ai) 78%,#fff),var(--ai));color:#fff}
+.logo{font-family:var(--font-num);color:#fff}
+.ellip{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:700 16px var(--font-num)}
+.brand{padding-bottom:12px}
+.rail{overflow:hidden}
+.nav{overflow:auto;flex:1;min-height:0;padding-right:2px}
+.nav a{min-height:40px;padding:8px 12px}
+.nav-sep{display:block;margin:14px 12px 6px!important}
+.rail-foot{margin-top:8px}
+.env{display:inline-flex;padding:3px;border-radius:999px;background:var(--glass);border:1px solid var(--glass-line)}
+.env button{border:0;background:none;padding:6px 12px;border-radius:999px;font-size:12.5px;font-weight:600;color:var(--muted);min-height:32px}
+.env button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgb(0 0 0/.15)}
+.env button[data-env="live"][aria-pressed="true"]{background:var(--pos-soft);color:var(--pos)}
+.env button[data-env="sandbox"][aria-pressed="true"]{background:var(--warn-soft);color:var(--warn)}
+.sw{position:relative;width:44px;height:26px;flex:none;border:0;border-radius:99px;background:var(--line);transition:background .2s;padding:0}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgb(0 0 0/.3);transition:transform .2s}
+.sw[aria-checked="true"]{background:var(--brand)} .sw[aria-checked="true"]::after{transform:translateX(18px)}
+.step{display:flex;gap:14px;align-items:flex-start;padding:14px;border-radius:var(--r-lg);border:1px solid var(--line);background:var(--surface)}
+.step .n{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;flex:none;font:700 13px var(--font-num);background:var(--surface2);color:var(--muted)}
+.step.done .n{background:var(--brand);color:var(--on-brand)}
+.step.next{border-color:var(--brand);box-shadow:0 0 0 4px var(--brand-soft)}
+.step.done h3{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line)}
+.code{position:relative;border-radius:var(--r-lg);background:#0B1B2B;color:#D7E6F0;padding:16px 16px 16px;font:500 12.5px/1.65 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;overflow-x:auto;white-space:pre;border:1px solid rgb(255 255 255/.08)}
+.code .k{color:#7AE7DC}.code .s{color:#F7C066}.code .c{color:#6F8AA3}
+.copy{position:absolute;top:10px;right:10px}
+.kv{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+.kv:last-child{border:0}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12.5px}
+.frame{border:1px solid var(--line);border-radius:var(--r-xl);overflow:hidden;background:var(--surface);box-shadow:var(--shadow)}
+.frame-bar{display:flex;align-items:center;gap:6px;padding:10px 14px;background:var(--surface2);border-bottom:1px solid var(--line)}
+.frame-bar i{width:10px;height:10px;border-radius:50%;background:var(--line)}
+.frame-bar span{margin-left:10px;flex:1;background:var(--surface);border-radius:99px;padding:3px 12px;font-size:12px;color:var(--muted)}
+.frame-body{padding:22px;background:linear-gradient(180deg,var(--surface2),var(--surface))}
+.wprev{max-width:420px;margin:0 auto;border-radius:var(--r-xl);background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow);overflow:hidden}
+.wp-h{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.wp-body{display:grid;grid-template-columns:auto minmax(0,1fr);gap:14px;align-items:center;padding:16px}
+.wp-ring{position:relative;width:170px;height:154px}
+.wp-ring .ring{transform:scale(.654);transform-origin:0 0}
+.wp-f{display:flex;gap:6px;flex-wrap:wrap;padding:0 16px 14px}
+.wp-pow{padding:8px 16px;border-top:1px solid var(--line);text-align:center;font-size:11.5px;color:var(--muted)}
+.sw-row{display:flex;gap:8px;flex-wrap:wrap}
+.swatch{width:36px;height:36px;border-radius:50%;border:3px solid var(--surface);box-shadow:0 0 0 1px var(--line);padding:0;transition:transform .15s}
+.swatch:hover{transform:scale(1.1)} .swatch[aria-pressed="true"]{box-shadow:0 0 0 2px var(--ink)}
+.field{display:grid;gap:6px}
+.field label,.field .lbl{font-weight:600;font-size:13px}
+.input{min-height:44px;border-radius:12px;border:1px solid var(--line);background:var(--surface);padding:0 14px;width:100%}
+.input:focus{outline:0;border-color:var(--brand);box-shadow:0 0 0 4px var(--brand-soft)}
+.price{font:700 40px/1 var(--font-num);letter-spacing:-.02em}
+.tier{display:flex;flex-direction:column;gap:14px;position:relative}
+.tier.cur{border:2px solid var(--brand)}
+.tier ul{list-style:none;padding:0;margin:0;display:grid;gap:8px;font-size:14px}
+.tier li{display:flex;gap:8px;align-items:flex-start}
+.tier li svg{color:var(--brand-strong);flex:none;margin-top:2px}
+.kpi .v{font:700 28px/1.1 var(--font-num);margin-top:8px}
+.rail-foot .eyebrow,.rail-foot .badge{white-space:nowrap}
+.g-int{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)}
+.sticky{position:sticky;top:80px;align-self:start}
+.stack{min-width:0}.card-h{flex-wrap:wrap}.kv>*{min-width:0}.mono{overflow-wrap:anywhere}
+@media (max-width:520px){.kv{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:1100px){.g-int,.g-sim{grid-template-columns:minmax(0,1fr)}.sticky{position:static}}
+@media (max-width:900px){.env{display:none}.wp-body{grid-template-columns:1fr;justify-items:center}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<div class="sheet" id="sheet"><div id="sheet-items"></div></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ---------- helpers ---------- */
+const $ = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+const inr = n => '₹' + Math.round(n).toLocaleString('en-IN');
+const inrC = n => n >= 1e7 ? '₹' + (n/1e7).toFixed(n>=1e8?0:2).replace(/\.?0+$/,'') + 'Cr' : n >= 1e5 ? '₹' + (n/1e5).toFixed(1).replace(/\.0$/,'') + 'L' : inr(n);
+const clamp = (x,a,b) => Math.min(b, Math.max(a, x));
+let toastT; const toast = m => { const t=$('#toast'); t.textContent=m; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2400); };
+const ICONS = {
+  home:'<path d="M3 11.5 12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
+  chat:'<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/>',
+  score:'<path d="M4 18a8 8 0 1 1 16 0"/><path d="m12 18 4-6"/>',
+  dna:'<path d="M7 3c0 6 10 6 10 12s-10 6-10 6M17 3c0 6-10 6-10 12"/><path d="M8 7h8M8 17h8"/>',
+  sim:'<path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/>',
+  goal:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>',
+  act:'<path d="m5 12 4 4 10-10"/>',
+  mem:'<path d="M4 7c0-2 16-2 16 0s-16 2-16 0v10c0 2 16 2 16 0V7"/><path d="M4 12c0 2 16 2 16 0"/>',
+  more:'<circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/>',
+  bell:'<path d="M6 16V11a6 6 0 1 1 12 0v5l2 2H4zM10 21h4"/>',
+  sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+  moon:'<path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/>',
+  search:'<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
+  send:'<path d="M5 12h14M13 6l6 6-6 6"/>',
+  spark:'<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/>',
+  user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>',
+  link:'<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
+  approx:'<path d="M4 9c3-3 5 3 8 0s5-3 8 0M4 16c3-3 5 3 8 0s5-3 8 0"/>',
+  shield:'<path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/>',
+  wallet:'<path d="M3 7a2 2 0 0 1 2-2h13v4"/><path d="M3 7v11a2 2 0 0 0 2 2h15V9H5a2 2 0 0 1-2-2z"/><circle cx="16" cy="14.5" r="1"/>',
+  up:'<path d="m5 15 7-7 7 7"/>', down:'<path d="m5 9 7 7 7-7"/>', lock:'<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+  clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>', edit:'<path d="M4 20h4L19 9l-4-4L4 16z"/>', warn:'<path d="M12 4 2.5 20h19z"/><path d="M12 10v4M12 17h0"/>',
+  rocket:'<path d="M5 19c0-3 1-5 3-6M14 4c4 0 6 2 6 6-2 4-5 7-9 9l-3-3c2-4 5-7 6-12z"/><circle cx="15" cy="9" r="1.5"/><path d="M5 15l4 4"/>',
+  plug:'<path d="M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0zM12 17v4"/>',
+  palette:'<path d="M12 3a9 9 0 1 0 0 18c1.5 0 2-1 1.4-2-.6-1 0-2.2 1.3-2.2H17a4 4 0 0 0 4-4C21 6.5 17 3 12 3z"/><circle cx="7.5" cy="11" r="1"/><circle cx="10" cy="7" r="1"/><circle cx="15" cy="7.5" r="1"/>',
+  users:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.5 3-5.5 6.5-5.5S15.5 16.5 15.5 20M16 4.5a3.5 3.5 0 0 1 0 7M18 14.8c2 .6 3.5 2.2 3.5 5.2"/>',
+  card:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M7 15h4"/>',
+  copy:'<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/>',
+  x:'<path d="M6 6l12 12M18 6 6 18"/>', check:'<path d="m5 12 4 4 10-10"/>', bank:'<path d="M3 10 12 4l9 6M5 10v8M9 10v8M15 10v8M19 10v8M3 20h18"/>'
+};
+const ic = (n, s=20) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n]||''}</svg>`;
+const SRC = {
+  user:{n:'You told us',i:'user',c:'b-neutral'}, conn:{n:'Connected',i:'link',c:'b-pos'},
+  inf:{n:'Inferred',i:'spark',c:'b-ai'}, est:{n:'Estimated',i:'approx',c:'b-warn'}
+};
+const src = k => `<span class="badge ${SRC[k].c}" title="${SRC[k].n}">${ic(SRC[k].i,12)}${SRC[k].n}</span>`;
+const tip = t => `<button class="tip" type="button" data-tip="${t}" aria-label="${t}">?</button>`;
+
+/* ---------- demo data ---------- */
+const USER = {name:'Aarav', full:'Aarav Mehta', age:32};
+const SCORE = 684, CONF = 78, TREND = +23;
+const STAGES = ['Fragile','Starting','Stabilising','Building','Steady','Growing','Strong','Thriving'];
+const stageOf = s => clamp(Math.floor((s-300)/75),0,7);
+const FACTORS = [
+  {k:'Savings rate',v:+38,why:'You save about 24% of take-home income, above the 20% benchmark for your stage.',ev:'Bank feed · last 6 months',src:'conn'},
+  {k:'Investment consistency',v:+29,why:'SIPs ran on time for 14 of the last 15 months.',ev:'Mutual fund statements',src:'conn'},
+  {k:'Income stability',v:+24,why:'Salary credited within 2 days of the same date for 11 months.',ev:'Bank feed',src:'conn'},
+  {k:'Goal funding',v:+20,why:'Three goals have a funded plan; the home goal is behind schedule.',ev:'Goals + engine run #4821',src:'inf'},
+  {k:'Debt load',v:+17,why:'EMIs are 21% of income. Healthy is under 30%.',ev:'Loan accounts',src:'conn'},
+  {k:'Spending volatility',v:-8,why:'Discretionary spend swings ±34% month to month.',ev:'Bank feed · 6 months',src:'inf'},
+  {k:'Emergency fund',v:-14,why:'You hold 2.5 months of expenses. The target is 6 months.',ev:'Savings balance (estimated)',src:'est'},
+  {k:'Insurance cover',v:-22,why:'No term cover on record. Dependants would face a gap.',ev:'You told us, 94 days ago',src:'user'}
+];
+const FACT_SUM = FACTORS.reduce((a,f)=>a+f.v,0); // vs neutral baseline 600
+console.assert(600+FACT_SUM===SCORE,'factors must sum to score');
+const ACTIONS = [
+  {id:1,t:'Buy a ₹1 Cr term plan',pts:'+14 to +20',effort:'Medium',urgency:'High',why:'Biggest single gap. Cover protects every goal you have set.',ico:'shield',c:'i-neg',eta:'About 25 min',days:'Quotes expire in 7 days'},
+  {id:2,t:'Top up emergency fund by ₹1.5L',pts:'+9 to +12',effort:'Low',urgency:'Medium',why:'Reaching 4 months of cover moves you from Growing to the top of its band.',ico:'wallet',c:'i-warn',eta:'1 transfer',days:'Do by Dec 31'},
+  {id:3,t:'Raise SIP by ₹5,000 in January',pts:'+5 to +8',effort:'Low',urgency:'Low',why:'Brings retirement goal probability from 71% to 84%.',ico:'up',c:'i-brand',eta:'2 min',days:'Next SIP date: Jan 5'},
+  {id:4,t:'Review the three subscriptions you have not used',pts:'+2 to +4',effort:'Low',urgency:'Low',why:'Lowers spending volatility. Saves about ₹1,850 a month.',ico:'clock',c:'i-ai',eta:'5 min',days:'No deadline'}
+];
+const FACTS = [
+  {k:'Monthly take-home income',v:'₹1,42,000',s:'conn',f:'2 days ago',raw:142000},
+  {k:'Rent',v:'₹32,000',s:'user',f:'41 days ago',raw:32000},
+  {k:'Emergency savings',v:'₹2,10,000',s:'est',f:'6 days ago',raw:210000},
+  {k:'Risk comfort',v:'Moderate',s:'inf',f:'Confidence 72%',raw:null},
+  {k:'Term insurance',v:'None on record',s:'user',f:'94 days ago',stale:true,raw:null},
+  {k:'Dependants',v:'2 (spouse, parent)',s:'user',f:'41 days ago',raw:null}
+];
+
+/* ---------- routing ---------- */
+const NAV = [
+  ['home','Home','home'],['coach','Wealth Coach','chat'],['score','Score','score'],['dna','Financial DNA','dna'],
+  ['simulate','What-if','sim'],['goals','Goals & Timeline','goal'],['actions','Action Centre','act'],['memory','Profile & Memory','mem']
+];
+const NAV_ADMIN = [['setup','Go-live setup','rocket'],['integrate','Integrations','plug'],['brand','Branding','palette'],['team','Team & roles','users'],['billing','Plans & billing','card']];
+const TABS = ['home','coach','score','simulate'];
+const VIEWS = {};
+let dark = matchMedia('(prefers-color-scheme: dark)').matches;
+const setTheme = d => { dark=d; document.documentElement.dataset.theme = d?'dark':'light'; try{localStorage.setItem('fs-theme',d?'dark':'light')}catch(e){} };
+try{const t=localStorage.getItem('fs-theme'); if(t) dark = t==='dark';}catch(e){}
+try{const q=new URLSearchParams(location.search).get('theme'); if(q) dark=q==='dark';}catch(e){}
+document.documentElement.dataset.theme = dark?'dark':'light';
+
+function route(){
+  const id = (location.hash||'#welcome').slice(1);
+  const root = $('#root');
+  if(id==='welcome' || !VIEWS[id]){ root.innerHTML = welcome(); wireWelcome(); window.scrollTo(0,0); return; }
+  root.innerHTML = shell(id);
+  const v = $('#view'); v.innerHTML = VIEWS[id].html();
+  VIEWS[id].mount && VIEWS[id].mount(v);
+  wireShell();
+  window.scrollTo(0,0);
+}
+function shell(id){
+  const link=([k,l,i])=>`<a href="#${k}" ${k===id?'aria-current="page"':''}>${ic(i)}<span>${l}</span></a>`;
+  const navLinks = `<span class="eyebrow nav-sep">Customer app</span>`+NAV.map(link).join('')+`<span class="eyebrow nav-sep">Workspace admin</span>`+NAV_ADMIN.map(link).join('');
+  const tabs = TABS.map(k=>{const n=NAV.find(x=>x[0]===k);return `<a href="#${k}" ${k===id?'aria-current="page"':''}>${ic(n[2],22)}<span>${n[1].replace('Wealth ','').replace('What-if','What-if')}</span></a>`}).join('');
+  return `<div class="app">
+  <aside class="rail" aria-label="Primary">
+    <div class="brand"><div class="logo" style="font:700 13px var(--font-num)">${ini()}</div><div style="min-width:0"><div class="ellip">${esc(TENANT.name)}</div><div class="tiny muted" style="font:500 11px var(--font)">${TENANT.powered?'Powered by 5nance':'Workspace'}</div></div></div>
+    <nav class="nav" aria-label="Main">${navLinks}</nav>
+    <div class="rail-foot"><div class="row between"><span class="eyebrow">${TENANT.plan} plan</span><span class="badge b-brand">${usageTotal().toLocaleString('en-IN')} / 25k</span></div>
+      <div class="bar" style="margin:10px 0"><i style="width:${Math.min(100,usageTotal()/250)}%"></i></div><a class="btn sm" href="#billing" style="width:100%">Plans &amp; billing</a></div>
+  </aside>
+  <div class="main">
+    <div class="demo-bar"><b>DEMO DATA</b><span>Demo rules, not an official FinScore. Scores appear once the Product Team approves the Rulebook.</span></div>
+    <header class="top">
+      <label class="search">${ic('search',18)}<span class="sr">Search</span><input id="gsearch" placeholder="Ask anything: “Why did my score move?”" aria-label="Ask anything"></label>
+      <span class="grow"></span>
+      <div class="env" role="group" aria-label="Environment"><button data-env="sandbox" aria-pressed="${TENANT.env==='sandbox'}">Sandbox</button><button data-env="live" aria-pressed="${TENANT.env==='live'}">Live</button></div>
+      <button class="icon-btn" id="theme" aria-label="Toggle light or dark theme">${ic(dark?'sun':'moon',18)}</button>
+      <button class="icon-btn" id="bell" aria-label="Notifications, 1 new">${ic('bell',18)}<span class="dot"></span></button>
+      <div class="avatar" aria-label="Account: Deepak, workspace owner">DS</div>
+    </header>
+    <main class="view" id="view" tabindex="-1"></main>
+  </div>
+  <nav class="tabbar" aria-label="Tabs">${tabs}<button id="more" aria-label="More">${ic('more',22)}<span>More</span></button></nav>
+  </div>`;
+}
+function wireShell(){
+  $('#theme').onclick = () => { setTheme(!dark); route(); };
+  $$('[data-env]').forEach(b=>b.onclick=()=>{ if(b.dataset.env==='live'){ const left=CHECK_ITEMS().filter(c=>!c.done).length; if(left){ toast('Finish '+left+' setup step'+(left>1?'s':'')+' before switching to Live'); location.hash='#setup'; return; } } TENANT.env=b.dataset.env; toast('Switched to '+TENANT.env); route(); });
+  $('#bell').onclick = () => { location.hash='#actions'; toast('Opened your latest nudge in Action Centre'); };
+  $('#gsearch').addEventListener('keydown',e=>{ if(e.key==='Enter'&&e.target.value.trim()){ sessionStorage.setItem('fs-q',e.target.value.trim()); location.hash='#coach'; }});
+  $('#more').onclick = () => {
+    $('#sheet-items').innerHTML = [...NAV.filter(n=>!TABS.includes(n[0])),...NAV_ADMIN].map(([k,l,i])=>`<a class="btn" href="#${k}" style="justify-content:flex-start">${ic(i,18)}${l}</a>`).join('')
+      + `<button class="btn" id="theme2" style="justify-content:flex-start">${ic(dark?'sun':'moon',18)}${dark?'Light':'Dark'} mode</button>`;
+    $('#sheet').classList.add('open');
+    $('#theme2').onclick = () => { $('#sheet').classList.remove('open'); setTheme(!dark); route(); };
+  };
+}
+$('#sheet').addEventListener('click',e=>{ if(e.target.id==='sheet'||e.target.closest('a')) $('#sheet').classList.remove('open'); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') $('#sheet').classList.remove('open'); });
+addEventListener('hashchange',route);
+
+/* ---------- shared components ---------- */
+function ringSVG(score, animate=true){
+  const cx=130, cy=124, r=104, a0=135, sweep=270;
+  const pt = (deg,rad=r) => [cx+rad*Math.cos(deg*Math.PI/180), cy+rad*Math.sin(deg*Math.PI/180)];
+  const arc = (d0,d1,rad=r) => { const [x0,y0]=pt(d0,rad),[x1,y1]=pt(d1,rad); return `M${x0.toFixed(2)} ${y0.toFixed(2)} A${rad} ${rad} 0 ${d1-d0>180?1:0} 1 ${x1.toFixed(2)} ${y1.toFixed(2)}`; };
+  const frac = (score-300)/600, end = a0+sweep*frac;
+  const segs = Array.from({length:8},(_,i)=>{const s=a0+sweep*i/8+1.2,e=a0+sweep*(i+1)/8-1.2; return `<path d="${arc(s,e)}" stroke="var(--surface2)" stroke-width="14" stroke-linecap="butt" fill="none"/>`}).join('');
+  const len = Math.PI*r*2*sweep/360, fillLen = len*frac;
+  const [kx,ky]=pt(end);
+  return `<svg viewBox="0 0 260 236" role="img" aria-label="FinScore ${score} out of 900, stage ${STAGES[stageOf(score)]}">
+    <defs><linearGradient id="rg" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="var(--brand)"/><stop offset="1" stop-color="var(--ai)"/></linearGradient></defs>
+    ${segs}
+    <path id="rfill" d="${arc(a0,a0+sweep)}" stroke="url(#rg)" stroke-width="14" fill="none" stroke-linecap="round" stroke-dasharray="${len}" stroke-dashoffset="${animate?len:len-fillLen}" style="transition:stroke-dashoffset 1.1s cubic-bezier(.2,.8,.2,1)" data-to="${len-fillLen}"/>
+    <circle cx="${kx}" cy="${ky}" r="9" fill="var(--surface)" stroke="var(--ai)" stroke-width="4"/>
+    <text x="${pt(a0)[0]-4}" y="${pt(a0)[1]+22}" font-size="11" fill="var(--muted)" text-anchor="middle" class="num">300</text>
+    <text x="${pt(a0+sweep)[0]+4}" y="${pt(a0+sweep)[1]+22}" font-size="11" fill="var(--muted)" text-anchor="middle" class="num">900</text></svg>`;
+}
+const STILL=new URLSearchParams(location.search).has('still');
+function countUp(el,to,ms=1000){
+  if(STILL||matchMedia('(prefers-reduced-motion: reduce)').matches){el.textContent=to;return;}
+  const t0=performance.now(); const f=t=>{const p=clamp((t-t0)/ms,0,1),e=1-Math.pow(1-p,3); el.textContent=Math.round(300+(to-300)*e); if(p<1)requestAnimationFrame(f)}; requestAnimationFrame(f);
+}
+function animateRing(root){ const f=$('#rfill',root); if(f) requestAnimationFrame(()=>requestAnimationFrame(()=>f.style.strokeDashoffset=f.dataset.to)); const c=$('.big',root); if(c) countUp(c,+c.dataset.v); }
+function sparkline(vals,w=300,h=70,color='var(--brand)'){
+  const mn=Math.min(...vals)-8,mx=Math.max(...vals)+8; const x=i=>i*(w-12)/(vals.length-1)+6, y=v=>h-6-(v-mn)/(mx-mn)*(h-12);
+  const d=vals.map((v,i)=>`${i?'L':'M'}${x(i).toFixed(1)} ${y(v).toFixed(1)}`).join(' ');
+  return `<svg viewBox="0 0 ${w} ${h}" width="100%" height="${h}" preserveAspectRatio="none" role="img" aria-label="Score trend, last 12 months, from ${vals[0]} to ${vals.at(-1)}">
+    <defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${color}" stop-opacity=".28"/><stop offset="1" stop-color="${color}" stop-opacity="0"/></linearGradient></defs>
+    <path d="${d} L${x(vals.length-1)} ${h} L${x(0)} ${h} Z" fill="url(#sg)"/><path d="${d}" fill="none" stroke="${color}" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+    <circle cx="${x(vals.length-1)}" cy="${y(vals.at(-1))}" r="4.5" fill="var(--surface)" stroke="${color}" stroke-width="2.5"/></svg>`;
+}
+const TREND_SERIES=[598,604,611,619,617,628,640,649,655,661,668,684];
+const ladder = s => { const c=stageOf(s); return `<div class="ladder" role="img" aria-label="Stage ${c+1} of 8: ${STAGES[c]}">${STAGES.map((_,i)=>`<i class="${i<c?'on':i===c?'cur':''}"></i>`).join('')}</div><div class="ladder-l">${STAGES.map((n,i)=>`<span class="${i===c?'cur':''}">${i===c||i===0||i===7?n:''}</span>`).join('')}</div>`; };
+const actionCard = (a,full) => `<article class="item" id="act-${a.id}">
+  <div class="ico ${a.c}">${ic(a.ico)}</div>
+  <div style="flex:1;min-width:0">
+    <div class="row between wrap" style="gap:6px"><h3>${a.t}</h3><span class="badge b-pos num">${a.pts} pts</span></div>
+    <p class="small muted" style="margin-top:4px">${a.why}</p>
+    <div class="row wrap" style="margin-top:10px;gap:6px"><span class="badge b-neutral">Effort: ${a.effort}</span><span class="badge ${a.urgency==='High'?'b-neg':a.urgency==='Medium'?'b-warn':'b-neutral'}">Urgency: ${a.urgency}</span><span class="badge b-neutral">${a.eta}</span></div>
+    ${full?`<div class="row wrap" style="margin-top:14px"><button class="btn primary sm" data-do="${a.id}">Start this</button><button class="btn sm" data-snooze="${a.id}">Snooze 7 days</button><button class="btn ghost sm" data-why="${a.id}">Why am I seeing this?</button></div><p class="tiny muted" data-whyp="${a.id}" hidden style="margin-top:10px;padding:10px;background:var(--surface2);border-radius:8px">Ranked by score impact × urgency ÷ effort. Impact comes from the approved action library, not from AI. ${a.days}.</p>`:''}
+  </div></article>`;
+
+/* ---------- WELCOME ---------- */
+function welcome(){
+  return `<div class="welcome">
+  <section class="w-left">
+    <div class="brand" style="padding:0"><div class="logo" style="font:700 13px var(--font-num)">${ini()}</div>${esc(TENANT.name)} ${TENANT.powered?'<span class="badge b-ai" style="margin-left:6px">Powered by 5nance</span>':''}</div>
+    <div class="stack" style="gap:16px">
+      <h1>What is the <span class="grad">one money problem</span> you want solved?</h1>
+      <p class="muted" style="font-size:17px;max-width:48ch">Tell us in your own words. We turn the answer into a clear score, a plan and your next step. It takes about 3 minutes.</p>
+    </div>
+    <form class="ask" id="wform"><label class="sr" for="wq">Your money problem</label><input id="wq" placeholder="e.g. I earn well but never seem to save…" autocomplete="off"><button class="btn primary" type="submit">Start ${ic('send',16)}</button></form>
+    <div class="row wrap" role="group" aria-label="Common starting points">
+      ${['I want to buy a home','I don’t know if I’m saving enough','Help me pay off my loans','Plan my retirement'].map(t=>`<button class="chip" data-q="${t}">${t}</button>`).join('')}
+    </div>
+    <div class="trust"><span>${ic('lock',16)} Bank-grade encryption</span><span>${ic('shield',16)} You control what we store</span><span>${ic('check',16)} AI explains. Engines calculate.</span></div>
+    <div class="row wrap"><a class="btn" href="#home">Skip to my dashboard</a><a class="btn ghost" href="#setup">Building for your customers? Set up a workspace →</a></div>
+  </section>
+  <section class="w-right" aria-hidden="true">
+    <div class="phone"><div class="float f1"><i style="background:rgb(70 227 160/.2);color:#46E3A0">${ic("up",16)}</i>Savings rate +38</div><div class="float f2"><i style="background:rgb(179 175 255/.22);color:#B3AFFF">${ic("spark",16)}</i>Retirement 71% on track</div><div class="float f3"><i style="background:rgb(247 192 102/.22);color:#F7C066">${ic("shield",16)}</i>Add term cover +20 pts</div><span class="eyebrow">Your FinScore</span>
+      <div class="ring" style="transform:scale(.9);margin:-8px 0">${ringSVG(SCORE,false)}<div class="ring-c"><div class="big num">${SCORE}</div><span class="badge b-ai" style="margin-top:6px">Growing · Stage 6 of 8</span></div></div>
+      <div class="trio" style="width:100%;grid-template-columns:1fr 1fr 1fr;gap:6px"><div style="padding:8px"><span class="eyebrow" style="font-size:9px">Confidence</span><div class="v num" style="font-size:16px">${CONF}%</div></div><div style="padding:8px"><span class="eyebrow" style="font-size:9px">Trend</span><div class="v num" style="font-size:16px;color:var(--pos)">+${TREND}</div></div><div style="padding:8px"><span class="eyebrow" style="font-size:9px">Stage</span><div class="v num" style="font-size:16px">6/8</div></div></div>
+      <div class="item" style="width:100%;padding:10px"><div class="ico i-warn" style="width:30px;height:30px">${ic('shield',16)}</div><div><b class="small">Next step</b><p class="tiny muted">Add term cover: up to +20 pts</p></div></div>
+    </div></section></div>`;
+}
+function wireWelcome(){
+  const go = q => { if(q) sessionStorage.setItem('fs-q', q); location.hash = '#coach'; };
+  $('#wform').onsubmit = e => { e.preventDefault(); go($('#wq').value.trim()); };
+  $$('[data-q]').forEach(b=>b.onclick=()=>go(b.dataset.q));
+}
+
+/* ---------- HOME ---------- */
+VIEWS.home = {
+html:()=>{
+  const nextA = ACTIONS[0];
+  return `<div class="page-head"><div><span class="eyebrow">Monday, 16 November</span><h1 style="margin-top:8px">Good afternoon, ${USER.name}. You are up <span class="grad">${TREND} points</span>.</h1>
+    <p class="muted">Your savings habit is the reason. Insurance is what holds you back most.</p></div>
+    <a class="btn primary" href="#coach">${ic('chat',18)} Ask your coach</a></div>
+  <div class="grid g-home">
+    <section class="card dark" aria-labelledby="h-score"><div class="hero">
+      <div class="ring">${ringSVG(SCORE)}<div class="ring-c"><span class="eyebrow" id="h-score">FinScore</span><div class="big num" data-v="${SCORE}">300</div><span class="badge b-ai" style="margin-top:8px">${STAGES[stageOf(SCORE)]} · Stage ${stageOf(SCORE)+1} of 8</span></div></div>
+      <div class="stack" style="gap:14px;min-width:0">
+        <div class="trio">
+          <div><span class="eyebrow">Confidence${tip('How complete and fresh your data is. Higher confidence means a narrower score range. It is separate from the score itself.')}</span><div class="v">${CONF}%</div><div class="bar" style="margin-top:8px"><i style="width:${CONF}%;background:var(--ai)"></i></div></div>
+          <div><span class="eyebrow">Trend</span><div class="v" style="color:var(--pos)">▲ ${TREND}</div><p class="tiny muted" style="margin-top:6px">from ${SCORE-TREND}</p></div>
+          <div><span class="eyebrow">Range${tip('With current data your score is likely between these values.')}</span><div class="v">${SCORE-14}–${SCORE+14}</div><p class="tiny muted" style="margin-top:6px">likely band</p></div>
+        </div>
+        <div><div class="row between"><span class="small" style="font-weight:600">Stage ladder</span><a class="small" href="#score" style="color:var(--brand-strong);font-weight:600">See why →</a></div>${ladder(SCORE)}</div>
+      </div></div>
+      <hr class="hr" style="margin:18px 0 14px">
+      <div class="row between wrap" style="gap:12px"><div class="row wrap" style="gap:8px"><span class="eyebrow" style="margin-right:4px">Biggest movers</span><span class="badge b-pos num">▲ Savings rate +38</span><span class="badge b-pos num">▲ SIP consistency +29</span><span class="badge b-neg num">▼ Insurance cover −22</span></div><a class="btn sm" href="#score">Full breakdown</a></div>
+      <p class="small muted" style="margin-top:12px">${src('conn')} Based on bank and fund data synced 2 days ago. Score, confidence and trend are shown separately on purpose.</p></section>
+
+    <section class="card" aria-label="Next best action" style="display:flex;flex-direction:column;gap:14px">
+      <div class="card-h" style="margin:0"><h2>Your next best step</h2><span class="badge b-neg">High urgency</span></div>
+      ${actionCard(nextA,false)}
+      <div class="row wrap"><a class="btn primary" href="#actions">Start this</a><a class="btn" href="#simulate">Try it in What-if</a></div>
+      <div class="hr" style="margin:0"></div>
+      <div class="row" style="align-items:flex-start;gap:10px"><div class="ico i-ai" style="width:30px;height:30px">${ic('spark',16)}</div><div><b class="small">Daily companion</b><p class="small muted">Your January SIP date is in 7 weeks. Raising it by ₹5,000 lifts retirement odds to 84%.</p><div class="row" style="margin-top:8px;gap:6px"><button class="chip" data-snooze-n>Snooze</button><button class="chip" data-why-n>Why this?</button></div></div></div>
+    </section>
+  </div>
+
+  <div class="grid g-3" style="margin-top:16px">
+    <section class="card"><div class="card-h"><h2>12-month trend</h2><span class="badge b-pos">+86 since Nov 2025</span></div>${sparkline(TREND_SERIES)}<div class="row between tiny muted" style="margin-top:6px"><span>Nov</span><span>May</span><span>Nov</span></div></section>
+    <section class="card"><div class="card-h"><h2>What drives your score</h2><a class="small" href="#score" style="color:var(--brand-strong);font-weight:600">All factors</a></div>
+      <div class="stack" style="gap:10px">${[...FACTORS].sort((a,b)=>b.v-a.v).filter((_,i)=>i<2).map(f=>`<div class="row between"><span class="small">${f.k}</span><span class="badge b-pos num">+${f.v}</span></div>`).join('')}<hr class="hr" style="margin:2px 0">${[...FACTORS].sort((a,b)=>a.v-b.v).slice(0,2).map(f=>`<div class="row between"><span class="small">${f.k}</span><span class="badge b-neg num">${f.v}</span></div>`).join('')}</div></section>
+    <section class="card"><div class="card-h"><h2>Financial vitals</h2>${tip('Green, amber and red are early-warning states. A grey dot means the data is too old to judge.')}</div>
+      <div class="stack" style="gap:8px">
+        <div class="vital"><i class="led g"></i><div style="flex:1"><b class="small">Cash-flow</b></div><span class="small muted">Healthy</span></div>
+        <div class="vital"><i class="led a"></i><div style="flex:1"><b class="small">Emergency cover</b></div><span class="small muted">2.5 of 6 months</span></div>
+        <div class="vital"><i class="led r"></i><div style="flex:1"><b class="small">Protection</b></div><span class="small muted">No term cover</span></div>
+      </div></section>
+  </div>
+
+  <section class="card" style="margin-top:16px"><div class="card-h"><h2>Goals at a glance</h2><a class="small" href="#goals" style="color:var(--brand-strong);font-weight:600">Open goals →</a></div>
+    <div class="grid g-3">${GOALS.map(goalMini).join('')}</div></section>`;
+},
+mount:v=>{ animateRing(v);
+  $('[data-snooze-n]',v).onclick=()=>toast('Snoozed for 7 days. We will not repeat it before then.');
+  $('[data-why-n]',v).onclick=()=>toast('Because your SIP date is near and the goal is behind plan.');
+}};
+const GOALS=[
+  {n:'Emergency fund',t:3.6e5,c:2.1e5,date:'Jun 2027',p:92,sip:12000,ico:'shield',cl:'i-warn'},
+  {n:'Home down payment',t:25e5*1,c:9.8e5,date:'Mar 2030',p:62,sip:21000,ico:'home',cl:'i-brand'},
+  {n:'Retirement at 58',t:4.5e7,c:8.4e5,date:'2052',p:71,sip:15000,ico:'goal',cl:'i-ai'}
+];
+const goalMini=g=>`<div class="item" style="flex-direction:column"><div class="row between" style="width:100%"><div class="row"><div class="ico ${g.cl}" style="width:30px;height:30px">${ic(g.ico,16)}</div><b>${g.n}</b></div><span class="badge ${g.p>=80?'b-pos':g.p>=65?'b-warn':'b-neg'} num">${g.p}% on track</span></div>
+  <div class="bar" style="width:100%"><i style="width:${Math.max(3,g.c/g.t*100)}%"></i></div><div class="row between small muted" style="width:100%"><span class="num">${inrC(g.c)} of ${inrC(g.t)}</span><span>${g.date}</span></div></div>`;
+
+/* ---------- COACH ---------- */
+const CHAT_MODES={Ask:'Answers about your money',Explain:'Why your numbers moved',Plan:'Turn goals into steps',Learn:'Plain-language lessons'};
+let chat = null, facts=[];
+function resetChat(){
+  chat=[{r:'a',t:`Hi ${USER.name}. I can explain your score, plan a goal or test a what-if. I never calculate money myself: our engines do, and I show you which one.`}]; facts=[];
+}
+VIEWS.coach = {
+html:()=>{ if(!chat) resetChat();
+  return `<div class="page-head"><div><h1>Wealth Coach</h1><p class="muted">Talk in plain words. What we capture appears on the right, and nothing is saved until you confirm it.</p></div>
+  <div class="tabs" role="tablist" aria-label="Coach mode">${Object.keys(CHAT_MODES).map((m,i)=>`<button role="tab" aria-selected="${i===0}" data-mode="${m}" title="${CHAT_MODES[m]}">${m}</button>`).join('')}</div></div>
+  <div class="chat"><section class="card chat-main" aria-label="Conversation"><div class="msgs" id="msgs" aria-live="polite"></div>
+    <div class="composer"><div class="row wrap" id="quick" style="gap:6px"></div>
+      <form id="cform"><label class="sr" for="cin">Message</label><input id="cin" placeholder="Ask about your score, goals or a decision…" autocomplete="off"><button class="btn ai" type="submit" aria-label="Send">${ic('send',18)}</button></form>
+      <p class="tiny muted" style="text-align:center">${ic('spark',12)} AI-assisted explanation, not personal investment advice. Figures come from deterministic engines.</p></div></section>
+  <aside class="card" aria-label="Captured facts" style="overflow:auto"><div class="card-h"><h2>Captured facts</h2><span class="badge b-ai" id="fcount">0 new</span></div><div class="stack" id="facts"></div>
+    <hr class="hr"><span class="eyebrow">Where facts come from</span><div class="stack" style="gap:6px;margin-top:10px">${Object.keys(SRC).map(k=>`<div class="row small">${src(k)}</div>`).join('')}</div></aside></div>`;},
+mount:v=>{
+  const msgs=$('#msgs',v), quick=$('#quick',v);
+  const render=()=>{ msgs.innerHTML=chat.map(m=>m.r==='u'?`<div class="msg u">${esc(m.t)}</div>`:`<div class="msg a"><div>${m.t}</div>${m.trace?`<div class="trace">${m.trace.map(x=>`<span class="badge b-ai">${ic('check',11)}${x}</span>`).join('')}</div>`:''}</div>`).join(''); msgs.scrollTop=msgs.scrollHeight; };
+  const renderFacts=()=>{ $('#facts',v).innerHTML = facts.length?facts.map((f,i)=>`<div class="fact ${f.ok?'ok':''}"><div style="flex:1;min-width:0"><span class="eyebrow">${f.k}</span><div style="font-weight:600">${f.v}</div>${src('user')}</div>${f.ok?`<span class="badge b-pos">${ic('check',11)}Saved</span>`:`<div class="stack" style="gap:4px"><button class="btn sm primary" data-ok="${i}">Confirm</button><button class="btn sm ghost" data-no="${i}">Dismiss</button></div>`}</div>`).join(''):`<p class="small muted">Facts you mention show up here for you to confirm. Try: “I pay ₹32,000 rent and have ₹2 lakh saved.”</p>`; $('#fcount',v).textContent=facts.filter(f=>!f.ok).length+' new';
+    $$('[data-ok]',v).forEach(b=>b.onclick=()=>{facts[+b.dataset.ok].ok=true;renderFacts();toast('Saved to your Financial Memory');});
+    $$('[data-no]',v).forEach(b=>b.onclick=()=>{facts.splice(+b.dataset.no,1);renderFacts();}); };
+  const setQuick=l=>{quick.innerHTML=l.map(t=>`<button class="chip" type="button">${t}</button>`).join(''); $$('button',quick).forEach(b=>b.onclick=()=>send(b.textContent));};
+  async function send(text){ if(!text.trim())return; chat.push({r:'u',t:text}); render(); setQuick([]);
+    msgs.insertAdjacentHTML('beforeend','<div class="msg a typing" id="typ"><i></i><i></i><i></i></div>'); msgs.scrollTop=msgs.scrollHeight;
+    await new Promise(r=>setTimeout(r,matchMedia('(prefers-reduced-motion: reduce)').matches?0:900));
+    const r=reply(text); chat.push({r:'a',t:r.t,trace:r.trace}); (r.facts||[]).forEach(f=>{ if(!facts.some(x=>x.k===f.k)) facts.push(f); }); render(); renderFacts(); setQuick(r.q||[]); }
+  $('#cform',v).onsubmit=e=>{e.preventDefault();const i=$('#cin',v);const t=i.value;i.value='';send(t);};
+  $$('[data-mode]',v).forEach(b=>b.onclick=()=>{$$('[data-mode]',v).forEach(x=>x.setAttribute('aria-selected',x===b));toast(b.dataset.mode+' mode: '+CHAT_MODES[b.dataset.mode]);});
+  render(); renderFacts();
+  const q=sessionStorage.getItem('fs-q'); sessionStorage.removeItem('fs-q');
+  if(q) send(q); else setQuick(['Why did my score go up?','What should I fix first?','Can I afford a ₹60L home?','Explain my emergency fund gap']);
+}};
+const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function reply(t){ const s=t.toLowerCase();
+  if(/score|why|up|moved/.test(s)) return {t:`Your score rose <b>23 points</b> in 6 months, to <b>684</b>. Three things did most of the work: a steady 24% savings rate (+38), on-time SIPs (+29) and stable income (+24). Two things held you back: no term cover (−22) and a thin emergency fund (−14).`,trace:['Scoring engine run #4821','Explainability diff'],q:['Open full breakdown','What should I fix first?']};
+  if(/fix|first|next|priorit/.test(s)) return {t:`Start with <b>term insurance</b>. It is your biggest gap and could add 14 to 20 points. Second is a ₹1.5L emergency top-up for +9 to +12. Both come from the approved action library, so the impact ranges are not my guess.`,trace:['Action prioritiser','Rulebook v0.3 (demo)'],q:['Show the action plan','Try it in What-if']};
+  if(/home|afford|buy/.test(s)||/60/.test(s)) return {t:`Short answer: not yet, but you are close. At your current plan, a ₹60L home with 20% down gives a <b>62%</b> chance of being ready by March 2030. Raising your SIP by ₹5,000 moves that to about <b>74%</b>. This is a range, not a promise. <a href="#simulate" style="color:var(--ai);font-weight:600">Open What-if</a>`,trace:['Projection engine (seed 42)','Assumptions: 10% return, 6% inflation'],facts:[{k:'Home budget',v:'₹60,00,000'},{k:'Down payment target',v:'20%'}],q:['Show the assumptions','Open What-if']};
+  if(/emergency/.test(s)) return {t:`You have about <b>2.5 months</b> of expenses saved (₹2.1L, estimated). The target is 6 months, or ₹5.04L. Closing the gap at ₹12,000 a month takes about 25 months. A one-time ₹1.5L top-up gets you to 4 months today.`,trace:['Cash-flow engine'],q:['Add the top-up to my plan']};
+  if(/rent|saved|lakh|₹|earn|salary/.test(s)) return {t:`Thanks, I have noted that. Please confirm the details on the right before I save them to your Financial Memory. Do you pay any EMIs?`,facts:[{k:'Monthly rent',v:'₹32,000'},{k:'Savings',v:'₹2,00,000'}],q:['Yes, one home loan','No EMIs']};
+  if(/problem|save|loan|retire|never/.test(s)) return {t:`That is a very common starting point. To give you a real answer I need three things: your monthly take-home, your fixed costs and what you have saved. You can type them or connect your bank. What is your approximate monthly take-home income?`,facts:[{k:'Main concern',v:t.length>40?t.slice(0,40)+'…':t}],q:['₹1.4 lakh','Connect my bank','Skip for now']};
+  return {t:`I can help with that. To keep the answer grounded in your numbers, I will check your profile first. Meanwhile, try one of these.`,trace:['Memory lookup'],q:['Why did my score go up?','What should I fix first?']};
+}
+
+/* ---------- SCORE ---------- */
+VIEWS.score = {
+html:()=>{
+  const max=45;
+  return `<div class="page-head"><div><h1>Why your score is ${SCORE}</h1><p class="muted">Every point traces to a factor and its evidence. Tap a row to see why.</p></div>
+    <div class="row"><span class="badge b-warn">Demo rules v0.3</span><button class="btn sm" id="assume">Assumptions</button></div></div>
+  <div class="grid g-home">
+    <section class="card"><div class="card-h"><h2>Contribution vs. a neutral 600</h2><div class="row"><span class="badge b-pos">+${FACTORS.filter(f=>f.v>0).reduce((a,f)=>a+f.v,0)}</span><span class="badge b-neg">${FACTORS.filter(f=>f.v<0).reduce((a,f)=>a+f.v,0)}</span></div></div>
+      <div role="list">${FACTORS.map((f,i)=>`<button class="wf-row ${f.v>0?'wf-pos':'wf-neg'}" role="listitem" data-f="${i}" aria-pressed="${i===0}"><span class="small" style="font-weight:600">${f.k}</span><span class="wf-track"><i style="width:${Math.abs(f.v)/max*50}%"></i></span><span class="num" style="font-weight:700;text-align:right;color:var(${f.v>0?'--pos':'--neg'})">${f.v>0?'+':''}${f.v}</span></button>`).join('')}</div>
+      <hr class="hr"><div class="row between"><span class="muted small">600 baseline + ${FACT_SUM} net factors</span><b class="num" style="font-size:20px">= ${SCORE}</b></div></section>
+    <section class="card" id="fdetail" aria-live="polite"></section></div>
+  <section class="card" style="margin-top:16px"><div class="card-h"><h2>What changed in the last 6 months</h2>${tip('Only material changes are listed.')}</div>
+    <div class="grid g-3"><div class="item"><div class="ico i-pos">${ic('up',18)}</div><div><b>+12 Savings rate</b><p class="small muted">Rose from 19% to 24%.</p></div></div><div class="item"><div class="ico i-pos">${ic('up',18)}</div><div><b>+9 Investment consistency</b><p class="small muted">One missed SIP in Feb, none since.</p></div></div><div class="item"><div class="ico i-neg">${ic('down',18)}</div><div><b>−4 Spending volatility</b><p class="small muted">Festive spends in October.</p></div></div></div></section>
+  <div id="drawer" class="card" hidden style="margin-top:16px"><div class="card-h"><h2>Assumptions behind this score</h2><button class="btn sm ghost" id="aclose">Close</button></div>
+    <ul class="small muted" style="margin:0;padding-left:18px;display:grid;gap:6px"><li>Rulebook version: demo v0.3. Not approved, so not an official FinScore.</li><li>Neutral baseline is 600 for every user.</li><li>Income and spend are 6-month averages from connected accounts.</li><li>Emergency savings are estimated from a balance snapshot 6 days old.</li></ul></div>`;},
+mount:v=>{
+  const show=i=>{ const f=FACTORS[i]; $$('[data-f]',v).forEach(b=>b.setAttribute('aria-pressed',+b.dataset.f===i));
+    $('#fdetail',v).innerHTML=`<div class="row between wrap"><h2>${f.k}</h2><span class="badge ${f.v>0?'b-pos':'b-neg'} num">${f.v>0?'+':''}${f.v} pts</span></div>
+    <p style="margin:12px 0">${f.why}</p><div class="stack" style="gap:10px"><div class="row between small"><span class="muted">Evidence</span><span>${f.ev}</span></div><div class="row between small"><span class="muted">Source</span>${src(f.src)}</div></div><hr class="hr">
+    ${f.v<0?`<div class="item" style="background:var(--surface2)"><div class="ico i-brand">${ic('act',18)}</div><div><b class="small">How to improve</b><p class="small muted">${f.k==='Insurance cover'?'A ₹1 Cr term plan could add 14 to 20 points.':f.k==='Emergency fund'?'Reaching 4 months of cover adds about 9 to 12 points.':'Cap discretionary spend with a monthly budget.'}</p></div></div><a class="btn primary" href="#actions" style="margin-top:12px;width:100%">See the action</a>`:`<div class="item" style="background:var(--brand-soft)"><div class="ico i-pos">${ic('check',18)}</div><div><b class="small">Keep it up</b><p class="small muted">This is a strength. Nothing to change.</p></div></div>`}`; };
+  $$('[data-f]',v).forEach(b=>b.onclick=()=>show(+b.dataset.f)); show(0);
+  $('#assume',v).onclick=()=>{$('#drawer',v).hidden=false;$('#drawer',v).scrollIntoView({behavior:'smooth',block:'center'})}; $('#aclose',v).onclick=()=>$('#drawer',v).hidden=true;
+}};
+
+/* ---------- DNA ---------- */
+const TRAITS=[['Saver instinct',4,92,'You save before you spend.'],['Planning habit',3,81,'You review goals roughly monthly.'],['Risk comfort',3,72,'Comfortable with moderate swings.'],['Impulse control',2,64,'Festive and travel spends spike.'],['Protection mindset',1,70,'Low focus on insurance so far.'],['Learning appetite',5,88,'You open lessons weekly.']];
+VIEWS.dna = {
+html:()=>`<div class="page-head"><div><h1>Your Financial DNA</h1><p class="muted">Habits we can see in your data. Traits change as you do, and each one shows how sure we are.</p></div><span class="badge b-ai">${ic('spark',12)}Updated 2 days ago</span></div>
+  <div class="grid g-home"><section class="card persona"><span class="eyebrow">Your Wealth Persona</span><h1 style="margin:10px 0 8px;font-size:34px">The Steady Builder</h1>
+    <p style="max-width:46ch;color:#D5E2EC">You build wealth through discipline, not bets. Your savings and SIP routine are strong. The next unlock is protecting what you are building.</p>
+    <div class="row wrap" style="margin-top:18px"><span class="badge" style="background:rgb(255 255 255/.14);color:#fff">Primary: Builder</span><span class="badge" style="background:rgb(255 255 255/.14);color:#fff">Modifier: Under-protected</span></div>
+    <p class="tiny" style="margin-top:16px;color:#9FB6C9">Based on 3 traits: Saver instinct, Planning habit, Protection mindset.</p></section>
+    <section class="card"><div class="card-h"><h2>Where you sit</h2>${tip('Compared with people at your income and life stage. Not a ranking.')}</div>
+      ${[['Savings rate','24%','20%',82],['Emergency cover','2.5 mo','6 mo',42],['Debt-to-income','21%','30% max',76]].map(([k,a,b,p])=>`<div style="margin-bottom:14px"><div class="row between small"><span>${k}</span><span class="muted">You <b class="num" style="color:var(--ink)">${a}</b> · Target ${b}</span></div><div class="bar" style="margin-top:6px"><i style="width:${p}%;background:${p<50?'var(--warn-fill)':'var(--brand)'}"></i></div></div>`).join('')}</section></div>
+  <div class="grid g-3" style="margin-top:16px">${TRAITS.map(([n,lv,c,d])=>`<div class="card flat trait"><div class="row between"><h3>${n}</h3><span class="badge b-neutral num">${c}% sure</span></div><p class="small muted" style="margin-top:6px">${d}</p><div class="meter" aria-label="Level ${lv} of 5">${[1,2,3,4,5].map(i=>`<i class="${i<=lv?'on':''}"></i>`).join('')}</div><div class="row between tiny muted" style="margin-top:6px"><span>Low</span><span>High</span></div></div>`).join('')}</div>`
+};
+
+/* ---------- SIMULATE ---------- */
+const SIM={sip:15000,em:2.5,pre:0,ret:58};
+function simCalc(){
+  const n=(SIM.ret-USER.age)*12, P0=8.4e5;
+  const fv=r=>{const m=Math.pow(1+r,1/12)-1; return P0*Math.pow(1+m,n)+SIM.sip*((Math.pow(1+m,n)-1)/m);};
+  const lo=fv(.07),mid=fv(.10),hi=fv(.125), target=4.5e7*1;
+  const inflFactor=Math.pow(1.06,(58-USER.age))/Math.pow(1.06,(58-USER.age));
+  const prob=Math.round(clamp(100/(1+Math.exp(-(mid/target-.508)*5.2)),4,97));
+  const delta=Math.round(clamp((SIM.sip-15000)/1000*.9+(SIM.em-2.5)*4.2+SIM.pre/1000*.7-(SIM.ret<58?(58-SIM.ret)*1.2:0),-30,60));
+  const sp=Math.round(8+Math.abs(delta)*.25);
+  return {n,lo,mid,hi,target,prob,delta,sp,pts:SCORE+delta};
+}
+function fan(c){
+  const w=640,h=240,pad={l:46,r:12,t:12,b:28}; const yrs=SIM.ret-USER.age; const N=yrs; const max=Math.max(c.hi,c.target)*1.05;
+  const X=i=>pad.l+i/N*(w-pad.l-pad.r), Y=v=>pad.t+(1-v/max)*(h-pad.t-pad.b);
+  const path=(r)=>{const m=Math.pow(1+r,1/12)-1; const pts=[];for(let i=0;i<=N;i++){const k=i*12;pts.push(8.4e5*Math.pow(1+m,k)+SIM.sip*((Math.pow(1+m,k)-1)/m));}return pts;};
+  const L=path(.07),M=path(.10),H=path(.125);
+  const line=a=>a.map((v,i)=>`${i?'L':'M'}${X(i).toFixed(1)} ${Y(v).toFixed(1)}`).join(' ');
+  const band=`${line(H)} ${[...L].reverse().map((v,i)=>`L${X(N-i).toFixed(1)} ${Y(v).toFixed(1)}`).join(' ')} Z`;
+  const ticks=[0,.25,.5,.75,1].map(t=>t*max);
+  return `<svg viewBox="0 0 ${w} ${h}" width="100%" role="img" aria-label="Projected retirement corpus at age ${SIM.ret}: median ${inrC(c.mid)}, range ${inrC(c.lo)} to ${inrC(c.hi)}, target ${inrC(c.target)}">
+   ${ticks.map(t=>`<line x1="${pad.l}" x2="${w-pad.r}" y1="${Y(t)}" y2="${Y(t)}" stroke="var(--line)" stroke-dasharray="3 4"/><text x="${pad.l-8}" y="${Y(t)+4}" text-anchor="end" font-size="10.5" fill="var(--muted)" class="num">${t?inrC(t):'0'}</text>`).join('')}
+   ${[0,.5,1].map(t=>`<text x="${X(t*N)}" y="${h-8}" text-anchor="${t?t===1?'end':'middle':'start'}" font-size="10.5" fill="var(--muted)">Age ${Math.round(USER.age+t*yrs)}</text>`).join('')}
+   <path d="${band}" fill="var(--ai)" opacity=".16"/><path d="${line(M)}" fill="none" stroke="var(--ai)" stroke-width="2.5"/>
+   <line x1="${pad.l}" x2="${w-pad.r}" y1="${Y(c.target)}" y2="${Y(c.target)}" stroke="var(--warn-fill)" stroke-width="1.6" stroke-dasharray="6 4"/><text x="${w-pad.r}" y="${Y(c.target)-6}" text-anchor="end" font-size="11" fill="var(--warn)" font-weight="600">Goal ${inrC(c.target)}</text>
+   <circle cx="${X(N)}" cy="${Y(M[N])}" r="5" fill="var(--surface)" stroke="var(--ai)" stroke-width="2.5"/></svg>`;
+}
+VIEWS.simulate = {
+html:()=>`<div class="page-head"><div><h1>What if…?</h1><p class="muted">Move a slider and watch your score and goals respond. Changes here are never saved until you add them to your plan.</p></div><button class="btn sm" id="reset">Reset to today</button></div>
+  <div class="grid g-sim"><section class="card" aria-label="Inputs">
+    ${[['sip','Monthly SIP','₹',0,60000,1000,v=>inr(v)],['em','Emergency fund (months of cover)','',0,9,.5,v=>v+' mo'],['pre','Extra loan prepayment per month','₹',0,20000,1000,v=>inr(v)],['ret','Retire at age','',50,65,1,v=>v]].map(([k,l,,mn,mx,st,f])=>`<div class="slider"><div class="row between"><label for="s-${k}" style="font-weight:600">${l}</label><b class="num" id="o-${k}">${f(SIM[k])}</b></div><input id="s-${k}" type="range" min="${mn}" max="${mx}" step="${st}" value="${SIM[k]}"><div class="row between tiny muted"><span>${f(mn)}</span><span>${f(mx)}</span></div></div>`).join('')}
+    <div class="row wrap" style="margin-top:12px"><button class="chip" data-pre="a">+₹5k SIP</button><button class="chip" data-pre="b">Reach 6 months cover</button><button class="chip" data-pre="c">Retire at 60</button></div></section>
+  <section class="stack" aria-live="polite"><div class="grid g-2"><div class="card"><span class="eyebrow">Projected score in 6 months ${tip('p50 estimate with p10–p90 range. Not a guarantee.')}</span><div class="row" style="margin-top:10px;align-items:baseline;gap:12px"><span class="delta" id="r-score">684</span><span class="badge" id="r-delta">—</span></div><p class="small muted" id="r-range" style="margin-top:6px"></p></div>
+    <div class="card"><span class="eyebrow">Retirement goal on track</span><div class="row" style="margin-top:10px;align-items:baseline;gap:12px"><span class="delta" id="r-prob">71%</span><span class="badge" id="r-pd">—</span></div><div class="bar" style="margin-top:12px"><i id="r-bar" style="width:71%;background:var(--ai)"></i></div></div></div>
+  <div class="card"><div class="card-h"><h2>Retirement corpus at age <span id="r-age"></span></h2><span class="badge b-warn">Estimate · range shown</span></div><div id="fan"></div>
+    <div class="row between wrap small" style="margin-top:8px"><span class="muted">Median <b class="num" id="r-mid" style="color:var(--ink)"></b> · Range <span class="num" id="r-lo-hi"></span></span><button class="btn sm ghost" id="a2">Edit assumptions</button></div>
+    <p class="tiny muted" id="assume-p" hidden style="margin-top:10px;padding:10px;background:var(--surface2);border-radius:8px">Returns 7% / 10% / 12.5% a year (p10 / p50 / p90). Inflation 6%. Current corpus ₹8.4L. Seed 42 so results repeat. Pending approved methodology.</p></div>
+  <button class="btn primary" id="addplan" style="align-self:flex-start">Add this to my plan</button></section></div>`,
+mount:v=>{
+  const fmt={sip:inr,em:x=>x+' mo',pre:inr,ret:x=>x};
+  const upd=()=>{ const c=simCalc(); $$('input[type=range]',v).forEach(i=>{ const k=i.id.slice(2); $('#o-'+k,v).textContent=fmt[k](+i.value); });
+    $('#r-score',v).textContent=c.pts; const d=$('#r-delta',v); d.textContent=(c.delta>=0?'+':'')+c.delta+' pts'; d.className='badge '+(c.delta>0?'b-pos':c.delta<0?'b-neg':'b-neutral');
+    $('#r-range',v).textContent=`Likely ${c.pts-c.sp} to ${c.pts+c.sp}`;
+    $('#r-prob',v).textContent=c.prob+'%'; $('#r-bar',v).style.width=c.prob+'%'; const pd=c.prob-71; const e=$('#r-pd',v); e.textContent=(pd>=0?'+':'')+pd+' pts'; e.className='badge '+(pd>0?'b-pos':pd<0?'b-neg':'b-neutral');
+    $('#r-age',v).textContent=SIM.ret; $('#fan',v).innerHTML=fan(c); $('#r-mid',v).textContent=inrC(c.mid); $('#r-lo-hi',v).textContent=inrC(c.lo)+' to '+inrC(c.hi); };
+  $$('input[type=range]',v).forEach(i=>i.oninput=()=>{SIM[i.id.slice(2)]=+i.value;upd();});
+  const set=o=>{Object.assign(SIM,o);$$('input[type=range]',v).forEach(i=>i.value=SIM[i.id.slice(2)]);upd();};
+  $('#reset',v).onclick=()=>set({sip:15000,em:2.5,pre:0,ret:58});
+  $('[data-pre=a]',v).onclick=()=>set({sip:20000}); $('[data-pre=b]',v).onclick=()=>set({em:6}); $('[data-pre=c]',v).onclick=()=>set({ret:60});
+  $('#a2',v).onclick=()=>{const p=$('#assume-p',v);p.hidden=!p.hidden;}; $('#addplan',v).onclick=()=>toast('Added to your plan as a draft. Confirm it in Goals.');
+  upd();
+}};
+
+/* ---------- GOALS ---------- */
+VIEWS.goals = {
+html:()=>`<div class="page-head"><div><h1>Goals &amp; Timeline</h1><p class="muted">Each date and probability comes from the projection engine. We only create a goal after you confirm it.</p></div><button class="btn primary" id="newgoal">+ New goal</button></div>
+  <div class="grid g-3">${GOALS.map(g=>`<article class="card" style="display:flex;flex-direction:column;gap:14px"><div class="row between"><div class="row"><div class="ico ${g.cl}">${ic(g.ico)}</div><div><h3>${g.n}</h3><span class="small muted">By ${g.date}</span></div></div><span class="badge ${g.p>=80?'b-pos':g.p>=65?'b-warn':'b-neg'} num">${g.p}%</span></div>
+    <div><div class="row between small"><b class="num">${inrC(g.c)}</b><span class="muted num">${inrC(g.t)}</span></div><div class="bar" style="margin-top:6px"><i style="width:${Math.max(3,g.c/g.t*100)}%"></i></div></div>
+    <div class="row between small"><span class="muted">Needed per month</span><b class="num">${inr(g.sip)}</b></div><a class="btn sm" href="#simulate">Adjust in What-if</a></article>`).join('')}</div>
+  <div class="grid g-home" style="margin-top:16px"><section class="card"><div class="card-h"><h2>Your wealth timeline</h2>${tip('Dates trace to engine calculations and shift as your numbers do.')}</div>
+    <div class="tl"><div class="done"><span class="eyebrow">Today · Nov 2026</span><h3>Stage 6 · Growing</h3><p class="small muted">Score 684. Savings rate above target.</p></div>
+    <div><span class="eyebrow">Jan 2027</span><h3>Term cover in place</h3><p class="small muted">Projected +14 to +20 points. Moves you toward Strong.</p></div>
+    <div><span class="eyebrow">Jun 2027</span><h3>Emergency fund complete</h3><p class="small muted">₹3.6L reached at ₹12,000 a month.</p></div>
+    <div class="risk"><span class="eyebrow">Mar 2030</span><h3>Home down payment due</h3><p class="small muted">62% likely on time. Raise SIP by ₹5,000 to reach 74%.</p></div>
+    <div><span class="eyebrow">2052 · Age 58</span><h3>Retirement corpus ₹4.5 Cr</h3><p class="small muted">71% likely. Median projection ₹3.05 Cr.</p></div></div></section>
+  <section class="card"><div class="card-h"><h2>Discovered goal</h2><span class="badge b-ai">${ic('spark',12)}Suggested</span></div><div class="item" style="flex-direction:column"><b>Child education fund</b><p class="small muted">You added a dependant in September. Families at your stage usually plan for this. Want to size a goal?</p><div class="row"><button class="btn primary sm" id="gy">Yes, set it up</button><button class="btn sm" id="gn">Not now</button></div></div></section></div>`,
+mount:v=>{ $('#newgoal',v).onclick=()=>{location.hash='#coach';sessionStorage.setItem('fs-q','I want to set a new goal');}; $('#gy',v).onclick=()=>{location.hash='#coach';sessionStorage.setItem('fs-q','Help me plan for my child’s education');}; $('#gn',v).onclick=()=>{$('#gn',v).closest('.item').innerHTML='<p class="small muted">Got it. We will not suggest this again for 90 days.</p>'}; }
+};
+
+/* ---------- ACTIONS ---------- */
+VIEWS.actions = {
+html:()=>`<div class="page-head"><div><h1>Action Centre</h1><p class="muted">Ranked by impact, urgency and effort. Points are added only after we verify the action.</p></div><div class="row"><span class="badge b-brand">4 open</span><span class="badge b-neutral">1 awaiting verification</span></div></div>
+  <div class="grid g-home"><section class="stack" id="alist">${ACTIONS.map(a=>actionCard(a,true)).join('')}</section>
+  <aside class="stack"><div class="card"><h2>Awaiting verification</h2><div class="item" style="margin-top:12px"><div class="ico i-pos">${ic('check',18)}</div><div><b class="small">Raised SIP to ₹15,000</b><p class="small muted">We will confirm when the next debit clears on Dec 5. Then +4 pts.</p></div></div></div>
+  <div class="card"><h2>Your streak</h2><p class="small muted" style="margin:6px 0 12px">Only verified progress counts. Opening the app does not.</p><div class="row" style="gap:6px">${[1,1,1,1,0,0,0].map((o,i)=>`<div style="flex:1;text-align:center"><div style="height:34px;border-radius:8px;background:${o?'var(--brand)':'var(--surface2)'}"></div><span class="tiny muted">${'MTWTFSS'[i]}</span></div>`).join('')}</div><p class="small" style="margin-top:12px"><b class="num">240 XP</b> · 4 verified actions this month</p></div></aside></div>`,
+mount:v=>{
+  $$('[data-do]',v).forEach(b=>b.onclick=()=>{const c=$('#act-'+b.dataset.do,v); toast('Great. We will verify it and add the points then.'); b.textContent='Awaiting verification'; b.disabled=true; b.className='btn sm'; });
+  $$('[data-snooze]',v).forEach(b=>b.onclick=()=>{const c=$('#act-'+b.dataset.snooze,v);c.style.opacity='.45';b.textContent='Snoozed 7 days';b.disabled=true;toast('Snoozed. We will not repeat it before then.');});
+  $$('[data-why]',v).forEach(b=>b.onclick=()=>{const p=$(`[data-whyp="${b.dataset.why}"]`,v);p.hidden=!p.hidden;});
+}};
+
+/* ---------- MEMORY ---------- */
+VIEWS.memory = {
+html:()=>`<div class="page-head"><div><h1>Profile &amp; Financial Memory</h1><p class="muted">Everything we know about you, where it came from and how fresh it is. Change anything. We keep the history.</p></div><button class="btn sm" id="export">Export my data</button></div>
+  <div class="item" style="background:var(--warn-soft);border-color:transparent;margin-bottom:16px"><div class="ico i-warn">${ic('warn',18)}</div><div style="flex:1"><b>Two sources disagree about your income</b><p class="small muted">You told us ₹1,50,000. Your bank shows ₹1,42,000 credited. Which should we use?</p><div class="row wrap" style="margin-top:10px"><button class="btn sm" data-res="1">Use ₹1,42,000 (bank)</button><button class="btn sm" data-res="2">Keep ₹1,50,000</button></div></div></div>
+  <section class="card"><div class="scroll-x"><table class="tbl"><thead><tr><th>Fact</th><th>Value</th><th>Source</th><th>Freshness</th><th><span class="sr">Edit</span></th></tr></thead><tbody>
+  ${FACTS.map((f,i)=>`<tr><td style="font-weight:600">${f.k}</td><td class="num" data-val="${i}">${f.v}</td><td>${src(f.s)}</td><td>${f.stale?`<span class="badge b-warn">Needs refresh · ${f.f}</span>`:`<span class="small muted">${f.f}</span>`}</td><td><button class="btn sm" data-edit="${i}">${ic('edit',14)}Edit</button></td></tr>`).join('')}</tbody></table></div></section>
+  <div class="grid g-2" style="margin-top:16px"><section class="card"><h2>Connected accounts</h2><div class="stack" style="margin-top:12px">${[['HDFC Bank · Salary','Synced 2 days ago',1],['Zerodha · Holdings','Synced today',1],['Home loan · SBI','Not connected',0]].map(([n,s,o])=>`<div class="row between item" style="align-items:center"><div class="row"><div class="ico i-brand">${ic('bank',18)}</div><div><b class="small">${n}</b><p class="tiny muted">${s}</p></div></div>${o?`<span class="badge b-pos">Connected</span>`:`<button class="btn sm primary">Connect</button>`}</div>`).join('')}</div></section>
+  <section class="card"><h2>Privacy &amp; consent</h2><div class="stack" style="margin-top:12px">${[['Use my data to personalise coaching',true],['Daily companion nudges',true],['Share anonymised insights to improve 5nance',false]].map(([l,o],i)=>`<label class="row between item" style="align-items:center;cursor:pointer"><span class="small">${l}</span><input type="checkbox" id="c${i}" ${o?'checked':''} style="width:20px;height:20px;accent-color:var(--brand)"></label>`).join('')}<p class="tiny muted">You can withdraw consent at any time. We delete your data within 30 days of a request.</p></div></section></div>`,
+mount:v=>{
+  $$('[data-edit]',v).forEach(b=>b.onclick=()=>{const i=+b.dataset.edit,td=$(`[data-val="${i}"]`,v);
+    if(b.dataset.on){const val=$('input',td).value||FACTS[i].v; td.textContent=val; b.dataset.on=''; b.innerHTML=ic('edit',14)+'Edit'; toast('Updated. Previous value kept in history.');}
+    else{td.innerHTML=`<input class="edit" value="${FACTS[i].v}" aria-label="New value for ${FACTS[i].k}">`; $('input',td).focus(); b.dataset.on=1; b.textContent='Save';}});
+  $$('[data-res]',v).forEach(b=>b.onclick=()=>{b.closest('.item').innerHTML='<p class="small"><b>Resolved.</b> We will use that value and keep the other in history.</p>'; toast('Conflict resolved');});
+  $('#export',v).onclick=()=>toast('Your data export is being prepared. We will email you.');
+  $$('input[type=checkbox]',v).forEach(c=>c.onchange=()=>toast(c.checked?'Consent saved':'Consent withdrawn'));
+}};
+
+
+/* ---------- SaaS layer: tenant, setup, integrations, branding, team, billing ---------- */
+const TENANT = {name:'Acme Wealth',slug:'acme-wealth',plan:'Growth',brand:'#0FB5A6',accent:'#4F46E5',radius:24,font:'Inter',powered:true,env:'sandbox',touched:false};
+const ini = () => TENANT.name.split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase() || 'W';
+const MODULES = {
+  score:{n:'FinScore & explainability',d:'Score, drivers, confidence',on:true},
+  coach:{n:'AI Wealth Coach',d:'Grounded Q&A in four modes',on:true},
+  sim:{n:'What-if simulator',d:'Scenarios with ranges',on:true},
+  dna:{n:'Financial DNA & persona',d:'Habits and traits',on:false},
+  goals:{n:'Goals & timeline',d:'Goal builder and projections',on:false}
+};
+const CONNECTORS = [
+  {k:'aa',n:'Account Aggregator',d:'RBI-regulated bank data with consent',ico:'bank',on:false},
+  {k:'bro',n:'Brokerage & MF holdings',d:'Zerodha, CAMS, KFintech',ico:'up',on:false},
+  {k:'csv',n:'CSV or API upload',d:'Push your own customer data',ico:'copy',on:false},
+  {k:'crm',n:'CRM sync',d:'Salesforce, HubSpot',ico:'users',on:false}
+];
+const FLAGS = {copied:false};
+const CHECK_ITEMS = () => [
+  {t:'Create your workspace',d:'Name, region and data residency (India)',done:true},
+  {t:'Create a sandbox API key',d:'Test keys are ready. Live keys unlock at go-live.',done:true},
+  {t:'Connect a data source',d:'Account Aggregator, brokerage or file upload',done:CONNECTORS.some(c=>c.on),cta:'Connect',go:'integrate'},
+  {t:'Brand your widget',d:'Colours, logo name and corner style',done:TENANT.touched,cta:'Customise',go:'brand'},
+  {t:'Embed the snippet',d:'Paste one script tag into your app or site',done:FLAGS.copied,cta:'Get snippet',go:'integrate'}
+];
+const lum = hex => { const n=parseInt(hex.slice(1),16); const c=[n>>16&255,n>>8&255,n&255].map(v=>{v/=255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4)}); return .2126*c[0]+.7152*c[1]+.0722*c[2]; };
+const FONTS = {Inter:["'Inter',system-ui,sans-serif","'Space Grotesk','Inter',sans-serif"],'Plus Jakarta':["'Plus Jakarta Sans',system-ui,sans-serif","'Plus Jakarta Sans',system-ui,sans-serif"],'DM Sans':["'DM Sans',system-ui,sans-serif","'DM Sans',system-ui,sans-serif"]};
+function applyTenant(){
+  const b=TENANT.brand,a=TENANT.accent,on=lum(b)>.35?'#03201C':'#FFFFFF',f=FONTS[TENANT.font]||FONTS.Inter;
+  const dk=`--brand:color-mix(in srgb,${b} 80%,#fff);--brand-strong:color-mix(in srgb,${b} 65%,#fff);--brand-soft:color-mix(in srgb,${b} 24%,#0F1D2B);--on-brand:#03201C;--ai:color-mix(in srgb,${a} 62%,#fff);--ai-soft:color-mix(in srgb,${a} 30%,#0F1D2B)`;
+  let st=$('#tenant-style'); if(!st){ st=document.createElement('style'); st.id='tenant-style'; document.head.appendChild(st); }
+  st.textContent=`:root{--brand:${b};--brand-strong:color-mix(in srgb,${b} 68%,#000);--brand-soft:color-mix(in srgb,${b} 15%,#fff);--on-brand:${on};--ai:${a};--ai-soft:color-mix(in srgb,${a} 13%,#fff);--grad-a:color-mix(in srgb,${b} 58%,#000);--grad-b:${a};--r-xl:${TENANT.radius}px;--r-lg:${Math.round(TENANT.radius*.6)}px;--font:${f[0]};--font-num:${f[1]}}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){${dk}}}
+:root[data-theme="dark"]{${dk}}`;
+}
+try{ const q=new URLSearchParams(location.search); const hx=v=>/^[0-9a-fA-F]{6}$/.test(v||'')?'#'+v:null;
+  if(hx(q.get('brand'))) TENANT.brand=hx(q.get('brand')); if(hx(q.get('accent'))) TENANT.accent=hx(q.get('accent'));
+  if(q.get('name')) TENANT.name=q.get('name').slice(0,28); if(q.get('radius')) TENANT.radius=Math.min(32,Math.max(8,+q.get('radius')||24));
+  if(q.get('font') && FONTS[q.get('font')]) TENANT.font=q.get('font'); if(q.get('done')) { TENANT.touched=true; FLAGS.copied=true; CONNECTORS[0].on=true; }
+}catch(e){}
+applyTenant();
+function seed(n){ return Array.from({length:30},(_,i)=>Math.round(300+150*Math.sin(i/3.1)+((i*37)%90)+i*5+(n||0))); }
+const USAGE = seed(0);
+function usageTotal(){ return USAGE.reduce((a,b)=>a+b,0); }
+const copyText = async (t,msg) => { try{ await navigator.clipboard.writeText(t); toast(msg||'Copied'); }catch(e){ toast('Select the text and copy it'); } };
+
+function widget(){
+  const mods=Object.entries(MODULES).filter(([,m])=>m.on).map(([,m])=>`<span class="badge b-brand">${m.n.split(' ')[0]==='FinScore'?'Score':m.n.split(' ').slice(0,2).join(' ')}</span>`).join('');
+  return `<div class="wprev"><div class="wp-h"><div class="logo" style="width:28px;height:28px;border-radius:9px;font-size:11px;display:grid;place-items:center">${ini()}</div><b style="font-family:var(--font-num)">${esc(TENANT.name)}</b><span class="badge b-brand" style="margin-left:auto">Your FinScore</span></div>
+    <div class="wp-body"><div class="wp-ring"><div class="ring">${ringSVG(SCORE,false)}<div class="ring-c"><div class="big num">${SCORE}</div><span class="badge b-ai" style="margin-top:6px">Growing · 6 of 8</span></div></div></div>
+      <div class="stack" style="gap:8px"><div class="row between small"><span class="muted">Confidence</span><b class="num">${CONF}%</b></div><div class="row between small"><span class="muted">Trend</span><b class="num" style="color:var(--pos)">▲ ${TREND}</b></div><a class="btn primary sm" href="#brand" onclick="return false">See my plan</a></div></div>
+    <div class="wp-f">${mods||'<span class="small muted">Turn on a module to show it here</span>'}</div>
+    ${TENANT.powered?'<div class="wp-pow">Powered by 5nance</div>':''}</div>`;
+}
+const hl = (code,kind) => esc(code).replace(/(&lt;!--[\s\S]*?--&gt;|^#.*$)/gm,'<span class="c">$1</span>').replace(/(&quot;[^&]*?&quot;)/g,'<span class="s">$1</span>');
+function snippet(kind){
+  const mods=Object.keys(MODULES).filter(k=>MODULES[k].on).join(',');
+  if(kind==='embed') return `\x3C!-- 1. Paste before \x3C/body> -->\n\x3Cscript src="https://cdn.finscore.example/v1/widget.js" async>\x3C/script>\n\n\x3C!-- 2. Place it where the widget should appear -->\n<div data-finscore\n     data-workspace="${TENANT.slug}"\n     data-key="fs_pub_test_8Hk2xQ4n"\n     data-modules="${mods}"\n     data-user-token="{{SIGNED_USER_TOKEN}}"></div>`;
+  if(kind==='api') return `# Create or refresh a score for one customer\ncurl -X POST https://api.finscore.example/v1/scores \\\n  -H "Authorization: Bearer $FINSCORE_SECRET_KEY" \\\n  -H "Content-Type: application/json" \\\n  -d '{"external_user_id":"cust_1042","consent_id":"cns_9a1f","sources":["account_aggregator"]}'\n\n# Response (200)\n{ "score": 684, "stage": "Growing", "confidence": 0.78,\n  "trend": 23, "range": [670, 698],\n  "drivers": [{"factor":"savings_rate","points":38}],\n  "rulebook": "demo-0.3" }`;
+  return `# npm i @finscore/react\nimport { FinScore, FinScoreProvider } from "@finscore/react";\n\nexport default function Wealth({ userToken }) {\n  return (\n    <FinScoreProvider workspace="${TENANT.slug}" publicKey="fs_pub_test_8Hk2xQ4n">\n      <FinScore userToken={userToken} modules={[${Object.keys(MODULES).filter(k=>MODULES[k].on).map(m=>`"${m}"`).join(', ')}]} />\n    </FinScoreProvider>\n  );\n}`;
+}
+const pageHead = (t,p,extra='') => `<div class="page-head"><div><h1>${t}</h1><p class="muted">${p}</p></div>${extra}</div>`;
+
+/* ---- SETUP ---- */
+VIEWS.setup = {
+html:()=>{
+  const items=CHECK_ITEMS(), done=items.filter(i=>i.done).length, nextIdx=items.findIndex(i=>!i.done), ready=done===items.length;
+  const max=Math.max(...USAGE), W=640,H=190,pad={l:40,r:8,t:10,b:24}, bw=(W-pad.l-pad.r)/USAGE.length;
+  const bars=USAGE.map((v,i)=>{const h=v/max*(H-pad.t-pad.b);return `<rect x="${pad.l+i*bw+2}" y="${H-pad.b-h}" width="${bw-4}" height="${h}" rx="3" fill="${i===USAGE.length-1?'var(--ai)':'var(--brand)'}" opacity="${i===USAGE.length-1?1:.8}"/>`}).join('');
+  const grid=[0,.5,1].map(t=>`<line x1="${pad.l}" x2="${W-pad.r}" y1="${H-pad.b-t*(H-pad.t-pad.b)}" y2="${H-pad.b-t*(H-pad.t-pad.b)}" stroke="var(--line)" stroke-dasharray="3 4"/><text x="${pad.l-6}" y="${H-pad.b-t*(H-pad.t-pad.b)+4}" text-anchor="end" font-size="10.5" fill="var(--muted)" class="num">${Math.round(t*max/10)*10}</text>`).join('');
+  return pageHead('Go live in 15 minutes',`Four steps from a sandbox to a branded FinScore inside your own product. Nothing to host and no code to maintain.`,
+    `<div class="row"><span class="badge ${TENANT.env==='live'?'b-pos':'b-warn'}">${TENANT.env==='live'?'Live':'Sandbox'}</span><button class="btn primary" id="golive" ${ready?'':'disabled style="opacity:.55"'}>${ic('rocket',18)} Go live</button></div>`)+
+  `<div class="grid g-home"><section class="card"><div class="card-h"><h2>Setup checklist</h2><span class="badge b-brand num">${done} of ${items.length} done</span></div>
+    <div class="bar" style="margin-bottom:16px"><i style="width:${done/items.length*100}%"></i></div>
+    <div class="stack">${items.map((c,i)=>`<div class="step ${c.done?'done':i===nextIdx?'next':''}"><div class="n">${c.done?ic('check',16):i+1}</div><div style="flex:1;min-width:0"><h3>${c.t}</h3><p class="small muted">${c.d}</p></div>${c.done?'<span class="badge b-pos">Done</span>':`<a class="btn sm ${i===nextIdx?'primary':''}" href="#${c.go}">${c.cta}</a>`}</div>`).join('')}</div></section>
+  <section class="card"><div class="card-h"><h2>Plug-and-play modules</h2><span class="badge b-neutral">Mix and match</span></div>
+    <div class="stack" style="gap:0">${Object.entries(MODULES).map(([k,m])=>`<div class="kv"><div><b class="small">${m.n}</b><p class="tiny muted">${m.d}</p></div><button class="sw" role="switch" aria-checked="${m.on}" aria-label="${m.n}" data-mod="${k}"></button></div>`).join('')}</div>
+    <p class="tiny muted" style="margin-top:12px">Changes appear in your embed within a minute. No redeploy needed.</p></section></div>
+  <div class="grid g-4" style="margin-top:16px">
+    <div class="card kpi"><span class="eyebrow">Scores this month</span><div class="v num">${usageTotal().toLocaleString('en-IN')}</div><p class="tiny muted" style="margin-top:6px">of 25,000 on Growth</p></div>
+    <div class="card kpi"><span class="eyebrow">Active end-users</span><div class="v num">3,204</div><p class="tiny" style="margin-top:6px;color:var(--pos)">▲ 11% vs last month</p></div>
+    <div class="card kpi"><span class="eyebrow">API p95 latency</span><div class="v num">182 ms</div><p class="tiny muted" style="margin-top:6px">Target under 300 ms</p></div>
+    <div class="card kpi"><span class="eyebrow">Uptime, 30 days</span><div class="v num">99.99%</div><p class="tiny muted" style="margin-top:6px">SLA 99.9%</p></div></div>
+  <section class="card" style="margin-top:16px"><div class="card-h"><h2>Scores generated per day</h2><span class="badge b-neutral">Last 30 days · sandbox + live</span></div>
+    <svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Daily scores generated over 30 days, total ${usageTotal()}">${grid}${bars}<text x="${pad.l}" y="${H-6}" font-size="10.5" fill="var(--muted)">30 days ago</text><text x="${W-pad.r}" y="${H-6}" text-anchor="end" font-size="10.5" fill="var(--muted)">Today</text></svg></section>`;},
+mount:v=>{
+  $$('[data-mod]',v).forEach(b=>b.onclick=()=>{ const m=MODULES[b.dataset.mod]; m.on=!m.on; b.setAttribute('aria-checked',m.on); toast(m.n+(m.on?' enabled':' disabled')); });
+  const g=$('#golive',v); if(g) g.onclick=()=>{ if(g.disabled) return; TENANT.env='live'; toast('You are live. Live keys are now active.'); route(); };
+  if(g && g.disabled) g.title='Complete the checklist first';
+}};
+
+/* ---- INTEGRATIONS ---- */
+let snipKind='embed', revealed=false;
+VIEWS.integrate = {
+html:()=>pageHead('Integrations','Pick how you plug FinScore into your product. The preview on the right is what your customers will see.')+
+  `<div class="grid g-int"><div class="stack" style="gap:16px">
+  <section class="card"><div class="card-h"><h2>Add it to your product</h2><div class="tabs" role="tablist" aria-label="Integration method">${[['embed','Embed widget'],['api','REST API'],['sdk','React SDK']].map(([k,l])=>`<button role="tab" data-snip="${k}" aria-selected="${k===snipKind}">${l}</button>`).join('')}</div></div>
+    <div class="code" id="code" tabindex="0" aria-label="Code sample">${hl(snippet(snipKind))}<button class="btn sm copy" id="copy" style="background:rgb(255 255 255/.1);color:#fff;border-color:rgb(255 255 255/.2)">${ic('copy',14)} Copy</button></div>
+    <p class="small muted" style="margin-top:10px">Customers are identified with a signed token from your backend, so no personal data touches the browser.</p></section>
+  <section class="card"><div class="card-h"><h2>Data sources</h2><span class="badge b-neutral">Consent-led</span></div><div class="stack">${CONNECTORS.map(c=>`<div class="item" style="align-items:center"><div class="ico ${c.on?'i-pos':'i-brand'}">${ic(c.ico,18)}</div><div style="flex:1;min-width:0"><b class="small">${c.n}</b><p class="tiny muted">${c.d}</p></div><button class="btn sm ${c.on?'':'primary'}" data-con="${c.k}">${c.on?'Connected':'Connect'}</button></div>`).join('')}</div></section>
+  <section class="card"><div class="card-h"><h2>API keys</h2><span class="badge b-warn">Sandbox</span></div>
+    <div class="kv"><div><b class="small">Publishable key</b><p class="mono muted">fs_pub_test_8Hk2xQ4n</p></div><button class="btn sm" data-copy="fs_pub_test_8Hk2xQ4n">${ic('copy',14)} Copy</button></div>
+    <div class="kv"><div><b class="small">Secret key</b><p class="mono muted" id="sec">${revealed?'fs_sec_test_Z4q1Wm8d7LxP9f3a':'fs_sec_test_••••••••••••9f3a'}</p></div><div class="row"><button class="btn sm" id="reveal">${revealed?'Hide':'Reveal'}</button><button class="btn sm" id="rotate">Rotate</button></div></div>
+    <div class="kv"><div><b class="small">Live keys</b><p class="small muted">Available after go-live</p></div><span class="badge b-neutral">${ic('lock',12)} Locked</span></div></section>
+  <section class="card"><div class="card-h"><h2>Webhooks</h2><button class="btn sm" id="wtest">Send test event</button></div>
+    ${[['https://api.acme-wealth.example/hooks/finscore','score.updated, consent.revoked','Healthy'],['https://ops.acme-wealth.example/finscore','score.updated','Healthy']].map(([u,e,s])=>`<div class="kv"><div style="min-width:0"><p class="mono ellip" style="font:500 12.5px ui-monospace,Consolas,monospace">${u}</p><p class="tiny muted">${e}</p></div><span class="badge b-pos">${s}</span></div>`).join('')}</section></div>
+  <div class="stack sticky" style="gap:16px"><section class="frame" aria-label="Live preview"><div class="frame-bar"><i></i><i></i><i></i><span>app.${TENANT.slug}.example</span></div><div class="frame-body" id="wprev">${widget()}</div></section>
+    <p class="small muted" style="text-align:center">Live preview. Toggle modules in Go-live setup, change colours in Branding.</p></div></div>`,
+mount:v=>{
+  $$('[data-snip]',v).forEach(b=>b.onclick=()=>{ snipKind=b.dataset.snip; route(); });
+  $('#copy',v).onclick=()=>{ copyText(snippet(snipKind),'Snippet copied'); if(snipKind==='embed'&&!FLAGS.copied){ FLAGS.copied=true; } };
+  $$('[data-copy]',v).forEach(b=>b.onclick=()=>copyText(b.dataset.copy,'Key copied'));
+  $$('[data-con]',v).forEach(b=>b.onclick=()=>{ const c=CONNECTORS.find(x=>x.k===b.dataset.con); c.on=!c.on; toast(c.on?c.n+' connected. Customers will see a consent screen first.':c.n+' disconnected'); route(); });
+  $('#reveal',v).onclick=()=>{ revealed=!revealed; route(); };
+  $('#rotate',v).onclick=()=>toast('New secret key issued. The old key works for 24 more hours.');
+  $('#wtest',v).onclick=()=>toast('Test event delivered. Your endpoint replied 200 in 142 ms.');
+}};
+
+/* ---- BRANDING ---- */
+const BRAND_SW=['#0FB5A6','#2563EB','#7C3AED','#E11D48','#F59E0B','#16A34A','#0B1B2B'];
+const ACC_SW=['#4F46E5','#0EA5E9','#DB2777','#F97316','#14B8A6','#8B5CF6'];
+VIEWS.brand = {
+html:()=>pageHead('Branding','Make it look like your product. Every screen, button and chart picks up your colours as you change them.',`<button class="btn" id="breset">Reset to defaults</button>`)+
+  `<div class="grid g-int"><section class="card stack" style="gap:20px">
+    <div class="field"><label for="bn">Brand name</label><input class="input" id="bn" maxlength="28" value="${esc(TENANT.name)}"></div>
+    <div class="field"><span class="lbl">Primary colour</span><div class="sw-row" role="group" aria-label="Primary colour">${BRAND_SW.map(c=>`<button class="swatch" data-b="${c}" style="background:${c}" aria-label="Primary ${c}" aria-pressed="${c.toLowerCase()===TENANT.brand.toLowerCase()}"></button>`).join('')}<label class="swatch" style="background:conic-gradient(red,yellow,lime,aqua,blue,magenta,red);display:block;position:relative;overflow:hidden;cursor:pointer"><span class="sr">Custom primary colour</span><input type="color" id="bc" value="${TENANT.brand}" style="opacity:0;position:absolute;inset:0;width:100%;height:100%;cursor:pointer"></label></div></div>
+    <div class="field"><span class="lbl">Accent for AI features</span><div class="sw-row" role="group" aria-label="Accent colour">${ACC_SW.map(c=>`<button class="swatch" data-a="${c}" style="background:${c}" aria-label="Accent ${c}" aria-pressed="${c.toLowerCase()===TENANT.accent.toLowerCase()}"></button>`).join('')}</div></div>
+    <div class="field"><div class="row between"><label for="br">Corner roundness</label><b class="num small" id="brv">${TENANT.radius}px</b></div><input type="range" id="br" min="8" max="32" step="2" value="${TENANT.radius}"></div>
+    <div class="field"><span class="lbl">Typeface</span><div class="tabs" role="tablist" aria-label="Typeface">${Object.keys(FONTS).map(f=>`<button role="tab" data-f="${f}" aria-selected="${f===TENANT.font}">${f}</button>`).join('')}</div></div>
+    <div class="kv" style="border:0;padding:0"><div><b class="small">Show “Powered by 5nance”</b><p class="tiny muted">Remove it on Enterprise</p></div><button class="sw" id="pw" role="switch" aria-checked="${TENANT.powered}" aria-label="Show powered by label"></button></div>
+    <div class="item" style="background:var(--surface2)"><div class="ico i-ai">${ic('lock',18)}</div><div><b class="small">Custom domain and email sender</b><p class="small muted">Serve FinScore from <span class="mono">score.yourbank.com</span>. Available on Enterprise.</p></div></div></section>
+  <div class="stack sticky" style="gap:16px"><section class="frame"><div class="frame-bar"><i></i><i></i><i></i><span>app.${TENANT.slug}.example</span></div><div class="frame-body" id="wprev">${widget()}</div></section>
+    <div class="card flat"><span class="eyebrow">Buttons and states</span><div class="row wrap" style="margin-top:12px"><button class="btn primary sm">Primary</button><button class="btn ai sm">AI action</button><button class="btn sm">Secondary</button><span class="badge b-brand">Badge</span><span class="badge b-ai">AI</span></div></div>
+    <p class="small muted" style="text-align:center">The whole workspace on the left updates too. Try the sidebar.</p></div></div>`,
+mount:v=>{
+  const set=(o)=>{ Object.assign(TENANT,o,{touched:true}); applyTenant(); };
+  const refresh=()=>{ const w=$('#wprev',v); if(w) w.innerHTML=widget(); $$('[data-b]',v).forEach(b=>b.setAttribute('aria-pressed',b.dataset.b.toLowerCase()===TENANT.brand.toLowerCase())); $$('[data-a]',v).forEach(b=>b.setAttribute('aria-pressed',b.dataset.a.toLowerCase()===TENANT.accent.toLowerCase())); const r=$('.rail .brand'); if(r) r.innerHTML=`<div class="logo" style="font:700 13px var(--font-num)">${ini()}</div><div style="min-width:0"><div class="ellip">${esc(TENANT.name)}</div><div class="tiny muted" style="font:500 11px var(--font)">${TENANT.powered?'Powered by 5nance':'Workspace'}</div></div>`; };
+  $('#bn',v).oninput=e=>{ TENANT.name=e.target.value.trim()||'Your brand'; TENANT.touched=true; refresh(); };
+  $$('[data-b]',v).forEach(b=>b.onclick=()=>{ set({brand:b.dataset.b}); $('#bc',v).value=b.dataset.b; refresh(); });
+  $('#bc',v).oninput=e=>{ set({brand:e.target.value}); refresh(); };
+  $$('[data-a]',v).forEach(b=>b.onclick=()=>{ set({accent:b.dataset.a}); refresh(); });
+  $('#br',v).oninput=e=>{ set({radius:+e.target.value}); $('#brv',v).textContent=e.target.value+'px'; };
+  $$('[data-f]',v).forEach(b=>b.onclick=()=>{ set({font:b.dataset.f}); $$('[data-f]',v).forEach(x=>x.setAttribute('aria-selected',x===b)); refresh(); });
+  $('#pw',v).onclick=e=>{ TENANT.powered=!TENANT.powered; e.currentTarget.setAttribute('aria-checked',TENANT.powered); refresh(); if(!TENANT.powered) toast('Preview only. Removing the label needs Enterprise.'); };
+  $('#breset',v).onclick=()=>{ Object.assign(TENANT,{name:'Acme Wealth',brand:'#0FB5A6',accent:'#4F46E5',radius:24,font:'Inter',powered:true,touched:false}); applyTenant(); route(); toast('Branding reset'); };
+}};
+
+/* ---- TEAM ---- */
+const ROLES=['Owner','Admin','Analyst','Viewer'];
+const MEMBERS=[{n:'Deepak Sawant',e:'owner@acme-wealth.example',r:'Owner',s:'Active',l:'Now'},{n:'Priya Nair',e:'priya@acme-wealth.example',r:'Admin',s:'Active',l:'2 hours ago'},{n:'Rohan Kulkarni',e:'rohan@acme-wealth.example',r:'Analyst',s:'Active',l:'Yesterday'},{n:'Meera Iyer',e:'meera@acme-wealth.example',r:'Viewer',s:'Invited',l:'Not yet'}];
+const PERMS=[['Manage billing & plan',1,1,0,0],['Edit branding & modules',1,1,0,0],['Create & rotate API keys',1,1,0,0],['View customer scores',1,1,1,1],['Export customer data',1,1,1,0],['Invite & remove people',1,1,0,0]];
+VIEWS.team = {
+html:()=>pageHead('Team & roles','Give each person the access they need. Every change is logged.',`<span class="badge b-brand num">${MEMBERS.length} of 5 seats</span>`)+
+  `<div class="grid g-home"><section class="card"><div class="card-h"><h2>People</h2></div><div class="scroll-x"><table class="tbl"><thead><tr><th>Name</th><th>Role</th><th>Status</th><th>Last active</th><th><span class="sr">Remove</span></th></tr></thead><tbody>
+  ${MEMBERS.map((m,i)=>`<tr><td><div class="row"><div class="avatar" style="width:34px;height:34px;font-size:12px">${m.n.split(' ').map(w=>w[0]).join('')}</div><div><b class="small">${m.n}</b><p class="tiny muted">${m.e}</p></div></div></td><td>${m.r==='Owner'?'<span class="badge b-ai">Owner</span>':`<select class="input" style="min-height:36px;width:120px" data-role="${i}" aria-label="Role for ${m.n}">${ROLES.slice(1).map(r=>`<option ${r===m.r?'selected':''}>${r}</option>`).join('')}</select>`}</td><td><span class="badge ${m.s==='Active'?'b-pos':'b-warn'}">${m.s}</span></td><td class="small muted">${m.l}</td><td>${m.r==='Owner'?'':`<button class="btn sm ghost" data-rm="${i}" aria-label="Remove ${m.n}">${ic('x',14)}</button>`}</td></tr>`).join('')}</tbody></table></div>
+  <hr class="hr"><form id="inv" class="row wrap" style="gap:10px;align-items:flex-end"><div class="field" style="flex:1;min-width:200px"><label for="ie">Invite by email</label><input class="input" id="ie" type="email" placeholder="name@company.com" required></div><div class="field"><label for="ir">Role</label><select class="input" id="ir">${ROLES.slice(1).map(r=>`<option>${r}</option>`).join('')}</select></div><button class="btn primary" type="submit">Send invite</button></form></section>
+  <div class="stack" style="gap:16px"><section class="card"><div class="card-h"><h2>Single sign-on</h2><span class="badge b-ai">Enterprise</span></div><p class="small muted">Sign in with Okta, Azure AD or Google Workspace. Enforce MFA and auto-remove leavers.</p><button class="btn" id="sso" style="margin-top:12px">Talk to us about Enterprise</button></section>
+  <section class="card"><div class="card-h"><h2>Recent activity</h2></div><div class="stack" style="gap:12px">${[['Priya Nair rotated the sandbox secret key','2 hours ago'],['Rohan Kulkarni exported 120 scores','Yesterday'],['You enabled the Coach module','3 days ago'],['Meera Iyer was invited as Viewer','3 days ago']].map(([a,t])=>`<div class="row" style="align-items:flex-start"><i class="led g" style="margin-top:7px"></i><div><p class="small">${a}</p><p class="tiny muted">${t}</p></div></div>`).join('')}</div></section></div></div>
+  <section class="card" style="margin-top:16px"><div class="card-h"><h2>What each role can do</h2></div><div class="scroll-x"><table class="tbl"><thead><tr><th>Permission</th>${ROLES.map(r=>`<th>${r}</th>`).join('')}</tr></thead><tbody>${PERMS.map(([n,...a])=>`<tr><td>${n}</td>${a.map(x=>`<td>${x?`<span style="color:var(--pos)">${ic('check',16)}</span>`:'<span class="muted">–</span>'}</td>`).join('')}</tr>`).join('')}</tbody></table></div></section>`,
+mount:v=>{
+  $$('[data-role]',v).forEach(s=>s.onchange=()=>{ MEMBERS[+s.dataset.role].r=s.value; toast(MEMBERS[+s.dataset.role].n+' is now '+s.value); });
+  $$('[data-rm]',v).forEach(b=>b.onclick=()=>{ const m=MEMBERS.splice(+b.dataset.rm,1)[0]; toast(m.n+' removed'); route(); });
+  $('#inv',v).onsubmit=e=>{ e.preventDefault(); if(MEMBERS.length>=5){ toast('All 5 seats are used. Upgrade for more.'); return; } const em=$('#ie',v).value.trim(); MEMBERS.push({n:em.split('@')[0].replace(/^./,c=>c.toUpperCase()),e:em,r:$('#ir',v).value,s:'Invited',l:'Not yet'}); toast('Invite sent to '+em); route(); };
+  $('#sso',v).onclick=()=>toast('Thanks. Our team will reach out within one business day.');
+}};
+
+/* ---- BILLING ---- */
+let annual=true;
+VIEWS.billing = {
+html:()=>{
+  const P={Starter:0,Growth:annual?19999:24999,Enterprise:null};
+  const tiers=[
+    {n:'Starter',d:'Build and test in a sandbox.',p:'Free',f:['100 scores a month','Sandbox only','1 seat','Community support']},
+    {n:'Growth',d:'Launch to your customers.',p:inr(P.Growth),f:['25,000 scores a month','Live environment and webhooks','Custom branding and 3 modules','5 seats, email support','Overage ₹0.80 per score'],cur:true},
+    {n:'Enterprise',d:'Scale with controls and SLAs.',p:'Custom',f:['Volume pricing','Remove “Powered by”, custom domain','SSO, audit export, data residency','99.9% SLA and a named manager','Private rulebook configuration']}];
+  const used=usageTotal(), over=Math.max(0,used-25000), sub=P.Growth+over*.8, gst=sub*.18;
+  return pageHead('Plans & billing','Pay for scores generated. Switch plans any time and we prorate the difference.',`<div class="tabs" role="tablist" aria-label="Billing period"><button role="tab" data-per="m" aria-selected="${!annual}">Monthly</button><button role="tab" data-per="a" aria-selected="${annual}">Yearly · save 20%</button></div>`)+
+  `<div class="grid g-3">${tiers.map(t=>`<section class="card tier ${t.cur?'cur':''}">${t.cur?'<span class="badge b-brand" style="position:absolute;top:16px;right:16px">Current plan</span>':''}<div><h2>${t.n}</h2><p class="small muted">${t.d}</p></div><div><span class="price num">${t.p}</span>${t.p.startsWith('₹')?'<span class="muted small"> / month</span>':''}${t.p.startsWith('₹')&&annual?'<p class="tiny muted" style="margin-top:6px">Billed yearly, '+inr(P.Growth*12)+'</p>':''}</div><ul>${t.f.map(x=>`<li>${ic('check',16)}<span>${x}</span></li>`).join('')}</ul><button class="btn ${t.cur?'':t.n==='Enterprise'?'':'sm'}" data-plan="${t.n}" ${t.cur?'disabled':''} style="margin-top:auto">${t.cur?'You are on Growth':t.n==='Enterprise'?'Contact sales':'Switch to Starter'}</button></section>`).join('')}</div>
+  <div class="grid g-home" style="margin-top:16px"><section class="card"><div class="card-h"><h2>This month's usage</h2><span class="small muted">Resets 1 December</span></div>
+    ${[['Scores generated',used,25000],['Seats',MEMBERS.length,5],['Domains for embed',2,3]].map(([n,u,l])=>`<div style="margin-bottom:16px"><div class="row between small"><span>${n}</span><b class="num">${u.toLocaleString('en-IN')} <span class="muted" style="font-weight:500">of ${l.toLocaleString('en-IN')}</span></b></div><div class="bar" style="margin-top:6px"><i style="width:${Math.min(100,u/l*100)}%;background:${u/l>.9?'var(--warn-fill)':'linear-gradient(90deg,var(--brand),#7AE7DC)'}"></i></div></div>`).join('')}
+    <hr class="hr"><div class="row between"><span>Estimated next invoice</span><b class="num" style="font-size:20px">${inr(sub+gst)}</b></div><p class="tiny muted" style="margin-top:4px">${inr(sub)} plan and usage + ${inr(gst)} GST (18%)</p></section>
+  <section class="card"><div class="card-h"><h2>Invoices</h2><button class="btn sm ghost" id="pm">${ic('card',14)} Payment method</button></div>
+    ${[['Nov 2026',P.Growth],['Oct 2026',P.Growth],['Sep 2026',P.Growth]].map(([m,a])=>`<div class="kv"><div><b class="small">${m}</b><p class="tiny muted">${inr(a*1.18)} incl. GST</p></div><div class="row"><span class="badge b-pos">Paid</span><button class="btn sm" data-inv="${m}">PDF</button></div></div>`).join('')}</section></div>`;},
+mount:v=>{
+  $$('[data-per]',v).forEach(b=>b.onclick=()=>{ annual=b.dataset.per==='a'; route(); });
+  $$('[data-plan]',v).forEach(b=>b.onclick=()=>toast(b.dataset.plan==='Enterprise'?'Thanks. Sales will contact you within one business day.':'Downgrade scheduled for the end of this billing period.'));
+  $$('[data-inv]',v).forEach(b=>b.onclick=()=>toast('Invoice for '+b.dataset.inv+' is being prepared'));
+  $('#pm',v).onclick=()=>toast('Payments are handled on our secure billing page.');
+}};
+
+route();
+</script>
+</body>
+</html>

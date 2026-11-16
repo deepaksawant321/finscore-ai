@@ -45,3 +45,20 @@ WCAG 2.2 AA; keyboard-first; ARIA via Radix primitives; focus rings; chart text 
 
 ## 7. Tech notes
 Next.js + Tailwind + Radix-based primitives (design-system layer); MUI only where a heavy component (e.g., DataGrid/DatePicker) is justified (T-9); Storybook for component catalogue; visual regression (Playwright) at MVP 2+.
+
+## 8. Visual system v2 (fintech refresh, 2026-11-16)
+Reference prototype: `docs/prototype/index.html` (screenshots in `docs/prototype/screens/`).
+- **Surfaces:** aurora page background (`--mesh-*`), frosted `glass` cards (default `Card`), `solid` and `flat` variants for dense content, and one dark glowing `Card variant="dark"` reserved for the score hero. The dark card redeclares its own tokens, so text, badges and borders inside it need no special casing.
+- **Colour tokens:** the section 2 palette plus `--brand-strong` (text on light surfaces), `--brand-soft` (tinted fills), `--ai-soft`, `--grad-a/--grad-b` (navigation and tab gradients). Tokens stay RGB triplets so `/alpha` utilities work.
+- **Type:** Inter for UI, Space Grotesk (`font-display`) for headings and figures, tabular numbers for money.
+- **Actions:** primary buttons use a brand gradient with a soft glow; `ai` buttons are for AI features. Links that look like buttons use `buttonClass()`.
+- **Provenance:** every stored fact shows a `SourceBadge` (You told me, Connected account, Calculated, Inferred, Estimated). Icon plus text, never colour alone.
+- **Demo content:** anything that is not real data carries a `DemoBadge`. The demo banner is driven by the API's `watermark`, never hard-coded.
+- **Navigation:** floating glass rail from the `lg` breakpoint, floating tab bar with a More sheet below it. Groups: Your money, Plan, Account, Workspace admin.
+
+## 9. SaaS workspace layer (real organisation API)
+Screens: Go-live setup, Integrations, Branding, Team & roles, Plans & billing under `/app/workspace/*`.
+- **Plug and play:** a five-step checklist (workspace, sandbox key, data source, branding, embed) derived from what the admin actually did; Go live is enabled only when it is complete. Modules (Score, Coach, What-if, DNA, Goals) are switches that feed the embed snippet and the preview.
+- **White-label:** `src/lib/theme` overrides the same CSS variables the whole app uses (brand, accent, radius, typeface, name, "Powered by"). Text on the brand colour is picked for contrast, and colours that fail readability checks show a warning. Persistence is per browser until organisations exist (K-43).
+- **Access:** membership of a workspace decides what a person sees. Anyone signed in can create one; members get the "Workspace admin" group, everyone else a single "For business" link. Controls follow the permissions the API returns, and the server enforces them either way.
+- **Data:** everything comes from `src/features/workspace/api.ts` (typed client). `catalogue.ts` holds only static option text. Secret keys are shown once in a reveal box and never again. Plans and prices are labelled as placeholders (K-46); anything not built (payments, widget, SDK, webhooks) is stated on the screen, not mocked.

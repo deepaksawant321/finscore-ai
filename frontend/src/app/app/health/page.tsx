@@ -41,7 +41,7 @@ export default function HealthPage() {
   const h = q.data;
   return (
     <div className="max-w-3xl space-y-4">
-      <h1 className="text-xl font-bold">Financial health check</h1>
+      <h1 className="font-display text-3xl font-bold tracking-tight">Financial health check</h1>
       {q.isLoading && <p className="text-muted">Checking your vitals…</p>}
       {q.isError && <Alert tone="info">{(q.error as Error).message}</Alert>}
       {h?.watermark && <Alert>{h.watermark}. The green, amber and red cut-offs are placeholders until Product approves them.</Alert>}

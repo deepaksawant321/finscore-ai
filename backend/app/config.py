@@ -34,6 +34,11 @@ class Settings(BaseSettings):
     # Safe to enable on more than one instance — purge_due only touches rows still pending and due.
     purge_scheduler_enabled: bool = True
     purge_interval_seconds: int = Field(default=3600, ge=60)  # PLACEHOLDER cadence; not an approved operational SLA
+    # Wealth OS in-process event dispatcher (AC-20). Same interim-solution reasoning as the purge scheduler above:
+    # an outbox table + in-process poller, no broker, no recurring cost. See app/domains/events/.
+    wealth_os_enabled: bool = True
+    wealth_os_interval_seconds: int = Field(default=15, ge=1)  # PLACEHOLDER cadence
+    wealth_os_max_attempts: int = Field(default=5, ge=1)  # PLACEHOLDER: an event this often-failing is given up on, not lost
 
     @model_validator(mode="after")
     def _prod_guards(self) -> "Settings":

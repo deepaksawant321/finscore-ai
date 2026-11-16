@@ -4,7 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useState } from "react";
 
-import { Alert, Badge, Button, Card } from "@/design-system/ui";
+import { Alert, Badge, Button, Card, buttonClass } from "@/design-system/ui";
 import { api, problemMessage } from "@/lib/api/client";
 import type { components } from "@/lib/api/schema";
 
@@ -53,7 +53,7 @@ export function NudgeCard({ n, onReact }: { n: Nudge; onReact: (n: Nudge, a: Rea
         <Link
           href={n.cta_path}
           onClick={() => onReact(n, "seen")}
-          className="inline-flex min-h-[44px] items-center rounded-md bg-brand px-4 text-sm font-semibold text-brand-ink"
+          className={buttonClass("primary")}
         >
           {n.cta_label}
         </Link>

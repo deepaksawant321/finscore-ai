@@ -76,7 +76,7 @@ export default function CoachPage() {
   if (phase === "consent")
     return (
       <Card className="max-w-xl space-y-4">
-        <h1 className="text-xl font-bold">Before we talk</h1>
+        <h1 className="font-display text-3xl font-bold tracking-tight">Before we talk</h1>
         {error && <Alert tone="error">{error}</Alert>}
         <p className="text-sm text-muted">
           The coach uses an AI model to word its answers. Every number comes from a calculation engine, never from the AI. You can withdraw this
@@ -88,12 +88,12 @@ export default function CoachPage() {
 
   return (
     <div className="max-w-3xl space-y-3">
-      <h1 className="text-xl font-bold">Coach</h1>
+      <h1 className="font-display text-3xl font-bold tracking-tight">Coach</h1>
       <Alert>{disclosure}</Alert>
       <Card className="space-y-3">
         <ul className="space-y-3" aria-live="polite" aria-label="Conversation">
           {messages.map((m) => (
-            <li key={m.id} className={m.role === "user" ? "ml-auto max-w-[85%] rounded-lg bg-brand/15 px-3 py-2" : "max-w-[85%] rounded-lg bg-surface-2 px-3 py-2"}>
+            <li key={m.id} className={m.role === "user" ? "ml-auto max-w-[85%] rounded-2xl rounded-br-md bg-ai-gradient px-4 py-2.5 text-white shadow-glow-ai" : "max-w-[85%] rounded-2xl rounded-bl-md border border-line bg-surface-2 px-4 py-2.5"}>
               <span className="sr-only">{m.role === "user" ? "You: " : "Coach: "}</span>
               <span className="whitespace-pre-line">{m.content}</span>
               {m.role === "assistant" && m.ai !== undefined && (

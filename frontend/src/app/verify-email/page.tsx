@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 
 import { Alert } from "@/design-system/ui";
 import { AuthShell } from "@/features/auth/auth-shell";
@@ -12,15 +12,14 @@ function Verify() {
   const token = useSearchParams().get("token");
   const [state, setState] = useState<"working" | "ok" | "bad">(token ? "working" : "bad");
 
+  // The token is single-use, so ask the server once per token even when React runs this effect twice (dev Strict Mode).
+  const asked = useRef<string | null>(null);
   useEffect(() => {
-    if (!token) return;
-    let cancelled = false;
+    if (!token || asked.current === token) return;
+    asked.current = token;
     api.POST("/api/v1/auth/verify-email", { body: { token } }).then(({ response }) => {
-      if (!cancelled) setState(response.ok ? "ok" : "bad");
+      setState(response.ok ? "ok" : "bad");
     });
-    return () => {
-      cancelled = true;
-    };
   }, [token]);
 
   return (

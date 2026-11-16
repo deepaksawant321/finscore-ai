@@ -8,57 +8,17 @@ finds nothing left to do). A real job queue (Redis + a worker, T-6) remains the 
 horizontally with a need for other scheduled/async work; this is not that, by design — see docs/KNOWN_ISSUES.md K-25.
 """
 
-import asyncio
-import contextlib
-from collections.abc import Awaitable, Callable
-
 import structlog
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from app.config import Settings
 from app.domains.privacy.service import PrivacyService
+from app.infra.scheduler import IntervalScheduler
 
 log = structlog.get_logger()
 
-RunOnce = Callable[[], Awaitable[int]]
 
-
-class PurgeScheduler:
-    """Runs a zero-argument async callable on a fixed interval, starting immediately, until `stop()` is called.
-    The timing loop is intentionally generic (and so unit-testable without a database); `for_privacy` below wires it
-    to `PrivacyService.purge_due`."""
-
-    def __init__(
-        self, run_once: RunOnce, interval_seconds: float, sleep: Callable[[float], Awaitable[None]] = asyncio.sleep
-    ) -> None:
-        self._run_once, self._interval, self._sleep = run_once, interval_seconds, sleep
-        self._task: asyncio.Task[None] | None = None
-
-    @property
-    def running(self) -> bool:
-        return self._task is not None and not self._task.done()
-
-    def start(self) -> None:
-        if self._task is None:
-            self._task = asyncio.create_task(self._loop(), name="privacy-purge-scheduler")
-
-    async def stop(self) -> None:
-        if self._task is not None:
-            self._task.cancel()
-            with contextlib.suppress(asyncio.CancelledError):
-                await self._task
-            self._task = None
-
-    async def _loop(self) -> None:
-        while True:
-            try:
-                await self._run_once()
-            except Exception:  # one bad run must never silently stop future runs
-                log.exception("privacy_purge_failed")
-            await self._sleep(self._interval)
-
-
-def for_privacy(sessionmaker: async_sessionmaker[AsyncSession], settings: Settings) -> PurgeScheduler:
+def for_privacy(sessionmaker: async_sessionmaker[AsyncSession], settings: Settings) -> IntervalScheduler:
     async def run_once() -> int:
         async with sessionmaker() as session:
             done = await PrivacyService(session, settings).purge_due()
@@ -67,4 +27,4 @@ def for_privacy(sessionmaker: async_sessionmaker[AsyncSession], settings: Settin
             log.info("privacy_purge_ran", accounts_erased=len(done))
         return len(done)
 
-    return PurgeScheduler(run_once, settings.purge_interval_seconds)
+    return IntervalScheduler("privacy-purge-scheduler", run_once, settings.purge_interval_seconds)

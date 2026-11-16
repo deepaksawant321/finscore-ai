@@ -72,7 +72,7 @@ export default function ActionsPage() {
   const demo = actions.data?.some((a) => a.watermark);
   return (
     <div className="max-w-3xl space-y-4">
-      <h1 className="text-xl font-bold">Your next actions</h1>
+      <h1 className="font-display text-3xl font-bold tracking-tight">Your next actions</h1>
       {demo && <Alert>This is a demo action list with demo scoring rules, not an approved plan. The score change shown is what the scoring engine computes for you.</Alert>}
       {error && <Alert tone="error">{error}</Alert>}
       {actions.isLoading && <p className="text-muted">Working out your best next steps…</p>}

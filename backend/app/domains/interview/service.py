@@ -32,11 +32,11 @@ DISCLOSURE = (
 )
 # Intent -> fields to ask about first (relevance boost). PLACEHOLDER ordering, not an approved rule (blueprint: PROPOSED).
 INTENT_BOOST: dict[str, tuple[str, ...]] = {
-    "retirement": ("age", "retirement_age", "monthly_investment", "annual_income"),
-    "debt": ("monthly_emi_total", "annual_income"),
-    "insurance": ("has_health_insurance", "has_term_insurance", "dependants"),
+    "retirement": ("age", "retirement_age", "monthly_investment", "annual_income", "life_expectancy", "risk_profile"),
+    "debt": ("monthly_emi_total", "annual_income", "loans_outstanding"),
+    "insurance": ("has_health_insurance", "has_term_insurance", "dependants", "life_cover_amount", "health_cover_amount"),
     "cash_flow": ("annual_income", "monthly_expenses"),
-    "investment": ("monthly_investment", "annual_income", "monthly_expenses"),
+    "investment": ("monthly_investment", "annual_income", "monthly_expenses", "equity_holdings", "debt_holdings", "risk_profile"),
     "major_purchase": ("annual_income", "monthly_emi_total", "liquid_assets"),
 }
 READY_FIELDS = ("annual_income", "monthly_expenses")  # minimum for a first (demo) score reveal

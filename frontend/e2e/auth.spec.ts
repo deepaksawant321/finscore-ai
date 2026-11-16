@@ -33,14 +33,16 @@ test("register → verify → login → settings → logout", async ({ page }) =
   await page.getByLabel("Password").fill(PASSWORD);
   await page.getByRole("button", { name: "Log in" }).click();
   await expect(page).toHaveURL(/\/app$/);
-  await expect(page.getByText("Not available yet")).toBeVisible();
+  await expect(page.getByText("Start with one question")).toBeVisible(); // a new customer has no score yet
 
   await page.reload(); // session restored from the httpOnly refresh cookie
-  await expect(page.getByText(`Signed in as ${email}`)).toBeVisible();
+  const account = page.getByRole("button", { name: `Account menu for ${email}` });
+  await expect(account).toBeVisible();
   await page.getByRole("link", { name: "Settings" }).click();
   await expect(page.getByText("This device")).toBeVisible();
 
-  await page.getByRole("button", { name: "Log out" }).click();
+  await account.click();
+  await page.getByRole("menuitem", { name: "Log out" }).click();
   await expect(page).toHaveURL(/\/login$/);
   await page.goto("/app");
   await expect(page).toHaveURL(/\/login$/);
@@ -51,5 +53,6 @@ test("wrong password shows a generic error", async ({ page }) => {
   await page.getByLabel("Email").fill("nobody@example.com");
   await page.getByLabel("Password").fill("Wrong-Password-1");
   await page.getByRole("button", { name: "Log in" }).click();
-  await expect(page.getByRole("alert")).toHaveText("Incorrect email or password.");
+  // Next.js adds its own invisible role=alert route announcer, so match the visible message.
+  await expect(page.getByText("Incorrect email or password.")).toBeVisible();
 });

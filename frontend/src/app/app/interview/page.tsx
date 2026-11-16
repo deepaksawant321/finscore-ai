@@ -110,7 +110,7 @@ export default function InterviewPage() {
   if (phase === "consent")
     return (
       <Card className="max-w-xl space-y-4">
-        <h1 className="text-xl font-bold">Before we talk</h1>
+        <h1 className="font-display text-3xl font-bold tracking-tight">Before we talk</h1>
         {error && <Alert tone="error">{error}</Alert>}
         <p className="text-sm text-muted">
           To understand your situation I process what you type using an AI model. I only keep facts you confirm, you can see and correct them any
@@ -127,7 +127,7 @@ export default function InterviewPage() {
         <Card className="flex flex-1 flex-col gap-3 overflow-y-auto" >
           <ul className="space-y-3" aria-live="polite">
             {messages.map((m) => (
-              <li key={m.id} className={m.role === "user" ? "ml-auto max-w-[85%] rounded-lg bg-brand/15 px-3 py-2" : "max-w-[85%] rounded-lg bg-surface-2 px-3 py-2"}>
+              <li key={m.id} className={m.role === "user" ? "ml-auto max-w-[85%] rounded-2xl rounded-br-md bg-ai-gradient px-4 py-2.5 text-white shadow-glow-ai" : "max-w-[85%] rounded-2xl rounded-bl-md border border-line bg-surface-2 px-4 py-2.5"}>
                 <span className="sr-only">{m.role === "user" ? "You: " : "FinScore AI: "}</span>
                 {m.content}
               </li>

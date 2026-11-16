@@ -47,6 +47,10 @@ Base: `/api/v1` · JSON · errors as RFC 7807 `application/problem+json` · auth
 ## Implemented in MVP 2 follow-up (governance + goals)
 `GET /ai/disclosure` · `POST/GET /escalations`, `GET /escalations/{id}` · staff: `GET /admin/escalations`, `PATCH /admin/escalations/{id}` (roles support|compliance|admin, checked in DB) · `GET /users/me/data-export` · `GET/POST/DELETE /users/me/erasure-request` · `GET/POST /goals`, `GET/PATCH/DELETE /goals/{id}`, `GET /goals/{id}/funding?assumed_return_pct=&inflation_pct=` (both required; no defaults).
 Interview turn responses now include `advice_class`, `escalation_suggested`, `escalation_id`.
+## Implemented in MVP 6 (organisations, keys, usage, billing)
+Signed-in users (any verified account): `GET/POST /orgs` · `POST /orgs/invites/accept` · `GET/PATCH /orgs/{id}` · `PUT/DELETE /orgs/{id}/branding` · `PUT /orgs/{id}/modules` · `PUT /orgs/{id}/connectors/{id}` · `POST /orgs/{id}/snippet-copied` · `PUT /orgs/{id}/environment` (sandbox or live; the first go-live returns the live secret once) · `GET/POST /orgs/{id}/members`, `PATCH/DELETE /orgs/{id}/members/{member}` · `GET /orgs/{id}/api-keys`, `POST /orgs/{id}/api-keys/rotate`, `DELETE /orgs/{id}/api-keys/{key}` · `GET /orgs/{id}/billing`, `PUT /orgs/{id}/billing/plan`, `POST /orgs/{id}/billing/invoices`, `POST /orgs/{id}/billing/contact-sales` · `GET /orgs/{id}/activity`.
+Partner (secret API key as `Authorization: Bearer fs_sec_...`): `GET /partner/me`, `POST /partner/scores` with `{"facts": {...}}`.
+Rules: roles owner, admin, analyst, viewer with permissions `billing.manage`, `branding.edit`, `keys.manage`, `scores.view`, `data.export`, `members.manage` (matrix in `app/domains/organizations/plans.py`). A non-member gets 404. Error codes added: `plan_limit` (403), `seat_limit`, `already_member`, `owner_locked`, `checklist_incomplete`, `plan_conflict`, `contact_sales`, `not_live` (409), `quota_exceeded` (429), `wrong_key_type` and `live_disabled` (403).
 Authoritative contract: `backend/openapi.json` (generated).
 
 ## Implemented in MVP 3 (coach, partial)

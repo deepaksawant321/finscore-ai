@@ -57,7 +57,7 @@ export default function SimulatePage() {
 
   return (
     <div className="max-w-3xl space-y-4">
-      <h1 className="text-xl font-bold">What-if simulator</h1>
+      <h1 className="font-display text-3xl font-bold tracking-tight">What-if simulator</h1>
       <Alert>
         Simulations use only what you type here. Nothing is saved to your profile, goals or score history. Returns and inflation are your own
         assumptions, not predictions.

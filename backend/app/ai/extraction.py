@@ -18,10 +18,12 @@ from app.domains.profile.catalog import FIELDS, InvalidFact, normalise_value
 from app.engines.money import AmountMention, find_amounts
 
 # Split into clauses without breaking decimals ("1.5 lakh"), "Rs. 5" or digit groups ("2,50,000").
-_CLAUSE_SPLIT = re.compile(r"(?<!\d)(?<![Rr][Ss])\.(?!\d)|[;!?\n]+|,\s|\band\b|\bbut\b", re.IGNORECASE)
+_CLAUSE_SPLIT = re.compile(r"(?<![Rr][Ss])\.(?=\s|$)|[;!?\n]+|,\s|\band\b|\bbut\b", re.IGNORECASE)
 _MONTHLY = re.compile(r"per month|a month|monthly|/\s*month|\bpm\b|every month|each month|\bp\.m\b", re.IGNORECASE)
 _ANNUAL = re.compile(r"per year|a year|annual|annually|yearly|per annum|\bpa\b|/\s*year|\blpa\b|\bctc\b|package", re.IGNORECASE)
 _NEG = re.compile(r"\b(no|not|don'?t|do not|dont|without|never|zero|nil)\b", re.IGNORECASE)
+_BALANCE = re.compile(r"\b(owe|owes|owed|outstanding|remaining|balance|pending|left to pay|still pay|principal)\b", re.IGNORECASE)
+_EMI_WORD = re.compile(r"\b(emis?|instal+ments?)\b", re.IGNORECASE)
 _WORDS = {"zero": 0, "no": 0, "one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6}
 
 
@@ -71,6 +73,7 @@ def rule_extract(text: str, awaiting: str | None = None) -> list[Candidate]:
     emi: list[tuple[Decimal, str]] = []
     liquid: list[tuple[Decimal, str]] = []
     sip: list[tuple[Decimal, str]] = []
+    loans: list[tuple[Decimal, str]] = []
     out: dict[str, Candidate] = {}
 
     def put(c: Candidate | None) -> None:
@@ -88,11 +91,14 @@ def rule_extract(text: str, awaiting: str | None = None) -> list[Candidate]:
             income += [(_annual(a.value, cl), cl) for a in amts[:1]]
         if re.search(r"\b(spend|spends|spending|expenses?|living cost|outgo)\b", low) and amts:
             expenses += [(_monthly(a.value, cl), cl) for a in amts[:1]]
-        if re.search(r"\b(emis?|loans?|instal+ments?)\b", low):
+        if re.search(r"\b(emis?|loans?|instal+ments?|owe|owes|owed|outstanding)\b", low):
             if re.search(
                 r"\b(no|zero|nil)\s+(loans?|emis?|debts?)\b|debt[- ]free|(don'?t|do not) have any (loans?|debts?|emis?)", low
             ):
                 put(_mk("monthly_emi_total", 0, cl, "you said you have no loans", "0.85"))
+            elif amts and _BALANCE.search(low) and not _EMI_WORD.search(low) and not _MONTHLY.search(cl):
+                # "I still owe 4 lakh on the car loan" is what is left to repay, not what is paid each month.
+                loans.append((amts[0].value, cl))
             elif amts:
                 emi += [(_monthly(a.value, cl), cl) for a in amts[:1]]
         if (
@@ -140,6 +146,8 @@ def rule_extract(text: str, awaiting: str | None = None) -> list[Candidate]:
     put(_sum_parts("monthly_expenses", expenses, "monthly expenses"))
     if "monthly_emi_total" not in out:
         put(_sum_parts("monthly_emi_total", emi, "total monthly EMIs"))
+    if "loans_outstanding" in FIELDS:
+        put(_sum_parts("loans_outstanding", loans, "total loans outstanding"))
     put(_sum_parts("liquid_assets", liquid, "liquid savings"))
     put(_sum_parts("monthly_investment", sip, "monthly investments"))
 

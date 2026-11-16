@@ -1,15 +1,14 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import type { ReactNode } from "react";
 
-import { Button } from "@/design-system/ui";
 import { useAuth } from "@/features/auth/auth-context";
+import { AppShell } from "@/features/shell/app-shell";
 
 export default function ProtectedLayout({ children }: { children: ReactNode }) {
-  const { user, status, logout } = useAuth();
+  const { user, status } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -23,45 +22,5 @@ export default function ProtectedLayout({ children }: { children: ReactNode }) {
       </main>
     );
 
-  return (
-    <div className="min-h-screen">
-      <header className="border-b border-line bg-surface">
-        <nav className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-2 px-4 py-3" aria-label="Main">
-          <Link href="/app" className="font-bold">
-            <span className="text-brand">5nance</span> FinScore AI
-          </Link>
-          <div className="flex items-center gap-2">
-            {[
-              ["/app/today", "Today"],
-              ["/app/interview", "Talk"],
-              ["/app/coach", "Coach"],
-              ["/app/score", "Score"],
-              ["/app/health", "Health"],
-              ["/app/dna", "DNA"],
-              ["/app/goals", "Goals"],
-              ["/app/actions", "Actions"],
-              ["/app/simulate", "What-if"],
-              ["/app/memory", "Memory"],
-              ["/app/settings", "Settings"],
-              ...((user?.roles ?? []).some((r) => ["support", "compliance", "admin"].includes(r)) ? [["/app/staff", "Staff"]] : []),
-            ].map(([href, label]) => (
-              <Link key={href} href={href as string} className="rounded-md px-3 py-2 text-sm hover:bg-surface-2">
-                {label}
-              </Link>
-            ))}
-            <Button
-              variant="secondary"
-              onClick={async () => {
-                await logout();
-                router.replace("/login");
-              }}
-            >
-              Log out
-            </Button>
-          </div>
-        </nav>
-      </header>
-      <main className="mx-auto max-w-5xl px-4 py-8">{children}</main>
-    </div>
-  );
+  return <AppShell user={user}>{children}</AppShell>;
 }

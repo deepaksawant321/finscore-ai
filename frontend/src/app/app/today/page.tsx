@@ -23,7 +23,7 @@ export default function TodayPage() {
   const { react, error } = useNudgeReaction();
   return (
     <div className="max-w-3xl space-y-4">
-      <h1 className="text-xl font-bold">Today</h1>
+      <h1 className="font-display text-3xl font-bold tracking-tight">Today</h1>
       <p className="text-sm text-muted">
         Each message shows why it appears and offers one next step. You decide how often I speak up, and anything you dismiss stays dismissed.
       </p>

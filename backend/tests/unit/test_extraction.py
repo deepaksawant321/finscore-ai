@@ -31,6 +31,16 @@ def test_loans_none_and_amounts() -> None:
     assert Decimal(vals("my home loan EMI is 45,000 per month")["monthly_emi_total"]) == Decimal(45_000)
 
 
+def test_amount_owed_on_a_loan_is_the_balance_not_the_monthly_emi() -> None:
+    v = vals("I still owe about 4 lakh on the car loan and nothing else.")
+    assert "monthly_emi_total" not in v
+    assert Decimal(v["loans_outstanding"]) == Decimal(400_000)
+    # An explicit EMI in the same message still wins as the EMI.
+    both = vals("I have a car loan EMI of 12000. I still owe 4 lakh on it.")
+    assert Decimal(both["monthly_emi_total"]) == Decimal(12_000)
+    assert Decimal(both["loans_outstanding"]) == Decimal(400_000)
+
+
 def test_insurance_with_negation() -> None:
     assert vals("I have term insurance")["has_term_insurance"] == "true"
     assert vals("I don't have health insurance")["has_health_insurance"] == "false"

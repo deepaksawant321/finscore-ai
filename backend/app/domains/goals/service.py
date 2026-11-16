@@ -6,6 +6,7 @@ from decimal import Decimal
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.domains.events import bus
 from app.domains.goals.models import Goal
 from app.domains.governance.service import audit
 from app.engines import growth
@@ -112,6 +113,7 @@ class GoalService:
         await audit(
             self.s, action="goal.created", entity_type="goal", entity_id=str(g.id), actor_user_id=user_id, request_id=request_id
         )
+        bus.publish(self.s, user_id, bus.GOAL_UPDATED, {"goal_id": str(g.id), "kind": "created"})
         return g
 
     async def update(
@@ -134,6 +136,7 @@ class GoalService:
         g.current_funding, g.monthly_funding, g.status = current, monthly, status
         await audit(self.s, action="goal.updated", entity_type="goal", entity_id=str(g.id), actor_user_id=user_id, request_id=request_id,
                     meta={"fields": sorted(changes)})  # fmt: skip
+        bus.publish(self.s, user_id, bus.GOAL_UPDATED, {"goal_id": str(g.id), "kind": "updated"})
         return g
 
     async def delete(self, user_id: uuid.UUID, goal_id: uuid.UUID, request_id: str | None = None) -> None:
@@ -147,3 +150,4 @@ class GoalService:
             actor_user_id=user_id,
             request_id=request_id,
         )
+        bus.publish(self.s, user_id, bus.GOAL_UPDATED, {"goal_id": str(goal_id), "kind": "deleted"})

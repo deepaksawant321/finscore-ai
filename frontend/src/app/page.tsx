@@ -1,22 +1,40 @@
 import Link from "next/link";
 
+import { Icon, buttonClass } from "@/design-system/ui";
+import { BrandMark } from "@/features/shell/brand-mark";
+
+const TRUST: { icon: "lock" | "shield" | "check"; text: string }[] = [
+  { icon: "lock", text: "Bank-grade encryption" },
+  { icon: "shield", text: "You control what we store" },
+  { icon: "check", text: "AI explains. Engines calculate." },
+];
+
 export default function Landing() {
   return (
     <main className="mx-auto flex min-h-screen max-w-3xl flex-col justify-center gap-8 px-4 py-16">
-      <p className="text-sm font-semibold uppercase tracking-widest text-brand">5nance · FinScore AI</p>
-      <h1 className="text-4xl font-bold leading-tight sm:text-5xl">What is the one money problem you want to solve right now?</h1>
+      <BrandMark />
+      <h1 className="font-display text-4xl font-bold leading-[1.08] tracking-tight sm:text-6xl">
+        What is the <span className="bg-gradient-to-r from-brand-strong to-ai bg-clip-text text-transparent">one money problem</span> you want to solve right now?
+      </h1>
       <p className="max-w-xl text-lg text-muted">
         FinScore AI starts with a conversation, not a questionnaire. Understand your financial life, see where you stand, and know the next best
         action.
       </p>
       <div className="flex flex-wrap gap-3">
-        <Link href="/register" className="inline-flex min-h-[44px] items-center rounded-md bg-brand px-5 text-sm font-semibold text-brand-ink">
+        <Link href="/register" className={buttonClass("primary")}>
           Get started
         </Link>
-        <Link href="/login" className="inline-flex min-h-[44px] items-center rounded-md border border-line bg-surface px-5 text-sm font-semibold">
+        <Link href="/login" className={buttonClass("secondary")}>
           Log in
         </Link>
       </div>
+      <ul className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted">
+        {TRUST.map((t) => (
+          <li key={t.text} className="flex items-center gap-2">
+            <Icon name={t.icon} size={16} /> {t.text}
+          </li>
+        ))}
+      </ul>
       <p className="text-xs text-muted">
         Platform foundation build (MVP 1). The AI interview and FinScore are not available yet and no financial score is shown until the official
         scoring rules are approved.

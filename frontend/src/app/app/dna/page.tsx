@@ -31,7 +31,7 @@ export default function DnaPage() {
     );
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Your Financial DNA</h1>
+      <h1 className="font-display text-3xl font-bold tracking-tight">Your Financial DNA</h1>
       {d.watermark && <Alert tone="info">{d.watermark}. Trait rules and personas below are placeholders.</Alert>}
       {d.persona ? (
         <Card className="space-y-1">

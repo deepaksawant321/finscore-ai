@@ -45,7 +45,7 @@ export default function StaffInbox() {
 
   return (
     <div className="max-w-4xl space-y-4">
-      <h1 className="text-xl font-bold">Support requests</h1>
+      <h1 className="font-display text-3xl font-bold tracking-tight">Support requests</h1>
       <p className="text-sm text-muted">Opening this list is recorded in the audit log for each request you can see.</p>
       <div className="flex gap-2" role="group" aria-label="Filter by status">
         {FILTERS.map(([v, label]) => (

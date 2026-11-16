@@ -2,7 +2,7 @@ import asyncio
 
 import pytest
 
-from app.domains.privacy.scheduler import PurgeScheduler
+from app.infra.scheduler import IntervalScheduler
 
 
 class FakeClock:
@@ -35,7 +35,7 @@ async def test_runs_immediately_on_start_without_waiting_for_the_interval() -> N
         return 0
 
     clock = FakeClock()
-    sched = PurgeScheduler(run_once, 3600, sleep=clock.sleep)
+    sched = IntervalScheduler("test", run_once, 3600, sleep=clock.sleep)
     sched.start()
     await _settle()
     assert calls == 1 and clock.calls == [3600]  # ran once, then is waiting out the interval
@@ -51,7 +51,7 @@ async def test_runs_again_each_time_the_interval_elapses() -> None:
         return 0
 
     clock = FakeClock()
-    sched = PurgeScheduler(run_once, 60, sleep=clock.sleep)
+    sched = IntervalScheduler("test", run_once, 60, sleep=clock.sleep)
     sched.start()
     await _settle()
     assert calls == 1
@@ -73,7 +73,7 @@ async def test_a_failing_run_does_not_stop_future_runs() -> None:
         return 0
 
     clock = FakeClock()
-    sched = PurgeScheduler(run_once, 60, sleep=clock.sleep)
+    sched = IntervalScheduler("test", run_once, 60, sleep=clock.sleep)
     sched.start()
     await _settle()
     assert calls == 1 and sched.running  # the exception did not kill the task
@@ -92,7 +92,7 @@ async def test_start_is_idempotent() -> None:
         return 0
 
     clock = FakeClock()
-    sched = PurgeScheduler(run_once, 60, sleep=clock.sleep)
+    sched = IntervalScheduler("test", run_once, 60, sleep=clock.sleep)
     sched.start()
     await _settle()
     task = sched._task  # noqa: SLF001
@@ -109,7 +109,7 @@ async def test_stop_cancels_a_run_in_progress_and_can_be_called_when_not_running
         await asyncio.sleep(10)  # would hang the test if not actually cancelled
         return 0
 
-    sched = PurgeScheduler(run_once, 60)
+    sched = IntervalScheduler("test", run_once, 60)
     sched.start()
     await started.wait()
     await asyncio.wait_for(sched.stop(), timeout=2)
@@ -121,7 +121,7 @@ async def test_stop_before_start_is_a_no_op() -> None:
     async def run_once() -> int:
         return 0
 
-    sched = PurgeScheduler(run_once, 60)
+    sched = IntervalScheduler("test", run_once, 60)
     await sched.stop()
     assert not sched.running
 
@@ -132,7 +132,7 @@ async def test_running_reflects_task_state(n: int) -> None:
         return 0
 
     clock = FakeClock()
-    sched = PurgeScheduler(run_once, n, sleep=clock.sleep)
+    sched = IntervalScheduler("test", run_once, n, sleep=clock.sleep)
     assert not sched.running
     sched.start()
     await _settle()

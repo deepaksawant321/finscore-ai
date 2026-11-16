@@ -3,16 +3,22 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 
-import { Alert, Badge, Button, Card } from "@/design-system/ui";
+import { Alert, Badge, Button, Card, SourceBadge, sourceFromApi } from "@/design-system/ui";
 import { api, problemMessage } from "@/lib/api/client";
+import { formatInr } from "@/lib/format";
 
-const SOURCE_LABEL: Record<string, string> = {
-  USER_STATED: "You told me",
-  CONNECTED: "Connected account",
-  DERIVED: "Calculated",
-  INFERRED: "Inferred",
-  ESTIMATED: "Estimated",
-};
+const isInr = (unit: string) => unit.toUpperCase().startsWith("INR");
+/** "INR/year" -> "/ year"; plain "INR" -> "" (the rupee sign already says it). */
+const inrSuffix = (unit: string) => (unit.includes("/") ? `/ ${unit.split("/")[1]}` : "");
+
+/** Rupee amounts read as Indian-grouped money; booleans as Yes/No; everything else is shown as stored. */
+function showValue(value: string, unit?: string | null): string {
+  if (value === "true") return "Yes";
+  if (value === "false") return "No";
+  const n = Number(value);
+  if (unit && isInr(unit) && value.trim() !== "" && Number.isFinite(n)) return formatInr(n);
+  return value;
+}
 
 export default function MemoryPage() {
   const qc = useQueryClient();
@@ -33,17 +39,26 @@ export default function MemoryPage() {
       if (!data) throw new Error(problemMessage(error));
       return data;
     },
-    onSuccess: (r) => {
+    onSuccess: async (r) => {
       setEditing(null);
-      setMsg({ tone: "success", text: r.changed ? (r.material_change ? "Updated. That is a big change — your score will be recalculated." : "Updated.") : "No change." });
       void qc.invalidateQueries({ queryKey: ["facts"] });
+      if (!r.changed) return setMsg({ tone: "success", text: "No change." });
+      if (!r.material_change) return setMsg({ tone: "success", text: "Updated." });
+      // A big change: the stored score is stale until it is computed again, so do it now rather than only promising it.
+      const { error } = await api.POST("/api/v1/score/compute");
+      await Promise.all([qc.invalidateQueries({ queryKey: ["score"] }), qc.invalidateQueries({ queryKey: ["actions"] }), qc.invalidateQueries({ queryKey: ["nudges"] })]);
+      setMsg(
+        error
+          ? { tone: "error", text: "Updated, but I could not recalculate your score just now. Open your score page to try again." }
+          : { tone: "success", text: "Updated. That is a big change, so I recalculated your score." },
+      );
     },
     onError: (e: Error) => setMsg({ tone: "error", text: e.message }),
   });
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">What I know about you</h1>
+      <h1 className="font-display text-3xl font-bold tracking-tight">What I know about you</h1>
       <p className="text-sm text-muted">Every fact has a source. You own this information: correct anything that is wrong. Old values are kept in history, never silently overwritten.</p>
       {msg && <Alert tone={msg.tone}>{msg.text}</Alert>}
       {facts.isLoading && <p className="text-muted">Loading…</p>}
@@ -58,11 +73,13 @@ export default function MemoryPage() {
                   <input aria-label={`New value for ${f.label}`} value={val} onChange={(e) => setVal(e.target.value)} className="mt-1 min-h-[40px] rounded-md border border-line bg-surface px-2" />
                 ) : (
                   <p className="text-lg font-semibold tabular-nums">
-                    {f.value === "true" ? "Yes" : f.value === "false" ? "No" : f.value} {f.display_unit && <span className="text-xs font-normal text-muted">{f.display_unit}</span>}
+                    {showValue(f.value, f.display_unit)}{" "}
+                    {f.display_unit && !isInr(f.display_unit) && <span className="text-xs font-normal text-muted">{f.display_unit}</span>}
+                    {f.display_unit && isInr(f.display_unit) && <span className="text-xs font-normal text-muted">{inrSuffix(f.display_unit)}</span>}
                   </p>
                 )}
                 <div className="mt-1 flex flex-wrap gap-2">
-                  <Badge>{SOURCE_LABEL[f.source_type] ?? f.source_type}</Badge>
+                  <SourceBadge source={sourceFromApi(f.source_type)} />
                   <Badge>{f.verification_state === "verified" ? "Verified" : "Not verified"}</Badge>
                   <span className="text-xs text-muted">since {new Date(f.valid_from).toLocaleDateString("en-IN")}</span>
                 </div>
