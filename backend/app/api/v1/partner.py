@@ -9,6 +9,7 @@ from app.domains.organizations import plans as P
 from app.domains.organizations.models import ApiKey, Organization
 from app.domains.organizations.partner import authenticate, score_facts
 from app.domains.organizations.service import OrgService
+from app.infra.clientip import client_ip
 from app.infra.ratelimit import enforce
 
 router = APIRouter(prefix="/partner", tags=["partner"])
@@ -20,7 +21,7 @@ async def partner_key(
     session: SessionDep,
     settings: SettingsDep,
 ) -> tuple[ApiKey, Organization]:
-    ip = request.client.host if request.client else "unknown"
+    ip = client_ip(request)
     enforce(request, f"partner-ip:{ip}", settings.partner_rate_per_ip_per_minute, 60)  # before auth: slows key guessing
     key, org = await authenticate(session, creds.credentials if creds else None)
     enforce(request, f"partner-key:{key.id}", settings.partner_rate_per_key_per_minute, 60)  # per key, on every plan

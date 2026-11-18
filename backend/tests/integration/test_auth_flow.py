@@ -159,6 +159,40 @@ async def test_rate_limit_returns_429_with_retry_after(client: httpx.AsyncClient
         app.state.settings.rate_limit_enabled = False
 
 
+async def test_spoofed_forwarded_for_does_not_buy_more_attempts(client: httpx.AsyncClient, app) -> None:  # type: ignore[no-untyped-def]
+    """A caller rotating X-Forwarded-For must still hit the per-address limit (header not trusted by default)."""
+    app.state.settings.rate_limit_enabled = True
+    try:
+        limiter.reset()
+        codes = []
+        for i in range(11):
+            r = await client.post(
+                "/api/v1/auth/login",
+                json={"email": f"user{i}@example.com", "password": "Whatever-Pass-1"},
+                headers={"X-Forwarded-For": f"198.51.100.{i}"},
+            )
+            codes.append(r.status_code)
+        assert codes[:10] == [401] * 10 and codes[10] == 429
+    finally:
+        app.state.settings.rate_limit_enabled = False
+
+
+async def test_per_email_limit_holds_across_addresses(app) -> None:  # type: ignore[no-untyped-def]
+    """Changing address does not give more password-reset requests for the same account."""
+    app.state.settings.rate_limit_enabled = True
+    try:
+        limiter.reset()
+        codes = []
+        for i in range(4):
+            transport = httpx.ASGITransport(app=app, client=(f"203.0.113.{i + 20}", 5000))
+            async with httpx.AsyncClient(transport=transport, base_url="http://test") as c:
+                r = await c.post("/api/v1/auth/password/forgot", json={"email": "Victim@example.com"})
+                codes.append(r.status_code)
+        assert codes == [202, 202, 202, 429]
+    finally:
+        app.state.settings.rate_limit_enabled = False
+
+
 async def test_consent_grant_revoke_and_audit_chain(client: httpx.AsyncClient, app, mailer) -> None:  # type: ignore[no-untyped-def]
     await register_verified(client, mailer)
     h = {"Authorization": f"Bearer {(await login(client)).json()['access_token']}"}

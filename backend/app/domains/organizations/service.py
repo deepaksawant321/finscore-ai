@@ -337,6 +337,13 @@ class OrgService:
             )
             return org
         if P.is_upgrade(ctx.plan, target, org.billing_cycle, cycle):
+            if not P.PAYMENTS_ENABLED and (P.monthly_price(target, cycle) or 0) > 0:
+                raise AppError(
+                    402,
+                    "payment_required",
+                    f"{target.name} is set up by our team until online payment is available",
+                    "Ask our team and they will arrange it with you.",
+                )
             org.plan_key, org.billing_cycle = plan_key, cycle
             org.pending_plan_key = org.pending_cycle = org.pending_effective_at = None
             await self._audit(org.id, "plan.upgraded", actor, request_id, {"plan": plan_key, "cycle": cycle})
@@ -403,8 +410,11 @@ class OrgService:
         await self._audit(ctx.org.id, "invoice.issued", actor, request_id, {"period": period})
         return inv
 
-    async def contact_sales(self, ctx: Ctx, request_id: str | None, actor: uuid.UUID) -> None:
-        await self._audit(ctx.org.id, "sales.requested", actor, request_id, {"plan": ctx.org.plan_key})
+    async def contact_sales(
+        self, ctx: Ctx, request_id: str | None, actor: uuid.UUID, wanted: str | None = None, cycle: str | None = None
+    ) -> None:
+        meta = {"plan": ctx.org.plan_key, "wanted": wanted, "cycle": cycle}
+        await self._audit(ctx.org.id, "sales.requested", actor, request_id, {k: v for k, v in meta.items() if v})
 
     # ------------------------------------------------------------------ activity and audit
     async def activity(self, org_id: uuid.UUID, limit: int = 20) -> list[tuple[AuditLog, str | None]]:

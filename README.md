@@ -23,7 +23,7 @@ uv venv --python 3.13 .venv && uv pip install --python .venv/Scripts/python.exe 
 .venv/Scripts/python.exe ../scripts/dev_db.py start        # embedded PostgreSQL, prints DATABASE_URL
 # create backend/.env (see .env.example; set MAIL_DIR=../.localdata/mail to read emails as files)
 .venv/Scripts/python.exe -m alembic upgrade head
-.venv/Scripts/python.exe -m uvicorn app.main:create_app --factory --port 8000
+.venv/Scripts/python.exe -m uvicorn app.main:create_app --factory --no-proxy-headers --port 8000
 cd ../frontend && npm ci && npm run build && npx next start -p 3000
 ```
 

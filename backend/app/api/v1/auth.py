@@ -15,11 +15,16 @@ from app.domains.identity.schemas import (
 )
 from app.domains.identity.service import Issued
 from app.infra.errors import AppError
-from app.infra.ratelimit import rate_limit
+from app.infra.ratelimit import enforce, rate_limit
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 COOKIE = "fs_refresh"
 COOKIE_PATH = "/api/v1/auth"
+
+
+def _per_email(request: Request, name: str, email: str, limit: int, window: int) -> None:
+    """Per-account limit on top of the per-address one: changing address does not buy more attempts at one account."""
+    enforce(request, f"{name}-email:{email.strip().lower()}", limit, window)
 
 
 def _set_cookie(resp: Response, token: str, cfg: Settings) -> None:
@@ -48,7 +53,8 @@ def _out(issued: Issued, resp: Response, cfg: Settings) -> TokenOut:
 
 
 @router.post("/register", status_code=202, response_model=StatusOut, dependencies=[Depends(rate_limit("register", 10, 3600))])
-async def register(body: RegisterIn, svc: IdentityDep, client: ClientDep) -> StatusOut:
+async def register(request: Request, body: RegisterIn, svc: IdentityDep, client: ClientDep) -> StatusOut:
+    _per_email(request, "register", body.email, 3, 3600)
     await svc.register(body.email, body.password, body.full_name, client)
     return StatusOut(status="verification_sent")
 
@@ -60,7 +66,10 @@ async def verify_email(body: VerifyEmailIn, svc: IdentityDep, client: ClientDep)
 
 
 @router.post("/login", response_model=TokenOut, dependencies=[Depends(rate_limit("login", 10, 60))])
-async def login(body: LoginIn, response: Response, svc: IdentityDep, client: ClientDep, cfg: SettingsDep) -> TokenOut:
+async def login(
+    request: Request, body: LoginIn, response: Response, svc: IdentityDep, client: ClientDep, cfg: SettingsDep
+) -> TokenOut:
+    _per_email(request, "login", body.email, 10, 300)
     return _out(await svc.login(body.email, body.password, client), response, cfg)
 
 
@@ -93,7 +102,8 @@ async def logout(
 
 
 @router.post("/password/forgot", status_code=202, response_model=StatusOut, dependencies=[Depends(rate_limit("forgot", 5, 3600))])
-async def forgot(body: ForgotIn, svc: IdentityDep) -> StatusOut:
+async def forgot(request: Request, body: ForgotIn, svc: IdentityDep) -> StatusOut:
+    _per_email(request, "forgot", body.email, 3, 3600)
     await svc.forgot_password(body.email)
     return StatusOut(status="if_account_exists_email_sent")
 

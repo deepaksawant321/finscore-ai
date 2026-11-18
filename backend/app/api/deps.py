@@ -11,6 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import Settings
 from app.domains.identity.service import ClientInfo, IdentityService
+from app.infra.clientip import client_ip
 from app.infra.db import get_session
 from app.infra.errors import AppError
 from app.infra.mailer import Mailer
@@ -43,7 +44,7 @@ IdentityDep = Annotated[IdentityService, Depends(get_identity_service)]
 
 def client_info(request: Request) -> ClientInfo:
     return ClientInfo(
-        ip=request.client.host if request.client else None,
+        ip=client_ip(request),
         user_agent=request.headers.get("user-agent"),
         request_id=getattr(request.state, "request_id", None),
     )

@@ -5,6 +5,7 @@ from typing import Any
 
 from fastapi import Request
 
+from app.infra.clientip import client_ip
 from app.infra.errors import AppError
 
 
@@ -44,7 +45,7 @@ def rate_limit(name: str, limit: int, window_seconds: int) -> Callable[[Request]
     async def dep(request: Request) -> None:
         if not request.app.state.settings.rate_limit_enabled:
             return
-        ip = request.client.host if request.client else "unknown"
+        ip = client_ip(request)
         retry = limiter.check(f"{name}:{ip}", limit, window_seconds)
         if retry is not None:
             raise AppError(429, "rate_limited", "Too many requests", "Please retry later.", headers={"Retry-After": str(retry)})

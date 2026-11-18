@@ -306,8 +306,18 @@ async def test_billing_estimate_overage_and_invoice(client: httpx.AsyncClient, m
     b = (await client.get(f"{base}/billing", headers=a)).json()
     assert b["payments_enabled"] is False and b["plans_are_placeholder"] is True and b["estimate"]["total"] == "0.00"
     assert [p["key"] for p in b["plans"]] == ["starter", "growth", "enterprise"]
-    up = await client.put(f"{base}/billing/plan", headers=a, json={"plan_key": "growth", "cycle": "monthly"})
-    assert up.status_code == 200 and up.json()["plan_key"] == "growth" and up.json()["estimate"]["total"] == "29498.82"
+    # No payment provider yet: a priced plan cannot be self-served (it would grant paid quota for free)
+    refused = await client.put(f"{base}/billing/plan", headers=a, json={"plan_key": "growth", "cycle": "monthly"})
+    assert refused.status_code == 402 and refused.json()["code"] == "payment_required"
+    assert (await client.get(f"{base}/billing", headers=a)).json()["plan_key"] == "starter"
+    asked = await client.post(f"{base}/billing/contact-sales", headers=a, json={"plan_key": "growth", "cycle": "monthly"})
+    assert asked.status_code == 202
+    async with app.state.sessionmaker() as s:
+        q = "SELECT meta FROM audit_log WHERE action = 'sales.requested' ORDER BY seq DESC LIMIT 1"
+        assert (await s.execute(text(q))).scalar_one()["wanted"] == "growth"
+    await set_plan(app, org, "growth")  # what staff do once payment is arranged
+    up = (await client.get(f"{base}/billing", headers=a)).json()
+    assert up["plan_key"] == "growth" and up["estimate"]["total"] == "29498.82"
     yearly = await client.put(f"{base}/billing/plan", headers=a, json={"plan_key": "growth", "cycle": "yearly"})
     assert (
         yearly.json()["billing_cycle"] == "monthly" and yearly.json()["pending_change"]["cycle"] == "yearly"

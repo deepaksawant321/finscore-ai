@@ -10,6 +10,8 @@ from decimal import Decimal
 from app.engines.money import D, round_money
 
 PLANS_ARE_PLACEHOLDER = True
+# No payment provider is connected (K-45). While False, a priced plan cannot be self-served: it would grant paid quota for free.
+PAYMENTS_ENABLED = False
 GST_RATE = D("0.18")  # PLACEHOLDER: confirm rate, SAC code and place-of-supply rules with Finance
 MODULE_IDS = ("score", "coach", "sim", "dna", "goals")
 CONNECTOR_IDS = ("aa", "brokerage", "upload", "crm")

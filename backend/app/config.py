@@ -19,6 +19,10 @@ class Settings(BaseSettings):
     cors_origins: list[str] = ["http://localhost:3000"]
     frontend_url: str = "http://localhost:3000"
     rate_limit_enabled: bool = True
+    # Client address (app/infra/clientip.py). X-Forwarded-For is believed only from these peers, and only the entry appended by
+    # our own FORWARDED_HOPS proxies. Default 0: the header is ignored (correct when the only proxy is the Next.js rewrite).
+    trusted_proxies: list[str] = ["127.0.0.1/32", "::1/128"]
+    forwarded_hops: int = Field(default=0, ge=0, le=5)
     max_failed_logins: int = 5
     lockout_minutes: int = 15
     smtp_host: str | None = None

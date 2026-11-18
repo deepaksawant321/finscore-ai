@@ -164,6 +164,11 @@ class PlanOut(BaseModel):
     self_serve: bool
 
 
+class ContactSalesIn(BaseModel):
+    plan_key: str | None = Field(default=None, max_length=40)
+    cycle: str | None = Field(default=None, max_length=20)
+
+
 class PlanChangeIn(BaseModel):
     plan_key: str
     cycle: Cycle

@@ -26,6 +26,14 @@ Migrations: `docker compose exec backend alembic upgrade head`.
 Containers (backend API, worker from MVP 4, frontend) on a managed container platform; managed PostgreSQL with PITR + backups; managed Redis; CDN/WAF in front; object storage for exports; secret manager + KMS; centralised logs/metrics/traces. Region: India (data residency preference for Indian users, subject to Legal).
 Candidate hosts (cost/ops trade-off): (A) AWS Mumbai (ECS Fargate + RDS + ElastiCache) – mature, higher ops/cost; (B) Azure Central India; (C) GCP Mumbai (Cloud Run + Cloud SQL) – lowest ops overhead for a small team; (D) PaaS (Render/Railway/Fly) for staging/early-prod – cheapest, less compliance posture. Recommendation to be given with cost model once approved region/provider constraints known.
 
+### Client address behind proxies (required for rate limits and the audit log)
+The browser reaches the API through the Next.js rewrite, which forwards a caller-supplied `X-Forwarded-For` unchanged. The backend
+therefore believes that header only from `TRUSTED_PROXIES` and only the entry appended by our own `FORWARDED_HOPS` proxies
+(`backend/app/infra/clientip.py`). Production: put a load balancer/CDN in front of the frontend that appends the client address,
+set `FORWARDED_HOPS=1`, list the frontend's network in `TRUSTED_PROXIES`, and run uvicorn with `--no-proxy-headers`. With
+`FORWARDED_HOPS=0` every request is attributed to the frontend server: safe, but all users then share one per-address limit
+(the per-email limits on register, login and password reset still apply per account).
+
 ## 5. CI/CD
 GitHub Actions: PR → lint/type/test/security → build images → push to registry on main → auto-deploy **staging** → manual approval gate → **production**. Migrations run as a pre-deploy job; backwards-compatible (expand/contract) migrations only; rollback = redeploy previous image (+ forward fix migration).
 

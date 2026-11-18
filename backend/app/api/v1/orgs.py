@@ -222,7 +222,7 @@ async def _billing_out(svc: OrgService, ctx: Ctx) -> o.BillingOut:
         plan_key=ctx.org.plan_key, billing_cycle=ctx.org.billing_cycle, pending_change=_pending(ctx.org),
         plans=[_plan_out(x) for x in sorted(P.PLANS.values(), key=lambda x: x.rank)], gst_rate=P.GST_RATE,
         estimate=None if est is None else o.EstimateOut(**est.__dict__),
-        invoices=[_inv_out(i) for i in await svc.invoices(ctx.org.id)], payments_enabled=False,
+        invoices=[_inv_out(i) for i in await svc.invoices(ctx.org.id)], payments_enabled=P.PAYMENTS_ENABLED,
     )  # fmt: skip
 
 
@@ -239,9 +239,12 @@ async def change_plan(org_id: uuid.UUID, body: o.PlanChangeIn, p: PrincipalDep, 
 
 
 @router.post("/orgs/{org_id}/billing/contact-sales", status_code=202)
-async def contact_sales(org_id: uuid.UUID, p: PrincipalDep, svc: OrgDep, client: ClientDep) -> dict[str, str]:
+async def contact_sales(
+    org_id: uuid.UUID, p: PrincipalDep, svc: OrgDep, client: ClientDep, body: o.ContactSalesIn | None = None
+) -> dict[str, str]:
     ctx = await svc.context(p.user_id, org_id, "billing.manage")
-    await svc.contact_sales(ctx, client.request_id, p.user_id)
+    wanted = body.plan_key if body and body.plan_key in P.PLANS else None
+    await svc.contact_sales(ctx, client.request_id, p.user_id, wanted, body.cycle if body and body.cycle in P.CYCLES else None)
     return {"status": "requested"}
 
 
