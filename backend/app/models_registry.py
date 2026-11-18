@@ -1,6 +1,7 @@
 """Imports every ORM model so Alembic autogenerate and Base.metadata see them."""
 
 from app.domains.actions import models as _actions  # noqa: F401
+from app.domains.analytics import models as _analytics  # noqa: F401
 from app.domains.coach import models as _coach  # noqa: F401
 from app.domains.events import models as _events  # noqa: F401
 from app.domains.goals import models as _goals  # noqa: F401

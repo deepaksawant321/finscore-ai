@@ -13,6 +13,7 @@ import { QuestionCard } from "@/features/journey/question-card";
 import type { Submit } from "@/features/journey/question-card";
 import { ScoreRing } from "@/features/score/score-ring";
 import { api, problemMessage } from "@/lib/api/client";
+import { track } from "@/lib/analytics";
 
 function Meter({ share }: { share: string }) {
   const p = pct(share);
@@ -119,6 +120,7 @@ export default function MoneyMapPage() {
 
   async function open(chapter: string) {
     setError(null);
+    track("journey_start", { chapter });
     setPlay({ chapter, card: await nextCard(chapter, skipped), feedback: null, done: null });
   }
 
@@ -126,6 +128,7 @@ export default function MoneyMapPage() {
     if (!play?.card) return;
     const card = play.card;
     if ("skip" in s) {
+      track("journey_skip", { card: card.key });
       const sk = [...skipped, card.key];
       setSkipped(sk);
       setPlay({ ...play, card: await nextCard(play.chapter, sk), feedback: null });
@@ -141,6 +144,9 @@ export default function MoneyMapPage() {
     setBusy(false);
     if (!res.data) return setError(problemMessage(res.error));
     const r = res.data;
+    track("journey_answer", { card: card.key });
+    if (r.chapter_complete) track("chapter_complete", { chapter: play.chapter });
+    if (r.score) track("score_revealed", { chapter: play.chapter });
     void qc.invalidateQueries({ queryKey: ["journey"] });
     void qc.invalidateQueries({ queryKey: ["facts"] });
     if (r.score) qc.setQueryData(["matrix-score"], r.score);
@@ -210,7 +216,7 @@ export default function MoneyMapPage() {
             >
               Back to map
             </Button>
-            <Link href="/app/score/matrix" className={buttonClass("ghost", "md")}>
+            <Link href="/app/score" className={buttonClass("ghost", "md")}>
               See the full breakdown
             </Link>
           </div>

@@ -6,6 +6,7 @@ import type { ReactNode } from "react";
 
 import { ToastProvider } from "@/design-system/toast";
 import { AuthProvider } from "@/features/auth/auth-context";
+import { ErrorReporter } from "@/lib/telemetry";
 import { ThemeProvider } from "@/lib/theme/theme-provider";
 
 export function Providers({ children }: { children: ReactNode }) {
@@ -14,6 +15,7 @@ export function Providers({ children }: { children: ReactNode }) {
     <QueryClientProvider client={qc}>
       <ThemeProvider>
         <ToastProvider>
+          <ErrorReporter />
           <AuthProvider>{children}</AuthProvider>
         </ToastProvider>
       </ThemeProvider>

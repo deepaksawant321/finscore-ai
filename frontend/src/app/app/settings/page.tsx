@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import Link from "next/link";
 import { useState } from "react";
 import type { FormEvent } from "react";
 
@@ -115,6 +116,22 @@ export default function SettingsPage() {
       <RewardsCard />
       <SupportCard />
       <PrivacyCards />
+      <Card className="space-y-2">
+        <h2 className="text-lg font-semibold">Legal</h2>
+        <p className="text-sm text-muted">
+          <Link href="/privacy" className="text-ai underline">
+            Privacy Notice
+          </Link>{" "}
+          ·{" "}
+          <Link href="/terms" className="text-ai underline">
+            Terms of Use
+          </Link>{" "}
+          ·{" "}
+          <Link href="/disclaimer" className="text-ai underline">
+            Disclaimer
+          </Link>
+        </p>
+      </Card>
     </div>
   );
 }

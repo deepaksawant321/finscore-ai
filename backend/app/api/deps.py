@@ -91,6 +91,21 @@ async def current_principal(
 PrincipalDep = Annotated[Principal, Depends(current_principal)]
 
 
+async def optional_principal(
+    creds: Annotated[HTTPAuthorizationCredentials | None, Depends(bearer)], settings: SettingsDep, session: SessionDep
+) -> Principal | None:
+    """The signed-in user if a valid token was sent, otherwise None (for endpoints that also accept anonymous callers)."""
+    if creds is None:
+        return None
+    try:
+        return await current_principal(creds, settings, session)
+    except AppError:
+        return None
+
+
+OptionalPrincipalDep = Annotated[Principal | None, Depends(optional_principal)]
+
+
 def require_roles(*allowed: str) -> Callable[[Principal], Coroutine[Any, Any, Principal]]:
     async def dep(p: PrincipalDep) -> Principal:
         if not set(allowed) & set(p.roles):

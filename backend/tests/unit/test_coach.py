@@ -11,6 +11,8 @@ ROUTING_GOLDEN = [
     ("What is my FinScore?", "explain", "get_score"),
     ("Why did my score change?", "explain", "score_change"),
     ("why did my score go down", "explain", "score_change"),
+    ("Why is my score 607?", "explain", "explain_score"),
+    ("what does my score mean", "explain", "explain_score"),
     ("What are the wealth stages?", "explain", "stage_info"),
     ("What is holding me back?", "explain", "explain_score"),
     ("What information do you still need from me?", "diagnose", "missing_data"),

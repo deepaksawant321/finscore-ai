@@ -245,3 +245,22 @@ PO decisions (2026-11-18): the journey replaces the one-screen quick score (`/ap
 | J-07 | Off switch | Completed | Settings > Points and badges; answers keep working and facts stay; progress is in the data export (`money_map`, format 3) and erased with the account |
 | J-08 | Home and score page entry ("Start my Money Map" / "Continue your Money Map"), nav entry | Completed | Replaces the quick-score card and the one-question "improve" card (the `GET /score/matrix/improve` API stays) |
 | J-09 | Reminders outside the app for the weekly check-in | **Not started - approval gate** | Channel, consent purpose and cost (M5-07) |
+
+## Audit Phase 1: critical fixes (2026-11-18) - approved by the PO
+Evidence: backend `pytest` 466 passed; ruff, ruff format, mypy, import-linter clean; frontend tsc, lint, vitest (98) and `next build` clean;
+OpenAPI and TS client in sync. Walked through in a browser against a separately started API and production build (ports 8003/3001):
+landing (no tenant brand, planted legacy theme deleted), sign-up refused without the terms box then accepted, verify, login,
+Snapshot answered (540/900), Home, Score, old URL redirect, Health "Incomplete", coach (score, "why is my score 540", change),
+analytics rows (no personal data, token stripped from the verify path). Not run: Docker, CI on GitHub, Playwright e2e.
+| ID | Item | Status | Evidence / remarks |
+|---|---|---|---|
+| AP1-1.1 | Client address and rate limits | Completed | `tests/unit/test_clientip.py`, `test_spoofed_forwarded_for_does_not_buy_more_attempts`, `test_per_email_limit_holds_across_addresses`. Production needs `FORWARDED_HOPS=1` behind a load balancer that appends the client address (DEPLOYMENT_GUIDE) |
+| AP1-1.2/1.3 | One FinScore; hide pages that ran on the other score | Completed | `test_current_score_is_recorded_once_per_set_of_answers_and_history_follows_changes`, coach tests, `nav.test.ts`, score page tests. DNA/Actions/Today hidden until they run on the workbook score (follow-up). Partner API still serves the 20-pillar score (K-49) |
+| AP1-1.4 | No paid plan without payment | Completed | `test_billing_estimate_overage_and_invoice` (402 then contact-sales records the plan) |
+| AP1-1.5 | Legal pages + sign-up consent | Completed (DRAFT text) | `test_registration_requires_and_records_acceptance_of_the_terms`; bracketed facts and final wording are 5nance Legal's |
+| AP1-1.6 | Legal perimeter opinion | **Open - Legal** | Not an engineering task |
+| AP1-1.7 | Tenant theme scoped | Completed | `theme-provider.test.tsx`; browser check |
+| AP1-1.8 | Health headline | Completed | `test_headline_never_says_healthy_while_a_vital_is_unmeasured`, health monitor test |
+| AP1-1.9 | Stale landing notice | Completed | Full landing rewrite is Phase 2 (2.1) |
+| AP1-1.10 | CI/Docker green, commit work | Partly | Work committed on branch `phase1-critical-fixes` (local, not pushed). CI and Docker still not run here (no Docker; push not approved) |
+| AP1-1.11 | First-party analytics + error reports | Completed | `tests/integration/test_analytics.py`, `lib/analytics.test.ts` |

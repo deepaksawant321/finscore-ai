@@ -122,7 +122,13 @@ async def test_get_is_read_only_and_shows_the_last_recorded_events(client: httpx
 async def test_no_data_means_unknown_and_poor_quality_not_an_error(client: httpx.AsyncClient, mailer) -> None:  # type: ignore[no-untyped-def]
     h = await auth_client(client, mailer)
     rep = await check(client, h)
-    assert rep["overall"] == "unknown" and rep["data_quality"] == "poor" and all(not v["known"] for v in rep["vitals"])
+    assert (
+        rep["overall"] == "unknown"
+        and rep["headline"] == "incomplete"
+        and rep["measured"] == 0
+        and rep["data_quality"] == "poor"
+        and all(not v["known"] for v in rep["vitals"])
+    )
 
 
 async def test_a_genuine_decline_creates_a_health_alert_nudge_but_stale_data_does_not(

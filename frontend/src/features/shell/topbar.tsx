@@ -70,7 +70,7 @@ function AccountMenu({ user, onLogout }: { user: User; onLogout: () => void }) {
   );
 }
 
-/** Top bar: jump to the coach, today's nudges, light/dark and the account menu. */
+/** Top bar: jump to the coach, light/dark and the account menu. */
 export function Topbar({ user, onLogout }: { user: User; onLogout: () => void }) {
   return (
     <header className="flex items-center gap-3 px-4 py-3 lg:px-8">
@@ -80,9 +80,6 @@ export function Topbar({ user, onLogout }: { user: User; onLogout: () => void })
       </Link>
       <span className="flex-1 sm:hidden" />
       <ThemeToggle />
-      <Link href="/app/today" className={ghost} aria-label="Today's nudges">
-        <Icon name="bell" size={18} />
-      </Link>
       <AccountMenu user={user} onLogout={onLogout} />
     </header>
   );

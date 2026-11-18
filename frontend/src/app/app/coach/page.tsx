@@ -5,6 +5,7 @@ import type { FormEvent } from "react";
 
 import { Alert, Badge, Button, Card } from "@/design-system/ui";
 import { api, problemMessage } from "@/lib/api/client";
+import { track } from "@/lib/analytics";
 
 type Msg = { id: string; role: string; content: string; adviceClass?: string | null; ai?: boolean };
 
@@ -59,6 +60,7 @@ export default function CoachPage() {
     });
     setBusy(false);
     if (!data) return setError(problemMessage(err));
+    track("coach_ask", { routed_to: data.mode });
     setMessages((m) => [...m, { id: data.message_id, role: "assistant", content: data.assistant_text, adviceClass: data.advice_class, ai: data.ai_rewritten }]);
     if (data.escalation_id) setEscSent(true);
   }

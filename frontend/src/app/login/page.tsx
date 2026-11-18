@@ -2,18 +2,20 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 
 import { Alert, Button, Input } from "@/design-system/ui";
 import { useAuth } from "@/features/auth/auth-context";
 import { AuthShell } from "@/features/auth/auth-shell";
+import { track } from "@/lib/analytics";
 
 export default function LoginPage() {
   const { login } = useAuth();
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  useEffect(() => track("login_view"), []);
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -22,8 +24,13 @@ export default function LoginPage() {
     setError(null);
     const err = await login(String(f.get("email")), String(f.get("password")));
     setBusy(false);
-    if (err) setError(err);
-    else router.push("/app");
+    if (err) {
+      track("login_error");
+      setError(err);
+    } else {
+      track("login_done");
+      router.push("/app");
+    }
   }
 
   return (

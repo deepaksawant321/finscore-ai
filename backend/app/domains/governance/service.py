@@ -11,6 +11,9 @@ from app.infra.errors import AppError
 
 GENESIS = "0" * 64
 CONSENT_PURPOSES = {"core_processing", "ai_processing", "connected_data", "marketing", "analytics"}
+# Version of the Terms of Use + Privacy Notice shown at sign-up (frontend/src/features/legal/content.ts). Acceptance is stored as
+# the core_processing consent with this text_version. DRAFT pending 5nance Legal review: bump it whenever the text changes.
+LEGAL_TEXT_VERSION = "2026-11-18-draft"
 _LOCK_KEY = 727001
 
 

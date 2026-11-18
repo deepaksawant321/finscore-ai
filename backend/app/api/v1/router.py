@@ -2,6 +2,7 @@ from fastapi import APIRouter
 
 from app.api.v1 import (
     actions,
+    analytics,
     auth,
     coach,
     copilot,
@@ -38,3 +39,4 @@ api_router.include_router(health_monitor.router)
 api_router.include_router(copilot.router)
 api_router.include_router(orgs.router)
 api_router.include_router(partner.router)
+api_router.include_router(analytics.router)

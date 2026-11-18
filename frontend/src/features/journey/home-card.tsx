@@ -58,7 +58,7 @@ export function JourneyHomeCard() {
       <p className="text-sm text-muted">
         {measured >= 100 ? "Your score is fully measured. " : `${measured}% of your score measured. `}
         Next: <strong>{next.title}</strong>, {next.blurb.toLowerCase()}
-        {measured >= 100 ? " It fills in your Health page and plans." : ""}
+        {measured >= 100 ? " It also fills in your Health page." : ""}
       </p>
       <Link href="/app/journey" className={buttonClass("primary", "md", "w-fit")}>
         Continue

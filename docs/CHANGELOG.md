@@ -2,6 +2,36 @@
 
 Format: Keep a Changelog; semver for the product, separate semver for the Rulebook.
 
+## [0.10.0-dev] - Audit Phase 1: critical fixes - 2026-11-18
+Approved by the PO on 2026-11-18 (docs/audit/PRIORITIZED_IMPROVEMENT_ROADMAP.md, Phase 1). PO choices: the workbook score is the
+one FinScore; engineering drafts the legal pages for Legal review; first-party analytics, no vendor.
+### Security
+- Client address (1.1): rate limits and the audit log no longer trust a caller-supplied `X-Forwarded-For` (the Next.js proxy
+  passes it through unchanged, so anyone could pick their address). New `TRUSTED_PROXIES` / `FORWARDED_HOPS` settings
+  (`app/infra/clientip.py`); uvicorn runs with `--no-proxy-headers`. Register, login and password reset also have per-email limits.
+- Tenant branding (1.7) is no longer kept in browser storage: public pages and the consumer app always show the 5nance brand, the
+  workspace screens apply the server's saved branding while open, and any copy left by older builds is deleted.
+### Changed
+- One FinScore (1.2, 1.3): the workbook (15-area, 0-900) score is now the only score shown. `/app/score` shows it (old
+  `/app/score/matrix` redirects), Home shows the number, and the coach's score answers use it. Each calculation is stored
+  (`matrix_score_runs`, migration 0012; at most one row per distinct set of answers) with `GET /score/matrix/current` and
+  `GET /score/matrix/history`, so the coach can explain changes. DNA, Actions and Today (still on the 20-pillar rules) and the
+  "Change my numbers" what-if are hidden from navigation; their pages and APIs remain. The 20-pillar page moved to `/app/score/pillars`.
+- Coach: "why is my score 540?" is answered as an explanation, not as "why did it change".
+- Health (1.8): the headline says "Incomplete" (with the missing checks) instead of "Healthy" while any vital is unmeasured.
+  New `headline`, `measured`, `total` fields; stored history and alerts unchanged.
+- B2B billing (1.4): with no payment provider connected (`PAYMENTS_ENABLED = False`), upgrading to a priced plan returns
+  402 `payment_required`; the billing screen turns it into a request to the team (`contact-sales` now records the plan wanted).
+- Landing page (1.9): removed the "MVP 1, not available yet" notice.
+### Added
+- Legal (1.5): DRAFT Privacy Notice, Terms of Use and Disclaimer at `/privacy`, `/terms`, `/disclaimer` (pending 5nance Legal;
+  bracketed facts to be supplied), a footer on public pages, links in Settings. Sign-up requires accepting them; the version is
+  stored as the `core_processing` consent and an outdated version is refused (409 `terms_outdated`).
+- Analytics (1.11): first-party product events (`POST /events`, migration 0013 `product_events`; allow-listed names, no answers,
+  amounts or emails, query strings stripped), browser error reports to the server log (`POST /client-errors`), a staff-only
+  funnel (`GET /admin/funnel`) and a friendly crash screen. Usage events and FinScore runs are in the data export (format 4) and
+  deleted with the account.
+
 ## [0.9.0-dev] - Money Map - 2026-11-18
 ### Added
 - `/app/journey`: the interview as six short chapters of tap-to-answer cards on a map (Snapshot, Family & protection, Future you, Safety net, Tax smart, Fine-tune). Tapping a chip answers and moves on; cards that do not apply are skipped; "Not sure, ask me later" puts a card off; assumptions can be kept ("Keep it") or changed.

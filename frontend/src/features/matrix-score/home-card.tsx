@@ -1,22 +1,32 @@
+"use client";
+
 import Link from "next/link";
 
-import { Badge, Card, buttonClass } from "@/design-system/ui";
+import { Card, buttonClass } from "@/design-system/ui";
+import { ScoreRing } from "@/features/score/score-ring";
 
-/** Entry point on the home page. It does not calculate anything: opening the screen and pressing Calculate is the user's choice. */
+import { useMatrixScore } from "./hooks";
+
+/** Home: the user's FinScore at a glance (the same number as the Score page and the coach). Nothing shows until there is one. */
 export function MatrixScoreCard() {
+  const { score } = useMatrixScore();
+  if (!score) return null;
+  const measured = Math.round(Number(score.confidence) * 100);
   return (
-    <Card className="space-y-3">
-      <div className="flex flex-wrap items-center gap-2">
-        <h2 className="text-lg font-semibold">Your FinScore, 15 areas</h2>
-        <Badge tone="demo">Draft rules</Badge>
+    <Card className="flex flex-col items-center gap-4 sm:flex-row sm:items-center">
+      <div className="w-full max-w-[260px]">
+        <ScoreRing value={Number(score.overall)} stage="" provisional={false} early={score.early_estimate} min={0} caption={`${measured}% measured`} />
       </div>
-      <p className="text-sm text-muted">
-        Fifteen areas of your finances, each compared with people of your age, added up to a score out of 900. Built from the business spreadsheets and
-        not yet approved, so it is a draft.
-      </p>
-      <Link href="/app/score/matrix" className={buttonClass("secondary", "md", "w-fit")}>
-        See my FinScore
-      </Link>
+      <div className="space-y-3">
+        <h2 className="font-display text-lg font-semibold">Your FinScore</h2>
+        <p className="text-sm text-muted">
+          {Math.round(Number(score.overall))} out of 900, across fifteen areas of your finances compared with people your age.
+          {measured < 100 ? " Answer more on your Money Map to make it firmer." : ""}
+        </p>
+        <Link href="/app/score" className={buttonClass("secondary", "md", "w-fit")}>
+          See what drives it
+        </Link>
+      </div>
     </Card>
   );
 }

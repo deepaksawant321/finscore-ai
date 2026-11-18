@@ -18,6 +18,7 @@ os.environ.setdefault("DATABASE_URL", "postgresql+asyncpg://unused/unused")
 os.environ.setdefault("DATA_ENCRYPTION_KEY", "X" * 43 + "=")
 
 from app.config import Settings  # noqa: E402
+from app.domains.governance.service import LEGAL_TEXT_VERSION  # noqa: E402
 from app.infra.crypto import generate_key
 from app.infra.db import make_engine, make_sessionmaker  # noqa: E402
 from app.infra.mailer import MemoryMailer  # noqa: E402
@@ -112,8 +113,12 @@ async def client(app) -> AsyncIterator[httpx.AsyncClient]:  # type: ignore[no-un
 PASSWORD = "Str0ngPassw0rd!"
 
 
+def signup(email: str, password: str = PASSWORD) -> dict[str, object]:
+    return {"email": email, "password": password, "accept_terms": True, "terms_version": LEGAL_TEXT_VERSION}
+
+
 async def register_verified(client: httpx.AsyncClient, mailer: MemoryMailer, email: str = "a@example.com") -> None:
-    r = await client.post("/api/v1/auth/register", json={"email": email, "password": PASSWORD})
+    r = await client.post("/api/v1/auth/register", json=signup(email))
     assert r.status_code == 202
     token = mailer.sent[-1].body.split("token=")[1].split()[0]
     r = await client.post("/api/v1/auth/verify-email", json={"token": token})

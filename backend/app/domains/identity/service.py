@@ -5,7 +5,7 @@ from datetime import UTC, datetime, timedelta
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import Settings
-from app.domains.governance.service import audit
+from app.domains.governance.service import LEGAL_TEXT_VERSION, audit, grant_consent
 from app.domains.identity.models import EmailToken, User, UserSession
 from app.domains.identity.repository import IdentityRepository
 from app.infra.errors import AppError
@@ -61,8 +61,13 @@ class IdentityService:
         link = f"{self.cfg.frontend_url}/{path}?token={raw}"
         await self.mailer.send(Mail(to=user.email, subject=subject, body=f"{intro}\n\n{link}\n\nThis link expires soon."))
 
-    async def register(self, email: str, password: str, full_name: str | None, client: ClientInfo) -> None:
-        """Enumeration-safe: caller always gets the same response whether or not the email exists."""
+    async def register(
+        self, email: str, password: str, full_name: str | None, client: ClientInfo, terms_version: str = LEGAL_TEXT_VERSION
+    ) -> None:
+        """Enumeration-safe: caller always gets the same response whether or not the email exists.
+        The accepted Terms/Privacy version is recorded as the core_processing consent (DPDP notice and consent)."""
+        if terms_version != LEGAL_TEXT_VERSION:
+            raise AppError(409, "terms_outdated", "The terms have been updated", "Please reload the page and review them again.")
         email = normalise_email(email)
         existing = await self.repo.user_by_email(email)
         if existing:
@@ -77,6 +82,7 @@ class IdentityService:
         user = await self.repo.add_user(
             User(email=email, password_hash=hash_password(password), full_name=full_name), roles=["user"]
         )
+        await grant_consent(self.session, user.id, "core_processing", terms_version, None)
         await audit(
             self.session,
             action="user.registered",

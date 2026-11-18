@@ -7,6 +7,7 @@ import { Suspense, useEffect, useRef, useState } from "react";
 import { Alert } from "@/design-system/ui";
 import { AuthShell } from "@/features/auth/auth-shell";
 import { api } from "@/lib/api/client";
+import { track } from "@/lib/analytics";
 
 function Verify() {
   const token = useSearchParams().get("token");
@@ -19,6 +20,7 @@ function Verify() {
     asked.current = token;
     api.POST("/api/v1/auth/verify-email", { body: { token } }).then(({ response }) => {
       setState(response.ok ? "ok" : "bad");
+      if (response.ok) track("verify_done");
     });
   }, [token]);
 

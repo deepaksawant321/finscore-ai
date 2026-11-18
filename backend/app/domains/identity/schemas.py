@@ -18,7 +18,16 @@ class RegisterIn(BaseModel):
     email: EmailStr
     password: str
     full_name: str | None = Field(default=None, max_length=120)
+    accept_terms: bool = Field(description="The person ticked: I agree to the Terms of Use and have read the Privacy Notice")
+    terms_version: str = Field(max_length=40, description="Version of the terms and notice that were shown")
     _pw = field_validator("password")(_password)
+
+    @field_validator("accept_terms")
+    @classmethod
+    def _must_accept(cls, v: bool) -> bool:
+        if not v:
+            raise ValueError("Please accept the Terms of Use and Privacy Notice to create an account")
+        return v
 
 
 class LoginIn(BaseModel):

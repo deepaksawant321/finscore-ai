@@ -1,7 +1,9 @@
 import Link from "next/link";
 
 import { Icon, buttonClass } from "@/design-system/ui";
+import { SiteFooter } from "@/features/legal/site-footer";
 import { BrandMark } from "@/features/shell/brand-mark";
+import { TrackView } from "@/lib/telemetry";
 
 const TRUST: { icon: "lock" | "shield" | "check"; text: string }[] = [
   { icon: "lock", text: "Bank-grade encryption" },
@@ -35,10 +37,8 @@ export default function Landing() {
           </li>
         ))}
       </ul>
-      <p className="text-xs text-muted">
-        Platform foundation build (MVP 1). The AI interview and FinScore are not available yet and no financial score is shown until the official
-        scoring rules are approved.
-      </p>
+      <SiteFooter />
+      <TrackView name="landing_view" />
     </main>
   );
 }

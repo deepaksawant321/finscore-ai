@@ -64,11 +64,14 @@ def test_opaque_tokens_are_unique_and_hash_is_stable() -> None:
 @pytest.mark.parametrize("pw", ["short1A", "alllowercase123", "ALLUPPERCASE123", "NoDigitsHereAtAll"])
 def test_weak_passwords_rejected(pw: str) -> None:
     with pytest.raises(ValidationError):
-        RegisterIn(email="a@example.com", password=pw)
+        RegisterIn(email="a@example.com", password=pw, accept_terms=True, terms_version="v")
 
 
 def test_strong_password_accepted() -> None:
-    assert RegisterIn(email="a@example.com", password="Str0ngPassw0rd!").email == "a@example.com"
+    assert (
+        RegisterIn(email="a@example.com", password="Str0ngPassw0rd!", accept_terms=True, terms_version="v").email
+        == "a@example.com"
+    )
 
 
 def test_production_settings_guards() -> None:

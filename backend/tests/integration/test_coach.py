@@ -28,6 +28,7 @@ async def with_score(client: httpx.AsyncClient, mailer, email: str = "a@example.
     cid = await start(client, h)
     await say(client, h, cid, "I earn 20 lakh a year. We spend 1 lakh per month.")
     assert (await client.post(f"{API}/score/compute", headers=h)).status_code == 200
+    await client.patch(f"{API}/profile/facts/age", headers=h, json={"value": "35"})  # the FinScore (workbook) needs age
     return h
 
 
@@ -49,24 +50,35 @@ async def test_coach_requires_ai_consent_and_shows_disclosure(client: httpx.Asyn
 
 
 async def test_explain_score_uses_engine_numbers_and_the_demo_note(client: httpx.AsyncClient, app, mailer) -> None:  # type: ignore[no-untyped-def]
+    """The coach explains the product's FinScore (workbook, 15 areas), with only engine numbers and the beta caveat."""
     h = await with_score(client, mailer)
-    score = (await client.get(f"{API}/score/current", headers=h)).json()
+    score = (await client.get(f"{API}/score/matrix/current", headers=h)).json()
     cid = await coach(client, h)
     t = await ask(client, h, cid, "Explain my score")
     assert t["mode"] == "explain" and t["tools"] == ["explain_score"] and t["ai_rewritten"] is False
-    assert str(round(float(score["overall"]))) in t["assistant_text"] and "DEMO rules" in t["assistant_text"]
-    # every number in the reply is one the engine produced (contributions, reference, overall)
-    explain = (await client.get(f"{API}/score/{score['id']}/explain", headers=h)).json()
-    engine_numbers: set[str] = set()
-    for p in [*explain["positive_drivers"], *explain["negative_drivers"]]:
-        engine_numbers |= numbers_in(str(abs(round(float(p["contribution"])))))
-    engine_numbers |= numbers_in(str(round(float(explain["overall"])))) | numbers_in(str(round(float(explain["reference"]))))
+    assert str(round(float(score["overall"]))) in t["assistant_text"] and "draft rules" in t["assistant_text"]
+    engine_numbers = numbers_in(str(round(float(score["overall"])))) | {"900", "15"} | {str(n) for n in range(0, 11)}
+    engine_numbers |= numbers_in(str(round(float(score["confidence"]) * 100)))
     engine_numbers |= {str(n) for n in range(0, 25)}  # counts such as "3 areas"
     assert numbers_in(t["assistant_text"]) <= engine_numbers
     assert (await runs(app))[-1]["tools"] == ["explain_score"]
-    assert (
-        score["early_estimate"] is True and "early estimate" in t["assistant_text"]
-    )  # low-confidence scores are never presented plainly
+    if score["early_estimate"]:
+        assert "early estimate" in t["assistant_text"]  # low-confidence scores are never presented plainly
+    why = await ask(client, h, cid, f"Why is my score {round(float(score['overall']))}?")
+    assert why["tools"] == ["explain_score"]  # not "why did it change"
+
+
+async def test_score_change_follows_the_recorded_history(client: httpx.AsyncClient, mailer) -> None:  # type: ignore[no-untyped-def]
+    h = await with_score(client, mailer)
+    cid = await coach(client, h)
+    first = await ask(client, h, cid, "Why did my score change?")
+    assert "has not changed yet" in first["assistant_text"]
+    await client.patch(f"{API}/profile/facts/monthly_investment", headers=h, json={"value": "40000"})
+    hist_before = (await client.get(f"{API}/score/matrix/history", headers=h)).json()
+    moved = await ask(client, h, cid, "Why did my score change?")
+    hist = (await client.get(f"{API}/score/matrix/history", headers=h)).json()
+    assert len(hist) == len(hist_before) + 1
+    assert f"from {round(float(hist[1]['overall']))} to {round(float(hist[0]['overall']))}" in moved["assistant_text"]
 
 
 async def test_score_questions_before_any_score_are_honest(client: httpx.AsyncClient, mailer) -> None:  # type: ignore[no-untyped-def]
@@ -148,7 +160,7 @@ async def test_governance_guards_apply_in_the_coach(client: httpx.AsyncClient, a
 
 async def test_llm_rewrite_is_used_only_when_numbers_are_grounded(client: httpx.AsyncClient, app, mailer) -> None:  # type: ignore[no-untyped-def]
     h = await with_score(client, mailer)
-    score = str(round(float((await client.get(f"{API}/score/current", headers=h)).json()["overall"])))
+    score = str(round(float((await client.get(f"{API}/score/matrix/current", headers=h)).json()["overall"])))
     cid = await coach(client, h)
 
     app.state.llm = MockProvider(lambda s, m: f"Good news: your score is {score}. This uses demo rules.")

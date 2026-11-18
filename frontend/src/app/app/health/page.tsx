@@ -14,6 +14,7 @@ const LIGHT: Record<string, { word: string; dot: string; shape: string }> = {
   amber: { word: "Watch", dot: "bg-warn", shape: "▲" },
   red: { word: "Needs attention", dot: "bg-negative", shape: "■" },
   unknown: { word: "Not measured yet", dot: "bg-line", shape: "○" },
+  incomplete: { word: "Incomplete", dot: "bg-line", shape: "◐" },
 };
 const QUALITY: Record<string, string> = { good: "Good", fair: "Fair", poor: "Poor" };
 
@@ -50,8 +51,15 @@ export default function HealthPage() {
           <Card className="grid gap-4 sm:grid-cols-2">
             <div>
               <p className="text-xs uppercase tracking-wide text-muted">Your financial health</p>
-              <Light status={h.overall} />
-              <p className="mt-1 text-xs text-muted">The weakest vital I can measure.</p>
+              <Light status={h.headline} />
+              <p className="mt-1 text-xs text-muted">
+                {h.headline === "incomplete"
+                  ? `${h.measured} of ${h.total} checks measured. I can't call you healthy until I know: ${h.vitals
+                      .filter((v) => !v.known)
+                      .map((v) => v.label.toLowerCase())
+                      .join(", ")}.`
+                  : "The weakest vital I can measure."}
+              </p>
             </div>
             <div>
               <p className="text-xs uppercase tracking-wide text-muted">How reliable this check is</p>

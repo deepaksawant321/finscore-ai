@@ -8,6 +8,7 @@ import { Alert, Badge, Button, Card } from "@/design-system/ui";
 import { api, problemMessage } from "@/lib/api/client";
 import type { components } from "@/lib/api/schema";
 import { formatInr } from "@/lib/format";
+import { track } from "@/lib/analytics";
 
 // Display only: amounts arrive from the backend already calculated, as decimal strings.
 const inr = (v: string | number) => formatInr(Number(v));
@@ -43,6 +44,7 @@ export default function SimulatePage() {
   async function run(body: components["schemas"]["Invest"] | components["schemas"]["ScoreWhatIf"] | components["schemas"]["GoalWhatIf"]) {
     setBusy(true);
     setError(null);
+    track("simulation_run", { kind: body.kind });
     const { data, error: err } = await api.POST("/api/v1/simulations", { body });
     setBusy(false);
     if (!data) return setError(problemMessage(err));
@@ -66,7 +68,7 @@ export default function SimulatePage() {
         {(
           [
             ["invest", "Invest monthly"],
-            ["score", "Change my numbers"],
+            // "Change my numbers" is hidden: it shows a 20-pillar score, a different number from the FinScore (audit UX-01)
             ["goal", "Fund a goal differently"],
           ] as const
         ).map(([k, label]) => (

@@ -9,6 +9,7 @@ import { copyToClipboard } from "@/design-system/clipboard";
 import { api } from "@/lib/api/client";
 import { sanitizeTheme } from "@/lib/theme/tenant-theme";
 import { useWorkspaceTheme } from "@/lib/theme/theme-provider";
+import { track } from "@/lib/analytics";
 
 import { orgKeys, unwrap, useOrgDetail, useOrgs } from "./api";
 import type { BrandingBody, Org } from "./api";
@@ -84,6 +85,7 @@ function CreateWorkspace({ onCreated }: { onCreated: (id: string, secret: string
     setError(null);
     try {
       const created = await unwrap(api.POST("/api/v1/orgs", { body: { name } }));
+      track("workspace_created");
       await qc.invalidateQueries({ queryKey: orgKeys.list });
       onCreated(created.org.id, created.secret_key);
     } catch (err) {
@@ -139,6 +141,8 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     if (t) setTheme(sanitizeTheme(t));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [org?.id, brandingKey]);
+  // Leaving the workspace screens (including logging out from them) restores the default brand everywhere else.
+  useEffect(() => () => reset(), [reset]);
 
   const refresh = useCallback(async () => {
     if (!orgId) return;

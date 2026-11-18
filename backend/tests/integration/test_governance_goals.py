@@ -154,7 +154,10 @@ async def test_data_export_is_complete_and_leaks_nothing_else(client: httpx.Asyn
     r = await client.get(f"{API}/users/me/data-export", headers=ha)
     assert r.status_code == 200 and "attachment" in r.headers["content-disposition"] and r.headers["cache-control"] == "no-store"
     d = r.json()
-    assert d["account"]["email"] == "a@example.com" and {c["purpose"] for c in d["consents"]} == {"ai_processing"}
+    assert d["account"]["email"] == "a@example.com" and {c["purpose"] for c in d["consents"]} == {
+        "core_processing",
+        "ai_processing",
+    }
     assert {f["field"] for f in d["financial_facts"]} == {"annual_income", "monthly_expenses"}
     assert any("20 lakh" in m["content"] for m in d["conversations"][0]["messages"])  # decrypted for the owner
     assert d["score_history"] and d["goals"][0]["name"] == "Car" and d["support_requests"][0]["note"] == "hello team"
@@ -328,7 +331,7 @@ async def test_data_export_includes_actions_nudges_health_and_workspaces(client:
         await refresh(other, hb)
 
     d = (await client.get(f"{API}/users/me/data-export", headers=ha)).json()
-    assert d["format_version"] == "3"
+    assert d["format_version"] == "4" and d["finscore_runs"] == []
     assert {a["action"] for a in d["actions"]} == {a["key"] for a in acts}
     accepted = next(a for a in d["actions"] if a["action"] == acts[0]["key"])
     assert accepted["state"] == "accepted" and [h["to"] for h in accepted["history"]][-1] == "accepted"

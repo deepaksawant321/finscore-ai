@@ -337,7 +337,7 @@ class OrgService:
             )
             return org
         if P.is_upgrade(ctx.plan, target, org.billing_cycle, cycle):
-            if not P.PAYMENTS_ENABLED and (P.monthly_price(target, cycle) or 0) > 0:
+            if not P.PAYMENTS_ENABLED and target.rank > ctx.plan.rank and (P.monthly_price(target, cycle) or 0) > 0:
                 raise AppError(
                     402,
                     "payment_required",

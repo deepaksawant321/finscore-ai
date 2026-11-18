@@ -1,7 +1,8 @@
 """Computes the workbook-based FinScore (15 factors, 0-900) for a user from their profile facts.
 
-Stateless on purpose: nothing is persisted, so there is no migration and no score history yet (history/trend for this
-model is a follow-up). Every computation IS audited (hash-chained audit log) with a digest of the inputs, the rule-set
+This is the product's FinScore (PO decision 2026-11-18, X-04). Each calculation is stored as a small row
+(`matrix_score_runs`: score, confidence, digest and encrypted factor points), at most one row per distinct input digest in a
+row, so Home can show the latest audited score and the coach can say how it changed. Every computation is also audited (hash-chained audit log) with a digest of the inputs, the rule-set
 version and the engine version, so any result can be reproduced. The rule set is a DRAFT that Product has not approved:
 in production this service refuses to run, exactly like the 20-pillar score does.
 
@@ -16,6 +17,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from decimal import Decimal
 
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import Settings
@@ -25,6 +27,7 @@ from app.domains.profile.derive import WHY
 from app.domains.profile.models import Fact
 from app.domains.profile.service import ProfileService
 from app.domains.scoring.matrix_adapter import catalogue_key, liquid_counted_as_debt, to_matrix_inputs
+from app.domains.scoring.models import MatrixScoreRunRow
 from app.engines.matrix_score import MatrixInputs, MatrixScoreResult, MatrixScoreSpec, compute_matrix_score
 from app.infra.errors import AppError
 from app.rulebook.matrix_rules import load_matrix_spec
@@ -95,16 +98,9 @@ class MatrixScoringService:
         )
         return spec, inputs, compute_matrix_score(spec, inputs), facts
 
-    async def compute(self, user_id: uuid.UUID, request_id: str | None = None) -> MatrixScoreRun:
-        spec, inputs, result, facts = await self._evaluate(user_id)
-        if result.overall is None:
-            raise AppError(
-                422,
-                "insufficient_data",
-                "Not enough information to compute a score yet",
-                "Tell me a bit more about your finances.",
-            )
-
+    async def _assumptions(
+        self, user_id: uuid.UUID, spec: MatrixScoreSpec, inputs: MatrixInputs, result: MatrixScoreResult, facts: dict[str, Fact]
+    ) -> tuple[str, ...]:
         assumptions: list[str] = []
         for f in facts.values():
             if f.source_type == "ESTIMATED":
@@ -125,16 +121,75 @@ class MatrixScoringService:
         raw = await self.profile.raw_inputs(user_id)
         if liquid_counted_as_debt(raw, debt_includes_liquid=debt is not None and debt.source_type == "ESTIMATED"):
             assumptions.append("Your liquid savings are counted together with your debt investments")
+        return tuple(assumptions)
 
+    @staticmethod
+    def _digest_of(spec: MatrixScoreSpec, inputs: MatrixInputs) -> str:
         payload = {k: (None if v is None else str(v)) for k, v in sorted(vars(inputs).items())}
-        digest = _digest(payload, spec)
+        return _digest(payload, spec)
+
+    async def compute(self, user_id: uuid.UUID, request_id: str | None = None) -> MatrixScoreRun:
+        spec, inputs, result, facts = await self._evaluate(user_id)
+        if result.overall is None:
+            raise AppError(
+                422,
+                "insufficient_data",
+                "Not enough information to compute a score yet",
+                "Tell me a bit more about your finances.",
+            )
+        assumptions = await self._assumptions(user_id, spec, inputs, result, facts)
+        digest = self._digest_of(spec, inputs)
         await audit(
             self.s, action="score.matrix_computed", entity_type="matrix_score", entity_id=digest, actor_user_id=user_id,
             request_id=request_id,
             meta={"rule_version": spec.version, "official": spec.official, "engine_version": MATRIX_ENGINE_VERSION,
                   "confidence": str(result.confidence)},
         )  # fmt: skip
-        return MatrixScoreRun(result, digest, datetime.now(UTC), tuple(assumptions))
+        now = datetime.now(UTC)
+        latest = await self.latest(user_id)
+        if latest is None or latest.digest != digest:
+            self.s.add(
+                MatrixScoreRunRow(
+                    user_id=user_id, computed_at=now, digest=digest, overall=result.overall, confidence=result.confidence,
+                    rule_version=spec.version, engine_version=MATRIX_ENGINE_VERSION, official=spec.official,
+                    factors={f.id: {"name": f.name, "status": f.status, "factor_score": f.factor_score,
+                                    "points": None if f.points is None else str(f.points)} for f in result.factors},
+                )
+            )  # fmt: skip
+            await self.s.flush()
+        return MatrixScoreRun(result, digest, now, assumptions)
+
+    async def latest(self, user_id: uuid.UUID) -> MatrixScoreRunRow | None:
+        rows = await self.history(user_id, 1)
+        return rows[0] if rows else None
+
+    async def history(self, user_id: uuid.UUID, limit: int = 24) -> list[MatrixScoreRunRow]:
+        q = (
+            select(MatrixScoreRunRow)
+            .where(MatrixScoreRunRow.user_id == user_id)
+            .order_by(MatrixScoreRunRow.computed_at.desc())
+            .limit(limit)
+        )
+        return list((await self.s.execute(q)).scalars())
+
+    async def current(self, user_id: uuid.UUID, request_id: str | None = None) -> MatrixScoreRun | None:
+        """The score to show now. If the answers are unchanged since the last recorded calculation, that calculation is
+        reproduced (deterministic, same digest) without a new audit entry; if they changed, a new calculation is recorded.
+        None while too little is known to score."""
+        try:
+            spec, inputs, result, facts = await self._evaluate(user_id)
+        except AppError as e:
+            if e.code == "insufficient_data":
+                return None
+            raise
+        if result.overall is None:
+            return None
+        latest = await self.latest(user_id)
+        if latest is not None and latest.digest == self._digest_of(spec, inputs):
+            return MatrixScoreRun(
+                result, latest.digest, latest.computed_at, await self._assumptions(user_id, spec, inputs, result, facts)
+            )
+        return await self.compute(user_id, request_id)
 
     async def preview(self, user_id: uuid.UUID) -> MatrixScoreResult | None:
         """The factor results without recording a calculation: used for progress meters and instant facts between

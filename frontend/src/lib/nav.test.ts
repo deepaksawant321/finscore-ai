@@ -3,10 +3,9 @@ import { describe, expect, it } from "vitest";
 import { MOBILE_TAB_HREFS, activeHref, adminNavLinks, mainNavLinks, navGroups } from "./nav";
 
 describe("mainNavLinks", () => {
-  it("offers the draft workbook score right after the main Score entry", () => {
+  it("has exactly one score entry", () => {
     const links = mainNavLinks([]);
-    const i = links.findIndex((l) => l.href === "/app/score");
-    expect(links[i + 1]).toEqual({ href: "/app/score/matrix", label: "Draft score" });
+    expect(links.filter((l) => /score/i.test(l.label)).map((l) => l.href)).toEqual(["/app/score"]);
   });
 
   it("has no duplicate destinations or labels", () => {
@@ -21,10 +20,10 @@ describe("mainNavLinks", () => {
     for (const r of ["support", "compliance", "admin"]) expect(mainNavLinks([r]).some((l) => l.href === "/app/staff")).toBe(true);
   });
 
-  it("keeps every existing entry", () => {
-    expect(mainNavLinks().map((l) => l.label)).toEqual(
-      expect.arrayContaining(["Today", "Talk", "Coach", "Score", "Health", "DNA", "Goals", "Actions", "What-if", "Memory", "Settings"]),
-    );
+  it("hides the pages that still run on the old 20-pillar score", () => {
+    const labels = mainNavLinks().map((l) => l.label);
+    expect(labels).toEqual(expect.arrayContaining(["Money Map", "Talk", "Coach", "Score", "Health", "Goals", "What-if", "Memory", "Settings"]));
+    for (const hidden of ["Draft score", "DNA", "Actions", "Today"]) expect(labels).not.toContain(hidden);
   });
 });
 

@@ -89,6 +89,26 @@ export interface paths {
         patch: operations["staff_update_api_v1_admin_escalations__esc_id__patch"];
         trace?: never;
     };
+    "/api/v1/admin/funnel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Funnel
+         * @description Staff only: event counts and distinct people per step, funnel steps first.
+         */
+        get: operations["funnel_api_v1_admin_funnel_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/ai/disclosure": {
         parameters: {
             query?: never;
@@ -219,6 +239,26 @@ export interface paths {
         put?: never;
         /** Verify Email */
         post: operations["verify_email_api_v1_auth_verify_email_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/client-errors": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Client Error
+         * @description Browser errors go to the server log (scrubbed of emails and tokens by the log pipeline), where alerting can pick them up.
+         */
+        post: operations["client_error_api_v1_client_errors_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -493,6 +533,26 @@ export interface paths {
         get: operations["my_escalation_api_v1_escalations__esc_id__get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Track
+         * @description Unknown event names and unsafe properties are dropped silently, so a bad client cannot fill the table with free text.
+         */
+        post: operations["track_api_v1_events_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1316,6 +1376,44 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/score/matrix/current": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Current Matrix Score Ep
+         * @description The score to show on Home and the Score page: the latest recorded calculation if the answers have not changed since,
+         *     otherwise a newly recorded one. null while too little is known to score.
+         */
+        get: operations["current_matrix_score_ep_api_v1_score_matrix_current_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/score/matrix/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Matrix History Ep */
+        get: operations["matrix_history_ep_api_v1_score_matrix_history_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/score/matrix/improve": {
         parameters: {
             query?: never;
@@ -1750,6 +1848,17 @@ export interface components {
             /** Value */
             value: string;
         };
+        /** ClientErrorIn */
+        ClientErrorIn: {
+            /** Message */
+            message: string;
+            /** Path */
+            path?: string | null;
+            /** Source */
+            source?: string | null;
+            /** Stack */
+            stack?: string | null;
+        };
         /** CoachConversationOut */
         CoachConversationOut: {
             /** Disclosure */
@@ -1857,6 +1966,13 @@ export interface components {
             scope: string | null;
             /** Text Version */
             text_version: string;
+        };
+        /** ContactSalesIn */
+        ContactSalesIn: {
+            /** Cycle */
+            cycle?: string | null;
+            /** Plan Key */
+            plan_key?: string | null;
         };
         /** ConversationOut */
         ConversationOut: {
@@ -2039,6 +2155,19 @@ export interface components {
             /** Total */
             total: string;
         };
+        /** EventIn */
+        EventIn: {
+            /** Anon Id */
+            anon_id?: string | null;
+            /** Name */
+            name: string;
+            /** Path */
+            path?: string | null;
+            /** Props */
+            props?: {
+                [key: string]: string;
+            } | null;
+        };
         /** EventOut */
         EventOut: {
             /** Category */
@@ -2158,6 +2287,15 @@ export interface components {
             required_monthly_additional: string;
             /** Shortfall */
             shortfall: string;
+        };
+        /** FunnelRow */
+        FunnelRow: {
+            /** Events */
+            events: number;
+            /** Name */
+            name: string;
+            /** People */
+            people: number;
         };
         /** GoLiveOut */
         GoLiveOut: {
@@ -2282,10 +2420,16 @@ export interface components {
             data_quality: string;
             /** Events */
             events: components["schemas"]["EventOut"][];
+            /** Headline */
+            headline: string;
+            /** Measured */
+            measured: number;
             /** Official */
             official: boolean;
             /** Overall */
             overall: string;
+            /** Total */
+            total: number;
             /** Vitals */
             vitals: components["schemas"]["VitalOut"][];
             /** Watermark */
@@ -2491,6 +2635,20 @@ export interface components {
             value: string | null;
             /** Weight */
             weight: string;
+        };
+        /** MatrixHistoryItem */
+        MatrixHistoryItem: {
+            /**
+             * Computed At
+             * Format: date-time
+             */
+            computed_at: string;
+            /** Confidence */
+            confidence: string;
+            /** Official */
+            official: boolean;
+            /** Overall */
+            overall: string;
         };
         /** MatrixScoreOut */
         MatrixScoreOut: {
@@ -2988,6 +3146,11 @@ export interface components {
         /** RegisterIn */
         RegisterIn: {
             /**
+             * Accept Terms
+             * @description The person ticked: I agree to the Terms of Use and have read the Privacy Notice
+             */
+            accept_terms: boolean;
+            /**
              * Email
              * Format: email
              */
@@ -2996,6 +3159,11 @@ export interface components {
             full_name?: string | null;
             /** Password */
             password: string;
+            /**
+             * Terms Version
+             * @description Version of the terms and notice that were shown
+             */
+            terms_version: string;
         };
         /** ResetIn */
         ResetIn: {
@@ -3540,6 +3708,37 @@ export interface operations {
             };
         };
     };
+    funnel_api_v1_admin_funnel_get: {
+        parameters: {
+            query?: {
+                days?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FunnelRow"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     disclosure_api_v1_ai_disclosure_get: {
         parameters: {
             query?: never;
@@ -3775,6 +3974,37 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["StatusOut"];
                 };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    client_error_api_v1_client_errors_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ClientErrorIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Validation Error */
             422: {
@@ -4285,6 +4515,37 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["EscalationOut"];
                 };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    track_api_v1_events_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EventIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Validation Error */
             422: {
@@ -5259,7 +5520,11 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["ContactSalesIn"] | null;
+            };
+        };
         responses: {
             /** @description Successful Response */
             202: {
@@ -5948,6 +6213,46 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MatrixScoreOut"];
+                };
+            };
+        };
+    };
+    current_matrix_score_ep_api_v1_score_matrix_current_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MatrixScoreOut"] | null;
+                };
+            };
+        };
+    };
+    matrix_history_ep_api_v1_score_matrix_history_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MatrixHistoryItem"][];
                 };
             };
         };

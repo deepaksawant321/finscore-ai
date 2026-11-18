@@ -1,6 +1,6 @@
 # FinScore AI: Prioritised Improvement Roadmap
 
-**Date:** 2026-11-18 · **Status: PROPOSAL, nothing has been implemented.** Every item needs Product Owner approval before work starts. Finding IDs refer to the other audit documents (FT = functional/technical, SEC = security, UX, CRO, BIZ/MF = business/missing features).
+**Date:** 2026-11-18 · **Status: Phase 1 APPROVED and implemented 2026-11-18** on branch `phase1-critical-fixes` (see IMPLEMENTATION_TRACKER "Audit Phase 1"); 1.6 (legal opinion) stays with Legal, 1.10 is partial (CI/Docker not run). Phases 2–4 remain proposals. Every item needs Product Owner approval before work starts. Finding IDs refer to the other audit documents (FT = functional/technical, SEC = security, UX, CRO, BIZ/MF = business/missing features).
 
 ## Master finding register (all priorities)
 

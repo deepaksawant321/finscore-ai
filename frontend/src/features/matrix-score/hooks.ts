@@ -21,12 +21,24 @@ export class ScoreProblem extends Error {
 }
 
 /**
- * Calculates the workbook-based score on demand. Each calculation is written to the audit log, so it runs when the user asks
- * (not on every page view). The latest result is kept in the query cache so leaving and returning shows it again.
+ * The FinScore (workbook model, the product's only score). `score` is the current recorded calculation: the server reuses the
+ * last one while the answers are unchanged and records a new one when they changed, so viewing does not flood the audit log.
+ * `calculate` forces a fresh calculation (the "Calculate again" button).
  */
 export function useMatrixScore() {
   const qc = useQueryClient();
-  const latest = useQuery<MatrixScore | null>({ queryKey: KEY, queryFn: async () => null, enabled: false, staleTime: Infinity });
+  const latest = useQuery<MatrixScore | null>({
+    queryKey: KEY,
+    queryFn: async () => {
+      const { data, error, response } = await api.GET("/api/v1/score/matrix/current");
+      if (!response.ok) {
+        const p = error as ProblemDetails | undefined;
+        throw new ScoreProblem(p?.title ?? "Could not load your score right now.", p?.code, p?.detail);
+      }
+      return (data as MatrixScore | null | undefined) ?? null;
+    },
+    retry: false,
+  });
   const calculate = useMutation({
     mutationFn: async (): Promise<MatrixScore> => {
       const { data, error } = await api.POST("/api/v1/score/matrix/compute");
@@ -38,5 +50,5 @@ export function useMatrixScore() {
     },
     onSuccess: (data) => qc.setQueryData(KEY, data),
   });
-  return { score: latest.data ?? null, calculate };
+  return { score: latest.data ?? null, loading: latest.isLoading, loadError: latest.error, calculate };
 }

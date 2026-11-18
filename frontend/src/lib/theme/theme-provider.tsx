@@ -6,7 +6,9 @@ import type { ReactNode } from "react";
 import { DEFAULT_THEME, sanitizeTheme, themeToCss } from "./tenant-theme";
 import type { WorkspaceTheme } from "./tenant-theme";
 
-const THEME_KEY = "fs-workspace-theme";
+// Older builds kept the tenant theme here, which leaked one workspace's brand onto public pages and other users' sessions on a
+// shared device. It is now held in memory only and deleted from storage on load.
+const LEGACY_THEME_KEY = "fs-workspace-theme";
 const MODE_KEY = "fs-color-mode";
 const STYLE_ID = "workspace-theme";
 
@@ -42,7 +44,8 @@ const write = (key: string, value: string | null) => {
 
 /**
  * Applies the white-label workspace theme and the light/dark choice.
- * Storage is browser-local until the organisation endpoints exist (MVP 6, decision D-B14).
+ * The tenant theme is in memory only: the workspace screens apply the server's saved branding while they are open and reset it
+ * when they close, so public pages and the consumer app always show the default 5nance brand. Only light/dark is remembered.
  */
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<WorkspaceTheme>(DEFAULT_THEME);
@@ -51,15 +54,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   // Read stored choices after mount so server and first client render match.
   useEffect(() => {
-    const stored = read(THEME_KEY);
-    if (stored) {
-      try {
-        setThemeState(sanitizeTheme(JSON.parse(stored)));
-        setCustomised(true);
-      } catch {
-        /* ignore corrupt data */
-      }
-    }
+    write(LEGACY_THEME_KEY, null);
     const m = read(MODE_KEY);
     if (m === "light" || m === "dark") setModeState(m);
   }, []);
@@ -81,16 +76,11 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   }, [mode]);
 
   const setTheme = useCallback((patch: Partial<WorkspaceTheme>) => {
-    setThemeState((prev) => {
-      const next = sanitizeTheme({ ...prev, ...patch });
-      write(THEME_KEY, JSON.stringify(next));
-      return next;
-    });
+    setThemeState((prev) => sanitizeTheme({ ...prev, ...patch }));
     setCustomised(true);
   }, []);
 
   const reset = useCallback(() => {
-    write(THEME_KEY, null);
     setThemeState(DEFAULT_THEME);
     setCustomised(false);
   }, []);

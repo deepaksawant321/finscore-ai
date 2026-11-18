@@ -5,7 +5,11 @@ export type NavGroup = { id: string; label: string; items: (NavLink & { icon: Ic
 
 const STAFF_ROLES = ["support", "compliance", "admin"];
 
-/** The customer app: what the end user of a workspace sees. Order matters (nav.test.ts locks "Draft score" right after "Score"). */
+/**
+ * The customer app: what the end user of a workspace sees. One FinScore (the workbook score) under "Score".
+ * DNA, Actions and Today are hidden until they run on that score: they still use the earlier 20-pillar rules, so for most users
+ * they were empty or showed a different number (audit 2026-11-18, UX-01/UX-02). Their pages still exist.
+ */
 const CUSTOMER_GROUPS: NavGroup[] = [
   {
     id: "money",
@@ -13,13 +17,10 @@ const CUSTOMER_GROUPS: NavGroup[] = [
     items: [
       { href: "/app", label: "Home", icon: "home" },
       { href: "/app/journey", label: "Money Map", icon: "goal" },
-      { href: "/app/today", label: "Today", icon: "bell" },
-      { href: "/app/interview", label: "Talk", icon: "chat" },
-      { href: "/app/coach", label: "Coach", icon: "spark" },
       { href: "/app/score", label: "Score", icon: "score" },
-      { href: "/app/score/matrix", label: "Draft score", icon: "approx" },
+      { href: "/app/coach", label: "Coach", icon: "spark" },
+      { href: "/app/interview", label: "Talk", icon: "chat" },
       { href: "/app/health", label: "Health", icon: "heart" },
-      { href: "/app/dna", label: "DNA", icon: "dna" },
     ],
   },
   {
@@ -27,7 +28,6 @@ const CUSTOMER_GROUPS: NavGroup[] = [
     label: "Plan",
     items: [
       { href: "/app/goals", label: "Goals", icon: "goal" },
-      { href: "/app/actions", label: "Actions", icon: "act" },
       { href: "/app/simulate", label: "What-if", icon: "sim" },
     ],
   },
@@ -88,9 +88,9 @@ export function adminNavLinks(workspace: WorkspaceState = "unknown"): NavLink[] 
 }
 
 /** Bottom tab bar on phones. Everything else lives in the More sheet. */
-export const MOBILE_TAB_HREFS = ["/app", "/app/coach", "/app/score", "/app/simulate"];
+export const MOBILE_TAB_HREFS = ["/app", "/app/journey", "/app/score", "/app/coach"];
 
-/** The nav entry that matches the current path best (longest prefix), so /app/score/matrix highlights "Draft score" and not "Score". */
+/** The nav entry that matches the current path best (longest prefix), so a sub-page highlights its own entry and not its parent. */
 export function activeHref(pathname: string, hrefs: string[]): string | null {
   const match = hrefs.filter((h) => pathname === h || (h !== "/app" && pathname.startsWith(`${h}/`))).sort((a, b) => b.length - a.length);
   return match[0] ?? null;

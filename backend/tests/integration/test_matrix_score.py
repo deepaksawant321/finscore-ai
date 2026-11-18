@@ -211,3 +211,27 @@ async def test_invalid_new_field_values_are_rejected(client: httpx.AsyncClient, 
     for key, bad in (("risk_profile", "reckless"), ("kids", "99"), ("life_expectancy", "20"), ("loans_outstanding", "-1")):
         r = await client.patch(f"{API}/profile/facts/{key}", headers=h, json={"value": bad})
         assert r.status_code == 422, (key, r.text)
+
+
+async def test_current_score_is_recorded_once_per_set_of_answers_and_history_follows_changes(
+    client: httpx.AsyncClient,
+    app,
+    mailer,  # type: ignore[no-untyped-def]
+) -> None:
+    h = await auth(client, mailer)
+    assert (await client.get(f"{API}/score/matrix/current", headers=h)).json() is None  # nothing known yet
+    await put(client, h, "age", "30")
+    await put(client, h, "annual_income", "1200000")
+    first = (await client.get(f"{API}/score/matrix/current", headers=h)).json()
+    again = (await client.get(f"{API}/score/matrix/current", headers=h)).json()
+    assert first["overall"] == again["overall"] and first["computed_at"] == again["computed_at"]  # reproduced, not recalculated
+    await put(client, h, "monthly_expenses", "50000")
+    changed = (await client.get(f"{API}/score/matrix/current", headers=h)).json()
+    assert changed["input_digest"] != first["input_digest"]
+    hist = (await client.get(f"{API}/score/matrix/history", headers=h)).json()
+    assert [x["overall"] for x in hist] == [changed["overall"], first["overall"]]  # newest first, one row per change
+    async with app.state.sessionmaker() as s:
+        audited = (await s.execute(text("SELECT count(*) FROM audit_log WHERE action='score.matrix_computed'"))).scalar_one()
+        assert audited == 2  # viewing an unchanged score does not add audit entries
+    other = await auth(client, mailer, "b@example.com")
+    assert (await client.get(f"{API}/score/matrix/history", headers=other)).json() == []

@@ -6,6 +6,7 @@ import type { FormEvent } from "react";
 
 import { Alert, Badge, Button, Card } from "@/design-system/ui";
 import { api, problemMessage } from "@/lib/api/client";
+import { track } from "@/lib/analytics";
 
 export function PrivacyCards() {
   const qc = useQueryClient();
@@ -35,6 +36,7 @@ export function PrivacyCards() {
 
   async function download() {
     setMsg(null);
+    track("export_requested");
     const { data, response } = await api.GET("/api/v1/users/me/data-export", { parseAs: "blob" });
     if (!response.ok || !data) return setMsg({ tone: "error", text: response.status === 429 ? "Too many exports. Try again later." : "Could not create the export." });
     const url = URL.createObjectURL(data as Blob);
@@ -51,6 +53,7 @@ export function PrivacyCards() {
     const form = e.currentTarget;
     const password = String(new FormData(form).get("password") ?? "");
     const { response, error } = await api.POST("/api/v1/users/me/erasure-request", { body: { password } });
+    if (response.ok) track("deletion_scheduled");
     if (response.status === 202) {
       form.reset();
       void qc.invalidateQueries({ queryKey: ["erasure"] });
@@ -129,6 +132,7 @@ export function SupportCard() {
     setError(null);
     const note = String(new FormData(form).get("note") ?? "").trim();
     const { response, error: err } = await api.POST("/api/v1/escalations", { body: { reason: "user_request", note: note || null } });
+    if (response.ok) track("support_requested");
     if (!response.ok) return setError(problemMessage(err));
     form.reset();
     setSent(true);

@@ -72,6 +72,33 @@ async def compute_matrix_score_ep(p: PrincipalDep, session: SessionDep, cfg: Set
     return matrix_out(await MatrixScoringService(session, cfg).compute(p.user_id, client.request_id))
 
 
+class MatrixHistoryItem(BaseModel):
+    computed_at: datetime
+    overall: str
+    confidence: str
+    official: bool
+
+
+@router.get("/score/matrix/current", response_model=MatrixScoreOut | None, dependencies=[Depends(rate_limit("score", 60, 60))])
+async def current_matrix_score_ep(
+    p: PrincipalDep, session: SessionDep, cfg: SettingsDep, client: ClientDep
+) -> MatrixScoreOut | None:
+    """The score to show on Home and the Score page: the latest recorded calculation if the answers have not changed since,
+    otherwise a newly recorded one. null while too little is known to score."""
+    run = await MatrixScoringService(session, cfg).current(p.user_id, client.request_id)
+    return None if run is None else matrix_out(run)
+
+
+@router.get("/score/matrix/history", response_model=list[MatrixHistoryItem])
+async def matrix_history_ep(p: PrincipalDep, session: SessionDep, cfg: SettingsDep) -> list[MatrixHistoryItem]:
+    rows = await MatrixScoringService(session, cfg).history(p.user_id)
+    return [
+        MatrixHistoryItem(computed_at=r.computed_at, overall=_s(r.overall) or "0.00",
+                          confidence=format(r.confidence.quantize(Decimal("0.0001")), "f"), official=r.official)
+        for r in rows
+    ]  # fmt: skip
+
+
 def matrix_out(run: MatrixScoreRun) -> MatrixScoreOut:
     r = run.result
     assert r.overall is not None  # the service raises 422 when nothing could be scored

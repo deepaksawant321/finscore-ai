@@ -711,6 +711,56 @@
         "title": "Chip",
         "type": "object"
       },
+      "ClientErrorIn": {
+        "properties": {
+          "message": {
+            "maxLength": 500,
+            "title": "Message",
+            "type": "string"
+          },
+          "path": {
+            "anyOf": [
+              {
+                "maxLength": 400,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Path"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "maxLength": 40,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source"
+          },
+          "stack": {
+            "anyOf": [
+              {
+                "maxLength": 4000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stack"
+          }
+        },
+        "required": [
+          "message"
+        ],
+        "title": "ClientErrorIn",
+        "type": "object"
+      },
       "CoachConversationOut": {
         "properties": {
           "disclosure": {
@@ -1027,6 +1077,36 @@
           "revoked_at"
         ],
         "title": "ConsentOut",
+        "type": "object"
+      },
+      "ContactSalesIn": {
+        "properties": {
+          "cycle": {
+            "anyOf": [
+              {
+                "maxLength": 20,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cycle"
+          },
+          "plan_key": {
+            "anyOf": [
+              {
+                "maxLength": 40,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Plan Key"
+          }
+        },
+        "title": "ContactSalesIn",
         "type": "object"
       },
       "ConversationOut": {
@@ -1569,6 +1649,59 @@
         "title": "EstimateOut",
         "type": "object"
       },
+      "EventIn": {
+        "properties": {
+          "anon_id": {
+            "anyOf": [
+              {
+                "maxLength": 40,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Anon Id"
+          },
+          "name": {
+            "maxLength": 60,
+            "title": "Name",
+            "type": "string"
+          },
+          "path": {
+            "anyOf": [
+              {
+                "maxLength": 400,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Path"
+          },
+          "props": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "maxProperties": 8,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Props"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "title": "EventIn",
+        "type": "object"
+      },
       "EventOut": {
         "properties": {
           "category": {
@@ -1910,6 +2043,29 @@
           "assumptions"
         ],
         "title": "FundingOut",
+        "type": "object"
+      },
+      "FunnelRow": {
+        "properties": {
+          "events": {
+            "title": "Events",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "people": {
+            "title": "People",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "name",
+          "events",
+          "people"
+        ],
+        "title": "FunnelRow",
         "type": "object"
       },
       "GoLiveOut": {
@@ -2293,6 +2449,14 @@
             "title": "Events",
             "type": "array"
           },
+          "headline": {
+            "title": "Headline",
+            "type": "string"
+          },
+          "measured": {
+            "title": "Measured",
+            "type": "integer"
+          },
           "official": {
             "title": "Official",
             "type": "boolean"
@@ -2300,6 +2464,10 @@
           "overall": {
             "title": "Overall",
             "type": "string"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
           },
           "vitals": {
             "items": {
@@ -2322,6 +2490,9 @@
         },
         "required": [
           "overall",
+          "headline",
+          "measured",
+          "total",
           "data_quality",
           "vitals",
           "events",
@@ -2885,6 +3056,35 @@
           "reason"
         ],
         "title": "MatrixFactorOut",
+        "type": "object"
+      },
+      "MatrixHistoryItem": {
+        "properties": {
+          "computed_at": {
+            "format": "date-time",
+            "title": "Computed At",
+            "type": "string"
+          },
+          "confidence": {
+            "title": "Confidence",
+            "type": "string"
+          },
+          "official": {
+            "title": "Official",
+            "type": "boolean"
+          },
+          "overall": {
+            "title": "Overall",
+            "type": "string"
+          }
+        },
+        "required": [
+          "computed_at",
+          "overall",
+          "confidence",
+          "official"
+        ],
+        "title": "MatrixHistoryItem",
         "type": "object"
       },
       "MatrixScoreOut": {
@@ -4267,6 +4467,11 @@
       },
       "RegisterIn": {
         "properties": {
+          "accept_terms": {
+            "description": "The person ticked: I agree to the Terms of Use and have read the Privacy Notice",
+            "title": "Accept Terms",
+            "type": "boolean"
+          },
           "email": {
             "format": "email",
             "title": "Email",
@@ -4287,11 +4492,19 @@
           "password": {
             "title": "Password",
             "type": "string"
+          },
+          "terms_version": {
+            "description": "Version of the terms and notice that were shown",
+            "maxLength": 40,
+            "title": "Terms Version",
+            "type": "string"
           }
         },
         "required": [
           "email",
-          "password"
+          "password",
+          "accept_terms",
+          "terms_version"
         ],
         "title": "RegisterIn",
         "type": "object"
@@ -5548,6 +5761,61 @@
         ]
       }
     },
+    "/api/v1/admin/funnel": {
+      "get": {
+        "description": "Staff only: event counts and distinct people per step, funnel steps first.",
+        "operationId": "funnel_api_v1_admin_funnel_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "days",
+            "required": false,
+            "schema": {
+              "default": 30,
+              "maximum": 365,
+              "minimum": 1,
+              "title": "Days",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/FunnelRow"
+                  },
+                  "title": "Response Funnel Api V1 Admin Funnel Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Funnel",
+        "tags": [
+          "analytics"
+        ]
+      }
+    },
     "/api/v1/ai/disclosure": {
       "get": {
         "operationId": "disclosure_api_v1_ai_disclosure_get",
@@ -5866,6 +6134,46 @@
         "summary": "Verify Email",
         "tags": [
           "auth"
+        ]
+      }
+    },
+    "/api/v1/client-errors": {
+      "post": {
+        "description": "Browser errors go to the server log (scrubbed of emails and tokens by the log pipeline), where alerting can pick them up.",
+        "operationId": "client_error_api_v1_client_errors_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClientErrorIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Client Error",
+        "tags": [
+          "analytics"
         ]
       }
     },
@@ -6628,6 +6936,46 @@
         "summary": "My Escalation",
         "tags": [
           "governance"
+        ]
+      }
+    },
+    "/api/v1/events": {
+      "post": {
+        "description": "Unknown event names and unsafe properties are dropped silently, so a bad client cannot fill the table with free text.",
+        "operationId": "track_api_v1_events_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EventIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Track",
+        "tags": [
+          "analytics"
         ]
       }
     },
@@ -8153,6 +8501,23 @@
             }
           }
         ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/ContactSalesIn"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Body"
+              }
+            }
+          }
+        },
         "responses": {
           "202": {
             "content": {
@@ -9255,6 +9620,71 @@
           }
         ],
         "summary": "Compute Matrix Score Ep",
+        "tags": [
+          "intelligence"
+        ]
+      }
+    },
+    "/api/v1/score/matrix/current": {
+      "get": {
+        "description": "The score to show on Home and the Score page: the latest recorded calculation if the answers have not changed since,\notherwise a newly recorded one. null while too little is known to score.",
+        "operationId": "current_matrix_score_ep_api_v1_score_matrix_current_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/MatrixScoreOut"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Response Current Matrix Score Ep Api V1 Score Matrix Current Get"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Current Matrix Score Ep",
+        "tags": [
+          "intelligence"
+        ]
+      }
+    },
+    "/api/v1/score/matrix/history": {
+      "get": {
+        "operationId": "matrix_history_ep_api_v1_score_matrix_history_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/MatrixHistoryItem"
+                  },
+                  "title": "Response Matrix History Ep Api V1 Score Matrix History Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Matrix History Ep",
         "tags": [
           "intelligence"
         ]

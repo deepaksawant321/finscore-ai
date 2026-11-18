@@ -75,3 +75,13 @@ def test_no_events_when_nothing_changed_and_a_new_vital_is_not_worse() -> None:
     same = {"a": st("green"), "b": st("red")}
     assert h.classify_changes(same, dict(same)) == []
     assert kinds(h.classify_changes({"a": st("green")}, {"a": st("green"), "z": st("red")})) == [("z", "newly_measured")]
+
+
+def test_headline_never_says_healthy_while_a_vital_is_unmeasured() -> None:
+    from app.engines.health import headline_status
+
+    assert headline_status("green", any_unmeasured=True) == "incomplete"
+    assert headline_status("unknown", any_unmeasured=True) == "incomplete"
+    assert headline_status("green", any_unmeasured=False) == "green"
+    assert headline_status("amber", any_unmeasured=True) == "amber"  # a real warning stays a warning
+    assert headline_status("red", any_unmeasured=True) == "red"

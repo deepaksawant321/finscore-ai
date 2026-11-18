@@ -3,7 +3,7 @@ from sqlalchemy import text
 
 from app.domains.governance.service import verify_chain
 from app.infra.ratelimit import limiter
-from tests.conftest import PASSWORD, login, register_verified
+from tests.conftest import PASSWORD, login, register_verified, signup
 
 
 async def test_health_live_and_ready(client: httpx.AsyncClient) -> None:
@@ -40,20 +40,20 @@ async def test_protected_routes_require_valid_token(client: httpx.AsyncClient) -
 
 
 async def test_register_is_enumeration_safe(client: httpx.AsyncClient, mailer) -> None:  # type: ignore[no-untyped-def]
-    a = await client.post("/api/v1/auth/register", json={"email": "dup@example.com", "password": PASSWORD})
-    b = await client.post("/api/v1/auth/register", json={"email": "DUP@example.com", "password": PASSWORD})
+    a = await client.post("/api/v1/auth/register", json=signup("dup@example.com"))
+    b = await client.post("/api/v1/auth/register", json=signup("DUP@example.com"))
     assert a.status_code == b.status_code == 202 and a.json() == b.json()
     assert len(mailer.sent) == 2 and "already exists" in mailer.sent[1].subject
 
 
 async def test_unverified_user_cannot_login(client: httpx.AsyncClient) -> None:
-    await client.post("/api/v1/auth/register", json={"email": "u@example.com", "password": PASSWORD})
+    await client.post("/api/v1/auth/register", json=signup("u@example.com"))
     r = await login(client, "u@example.com")
     assert r.status_code == 403 and r.json()["code"] == "email_not_verified"
 
 
 async def test_verify_token_is_single_use_and_invalid_rejected(client: httpx.AsyncClient, mailer) -> None:  # type: ignore[no-untyped-def]
-    await client.post("/api/v1/auth/register", json={"email": "v@example.com", "password": PASSWORD})
+    await client.post("/api/v1/auth/register", json=signup("v@example.com"))
     token = mailer.sent[-1].body.split("token=")[1].split()[0]
     assert (await client.post("/api/v1/auth/verify-email", json={"token": token})).status_code == 200
     assert (await client.post("/api/v1/auth/verify-email", json={"token": token})).status_code == 400
@@ -193,6 +193,19 @@ async def test_per_email_limit_holds_across_addresses(app) -> None:  # type: ign
         app.state.settings.rate_limit_enabled = False
 
 
+async def test_registration_requires_and_records_acceptance_of_the_terms(client: httpx.AsyncClient, mailer, app) -> None:  # type: ignore[no-untyped-def]
+    no = await client.post("/api/v1/auth/register", json={**signup("t@example.com"), "accept_terms": False})
+    assert no.status_code == 422
+    missing = await client.post("/api/v1/auth/register", json={"email": "t@example.com", "password": PASSWORD})
+    assert missing.status_code == 422
+    old = await client.post("/api/v1/auth/register", json={**signup("t@example.com"), "terms_version": "2020-01-01"})
+    assert old.status_code == 409 and old.json()["code"] == "terms_outdated"
+    await register_verified(client, mailer, "t@example.com")
+    h = {"Authorization": f"Bearer {(await login(client, 't@example.com')).json()['access_token']}"}
+    consents = (await client.get("/api/v1/consents", headers=h)).json()
+    assert [(c["purpose"], c["text_version"]) for c in consents] == [("core_processing", signup("x")["terms_version"])]
+
+
 async def test_consent_grant_revoke_and_audit_chain(client: httpx.AsyncClient, app, mailer) -> None:  # type: ignore[no-untyped-def]
     await register_verified(client, mailer)
     h = {"Authorization": f"Bearer {(await login(client)).json()['access_token']}"}
@@ -205,7 +218,7 @@ async def test_consent_grant_revoke_and_audit_chain(client: httpx.AsyncClient, a
     assert (await client.delete("/api/v1/consents/ai_processing", headers=h)).status_code == 204
     assert (await client.delete("/api/v1/consents/ai_processing", headers=h)).status_code == 404
     listed = (await client.get("/api/v1/consents", headers=h)).json()
-    assert listed[0]["revoked_at"] is not None
+    assert next(c for c in listed if c["purpose"] == "ai_processing")["revoked_at"] is not None
     async with app.state.sessionmaker() as s:
         assert await verify_chain(s)
         actions = [r[0] for r in (await s.execute(text("SELECT action FROM audit_log ORDER BY seq"))).all()]

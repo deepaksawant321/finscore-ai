@@ -34,6 +34,11 @@ _RULES: list[tuple[re.Pattern[str], Route]] = [
     ),
     (re.compile(r"\b(on track|how is my goal|goal status|check my goal)\b", re.I), Route("simulate", ("goal_status",))),
     (re.compile(r"\b(my goals|list goals|what goals)\b", re.I), Route("diagnose", ("goals_overview",))),
+    # "why is my score 607?" asks what the score means, not why it changed
+    (
+        re.compile(r"\b(why|how come) (is|'s) my (fin)?score\b|\bwhat does my (fin)?score mean\b", re.I),
+        Route("explain", ("explain_score",)),
+    ),
     (
         re.compile(
             r"\b(why|what changed|changed|go up|went up|go down|went down|dropped|increase[d]?|decrease[d]?)\b.*\bscore\b|\bscore\b.*\b(change|changed|dropped)\b",

@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { Card } from "@/design-system/ui";
+import { SiteFooter } from "@/features/legal/site-footer";
 import { BrandMark } from "@/features/shell/brand-mark";
 
 export function AuthShell({ title, subtitle, children }: { title: string; subtitle?: string; children: ReactNode }) {
@@ -17,6 +18,7 @@ export function AuthShell({ title, subtitle, children }: { title: string; subtit
         </header>
         {children}
       </Card>
+      <SiteFooter />
     </main>
   );
 }

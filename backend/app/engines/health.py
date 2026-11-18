@@ -60,6 +60,15 @@ def overall_status(states: list[VitalState]) -> str:
     return max(known, key=lambda s: STATUS_ORDER[s]) if known else "unknown"
 
 
+def headline_status(overall: str, any_unmeasured: bool) -> str:
+    """What to tell the user first. "incomplete" instead of green while any vital is unmeasured: the worst KNOWN vital being
+    green says nothing about the unknown ones (e.g. no insurance), so "Healthy" would be false reassurance. Amber and red stay
+    as they are: they are true warnings whatever is missing."""
+    if overall in ("green", "unknown") and any_unmeasured:
+        return "incomplete"
+    return overall
+
+
 def data_quality(states: list[VitalState], fair_known_share: Decimal) -> str:
     """good: everything measured and fresh. fair: most measured, at most one stale. poor: otherwise."""
     if not states:

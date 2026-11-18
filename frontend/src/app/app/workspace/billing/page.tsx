@@ -11,6 +11,7 @@ import { planFeatures } from "@/features/workspace/logic";
 import { PageHead } from "@/features/workspace/page-head";
 import { useWorkspace } from "@/features/workspace/workspace-store";
 import { formatInr } from "@/lib/format";
+import { track } from "@/lib/analytics";
 
 const n = (v: string | number | null | undefined): number => Number(v ?? 0);
 const day = (iso: string) => new Date(iso).toLocaleDateString("en-IN", { dateStyle: "medium" });
@@ -42,8 +43,19 @@ export default function BillingPage() {
     ["Seats", org.usage.seats_used, org.usage.seats_limit],
   ];
 
+  const rank = (key: string) => b.plans.findIndex((x) => x.key === key);
+  const needsTeam = (p: Plan) => !b.payments_enabled && rank(p.key) > rank(b.plan_key) && n(price(p)) > 0;
+
   async function choose(p: Plan) {
     if (p.key === "enterprise") return void ws.run(() => unwrap(api.POST("/api/v1/orgs/{org_id}/billing/contact-sales", { params: { path } })), "Thanks. Sales will contact you within one business day.");
+    // No payment provider yet: a priced upgrade is arranged by our team instead of switching on paid quota for free.
+    if (needsTeam(p)) {
+      track("plan_upgrade_requested", { target: p.key });
+      return void ws.run(
+        () => unwrap(api.POST("/api/v1/orgs/{org_id}/billing/contact-sales", { params: { path }, body: { plan_key: p.key, cycle } })),
+        `Thanks. Our team will contact you within one business day to set up ${p.name}.`,
+      );
+    }
     // The server decides whether a change applies now (upgrade) or at the end of the month (downgrade).
     await ws.run(() => unwrap(api.PUT("/api/v1/orgs/{org_id}/billing/plan", { params: { path }, body: { plan_key: p.key, cycle } })));
   }
@@ -52,7 +64,7 @@ export default function BillingPage() {
     <div className="space-y-6">
       <PageHead
         title="Plans & billing"
-        description="Pay for scores generated. Upgrades start now. Downgrades start at the end of the month."
+        description={b.payments_enabled ? "Pay for scores generated. Upgrades start now. Downgrades start at the end of the month." : "Pay for scores generated. Our team sets up paid plans with you. Downgrades start at the end of the month."}
         actions={
           <SegmentedTabs
             ariaLabel="Billing period"
@@ -110,7 +122,7 @@ export default function BillingPage() {
                 ))}
               </ul>
               <Button variant={current ? "secondary" : "primary"} disabled={current} className="mt-auto" onClick={() => void choose(p)}>
-                {current ? `You are on ${p.name}` : p.key === "enterprise" ? "Contact sales" : sameDifferentCycle ? `Switch to ${cycle} billing` : `Choose ${p.name}`}
+                {current ? `You are on ${p.name}` : p.key === "enterprise" ? "Contact sales" : needsTeam(p) ? `Ask our team for ${p.name}` : sameDifferentCycle ? `Switch to ${cycle} billing` : `Choose ${p.name}`}
               </Button>
             </Card>
           );

@@ -17,6 +17,7 @@ from app.domains.goals.service import GoalService, funding_view
 from app.domains.interview.service import InterviewService, _fmt
 from app.domains.profile.catalog import FIELDS
 from app.domains.profile.service import ProfileService
+from app.domains.scoring.matrix_service import MatrixScoringService
 from app.domains.scoring.models import ScoreRun
 from app.domains.scoring.service import ScoringService
 from app.domains.simulation.service import SimulationService
@@ -26,6 +27,7 @@ from app.infra.errors import AppError
 from app.rulebook.loader import DEFAULT_VERSION, load_rulebook
 
 DEMO_NOTE = "These numbers use DEMO rules, not an official FinScore."
+MATRIX_NOTE = "Beta: this score uses draft rules that are still being finalised."
 MAX_DRIVERS = 3
 
 
@@ -57,6 +59,7 @@ class CoachTools:
     def __init__(self, session: AsyncSession, settings: Settings, user_id: uuid.UUID) -> None:
         self.s, self.cfg, self.uid = session, settings, user_id
         self.scoring = ScoringService(session, settings)
+        self.matrix = MatrixScoringService(session, settings)
 
     async def _latest(self) -> ScoreRun | None:
         return await self.scoring.latest(self.uid)
@@ -71,65 +74,81 @@ class CoachTools:
         return [] if run.official else [DEMO_NOTE]
 
     # ---- score tools ----
+    # The product's FinScore is the workbook (15-area) score since 2026-11-18 (X-04), so these tools read it. The 20-pillar
+    # run (`_latest`) still feeds actions and the what-if for expenses until those move over too.
+    @staticmethod
+    def _no_matrix_score() -> ToolResult:
+        return ToolResult(
+            "get_score", ["You don't have a score yet. Answer a few quick questions on your Money Map and it appears."], ok=False
+        )
+
+    def _matrix_caveats(self, official: bool) -> list[str]:
+        return [] if official else [MATRIX_NOTE]
+
     async def get_score(self) -> ToolResult:
-        run = await self._latest()
+        run = await self.matrix.current(self.uid)
         if run is None:
-            return self._no_score()
-        rb = load_rulebook(run.rulebook_version)
-        early = run.confidence < rb.min_confidence_for_stage()
-        lines = [f"Your FinScore is {_whole(run.overall)} (data confidence {_whole(run.confidence * 100)}%)."]
-        if early:
-            lines.append("This is an early estimate, because I still know too little to place you in a wealth stage.")
-        else:
-            lines.append(
-                f"Your wealth stage is {run.stage}{' (provisional until the age matrix is approved)' if run.stage_provisional else ''}."
-            )
-        lines.append(f"Trend: {run.trend}.")
-        return ToolResult("get_score", lines, caveats=self._demo(run))
+            return self._no_matrix_score()
+        r = run.result
+        assert r.overall is not None
+        lines = [f"Your FinScore is {_whole(r.overall)} out of 900, with {_whole(r.confidence * 100)}% of it measured."]
+        if r.confidence < load_rulebook().min_confidence_for_stage():
+            lines.append("This is an early estimate: answering more questions on your Money Map makes it firmer.")
+        return ToolResult("get_score", lines, caveats=self._matrix_caveats(r.official))
 
     async def explain_score(self) -> ToolResult:
-        run = await self._latest()
+        run = await self.matrix.current(self.uid)
         if run is None:
-            return self._no_score()
-        ex = ScoringService.explain(run)
-        pos = list(ex["positive_drivers"])[:MAX_DRIVERS]  # type: ignore[call-overload]
-        neg = list(ex["negative_drivers"])[:MAX_DRIVERS]  # type: ignore[call-overload]
+            return self._no_matrix_score()
+        r = run.result
+        assert r.overall is not None
+        scored = sorted(
+            (f for f in r.factors if f.status == "scored" and f.factor_score is not None),
+            key=lambda f: (-(f.factor_score or 0), f.id),
+        )
         lines = [
-            f"Your score is {_whole(run.overall)}: a reference of {_whole(run.reference)} plus what each area adds or removes."
+            f"Your FinScore is {_whole(r.overall)} out of 900. Each of {len(r.factors)} areas is rated 0 to 10 against people "
+            "your age and weighted by importance."
         ]
-        if run.confidence < load_rulebook(run.rulebook_version).min_confidence_for_stage():
+        if r.confidence < load_rulebook().min_confidence_for_stage():
             lines.append(
-                f"This is an early estimate: my data confidence is only {_whole(run.confidence * 100)}%, so treat the number with caution."
+                f"This is an early estimate: only {_whole(r.confidence * 100)}% of it is measured, so treat it with caution."
             )
-        if pos:
-            lines.append(
-                "Helping you most: " + "; ".join(f"{p['name']} ({points(str(p['contribution']))} points)" for p in pos) + "."
-            )
-        if neg:
-            lines.append(
-                "Holding you back most: " + "; ".join(f"{p['name']} ({points(str(p['contribution']))} points)" for p in neg) + "."
-            )
-        n_unscored = len(ex["not_scored"])  # type: ignore[arg-type]
-        if n_unscored:
-            lines.append(f"{n_unscored} areas are not scored yet, so they do not move the number.")
-        return ToolResult("explain_score", lines, caveats=self._demo(run))
+        best = [f for f in scored if (f.factor_score or 0) >= 6][:MAX_DRIVERS]
+        weak = [f for f in reversed(scored) if (f.factor_score or 0) < 6][:MAX_DRIVERS]
+        if best:
+            lines.append("Helping you most: " + "; ".join(f"{f.name} ({f.factor_score}/10)" for f in best) + ".")
+        if weak:
+            lines.append("Holding you back most: " + "; ".join(f"{f.name} ({f.factor_score}/10)" for f in weak) + ".")
+        missing = sum(1 for f in r.factors if f.status == "missing")
+        if missing:
+            lines.append(f"{missing} areas are not measured yet, so they do not count. Your Money Map asks about them.")
+        return ToolResult("explain_score", lines, caveats=self._matrix_caveats(r.official))
 
     async def score_change(self) -> ToolResult:
-        runs = await self.scoring.history(self.uid, 2)
+        await self.matrix.current(self.uid)  # records a new calculation first if the answers changed
+        runs = await self.matrix.history(self.uid, 2)
         if len(runs) < 2:
             return ToolResult(
                 "score_change",
-                ["I need at least two score checks to compare. Your score has only been computed once so far."],
+                ["Your score has not changed yet: it changes when your answers change. Ask me to explain it instead."],
                 ok=False,
             )
         new, old = runs[0], runs[1]
-        cmp = ScoringService.compare(old, new)
-        lines = [f"Your score moved from {_whole(D(str(cmp['from_score'])))} to {_whole(D(str(cmp['to_score'])))}."]
-        for c in list(cmp["material_changes"])[:MAX_DRIVERS]:  # type: ignore[call-overload]
-            lines.append(f"{c['name']}: {points(str(c['points_change']))} points.")
-        if not cmp["material_changes"]:
+        lines = [f"Your score moved from {_whole(old.overall)} to {_whole(new.overall)}."]
+        moves = []
+        for fid, f in new.factors.items():
+            before = old.factors.get(fid, {})
+            a, b = before.get("points"), f.get("points")
+            if a != b:
+                delta = D(str(b or 0)) - D(str(a or 0))
+                if abs(delta) >= 1:
+                    moves.append((abs(delta), str(f["name"]), delta))
+        for _, name, delta in sorted(moves, reverse=True)[:MAX_DRIVERS]:
+            lines.append(f"{name}: {points(delta)} points.")
+        if not moves:
             lines.append("No single area changed enough to call out.")
-        return ToolResult("score_change", lines, caveats=self._demo(new))
+        return ToolResult("score_change", lines, caveats=self._matrix_caveats(new.official))
 
     async def stage_info(self) -> ToolResult:
         rb = load_rulebook(DEFAULT_VERSION)

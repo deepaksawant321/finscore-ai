@@ -55,7 +55,7 @@ def _out(issued: Issued, resp: Response, cfg: Settings) -> TokenOut:
 @router.post("/register", status_code=202, response_model=StatusOut, dependencies=[Depends(rate_limit("register", 10, 3600))])
 async def register(request: Request, body: RegisterIn, svc: IdentityDep, client: ClientDep) -> StatusOut:
     _per_email(request, "register", body.email, 3, 3600)
-    await svc.register(body.email, body.password, body.full_name, client)
+    await svc.register(body.email, body.password, body.full_name, client, body.terms_version)
     return StatusOut(status="verification_sent")
 
 

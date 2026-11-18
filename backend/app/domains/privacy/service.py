@@ -15,6 +15,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import Settings
 from app.domains.actions.models import ActionEvent, UserAction
+from app.domains.analytics.models import ProductEvent
 from app.domains.goals.models import Goal
 from app.domains.governance.models import AuditLog, Consent, DataRequest, Escalation
 from app.domains.governance.service import audit
@@ -25,7 +26,7 @@ from app.domains.journey.models import UserProgress
 from app.domains.nudges.models import NotificationPref, Nudge
 from app.domains.organizations.models import Organization, OrgMember
 from app.domains.profile.models import Fact
-from app.domains.scoring.models import ScoreRun
+from app.domains.scoring.models import MatrixScoreRunRow, ScoreRun
 from app.domains.simulation.models import Simulation
 from app.infra.errors import AppError
 from app.infra.security import verify_password
@@ -90,7 +91,7 @@ class PrivacyService:
         )
         return {
             "generated_at": _iso(_now()),
-            "format_version": "3",  # 2: actions, nudges, nudge_preferences, health_checks, workspace_memberships; 3: money_map
+            "format_version": "4",  # 2: actions, nudges, nudge_preferences, health_checks, workspace_memberships; 3: money_map; 4: finscore_runs, usage_events
             "account": {
                 "email": user.email,
                 "full_name": user.full_name,
@@ -208,6 +209,21 @@ class PrivacyService:
                 "active_weeks": prog.active_weeks,
                 "rewards_enabled": prog.rewards_enabled,
             },  # fmt: skip
+            "finscore_runs": [
+                {
+                    "computed_at": _iso(r.computed_at),
+                    "overall": str(r.overall),
+                    "confidence": str(r.confidence),
+                    "rule_version": r.rule_version,
+                    "official": r.official,
+                    "areas": r.factors,
+                }
+                for r in await self._all(MatrixScoreRunRow, MatrixScoreRunRow.user_id == user_id, MatrixScoreRunRow.computed_at)
+            ],
+            "usage_events": [
+                {"at": _iso(u.occurred_at), "event": u.name, "page": u.path, "details": u.props}
+                for u in await self._all(ProductEvent, ProductEvent.user_id == user_id, ProductEvent.occurred_at)
+            ],
             "activity_log": [{"at": _iso(e.occurred_at), "action": e.action, "entity_type": e.entity_type} for e in events],
         }
 
