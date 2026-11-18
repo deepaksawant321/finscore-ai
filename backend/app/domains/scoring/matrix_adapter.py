@@ -59,13 +59,14 @@ def _bool(raw: Raw, key: str) -> bool | None:
     return v if isinstance(v, bool) else None
 
 
-def liquid_counted_as_debt(raw: Raw) -> bool:
+def liquid_counted_as_debt(raw: Raw, *, debt_includes_liquid: bool = False) -> bool:
     """Liquid savings (savings accounts, liquid funds, FDs) are debt-type holdings. They are added to the stated debt
     investments so total assets and the equity share are not understated; only when debt investments are stated."""
-    return _money(raw, "debt_holdings") is not None and _money(raw, "liquid_assets") is not None
+    """`debt_includes_liquid`: the debt figure already covers liquid savings (the quick score asks for one total)."""
+    return not debt_includes_liquid and _money(raw, "debt_holdings") is not None and _money(raw, "liquid_assets") is not None
 
 
-def to_matrix_inputs(raw: Raw, *, choices: Mapping[str, str] | None = None) -> MatrixInputs:
+def to_matrix_inputs(raw: Raw, *, choices: Mapping[str, str] | None = None, debt_includes_liquid: bool = False) -> MatrixInputs:
     """`raw` is ProfileService.raw_inputs(); `choices` holds choice-type facts (e.g. risk_profile), which raw_inputs does not expose.
     Raises AppError(422) when age or income is missing: the matrices cannot be read without them."""
     age = _int(raw, "age")
@@ -75,7 +76,7 @@ def to_matrix_inputs(raw: Raw, *, choices: Mapping[str, str] | None = None) -> M
             422, "insufficient_data", "Not enough information to compute a score yet", "Tell me your age and your yearly income."
         )
     debt = _money(raw, "debt_holdings")
-    if debt is not None and liquid_counted_as_debt(raw):
+    if debt is not None and liquid_counted_as_debt(raw, debt_includes_liquid=debt_includes_liquid):
         debt = debt + (_money(raw, "liquid_assets") or D(0))
     risk = (choices or {}).get("risk_profile")
     return MatrixInputs(

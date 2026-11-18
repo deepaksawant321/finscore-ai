@@ -12,6 +12,7 @@ const CUSTOMER_GROUPS: NavGroup[] = [
     label: "Your money",
     items: [
       { href: "/app", label: "Home", icon: "home" },
+      { href: "/app/journey", label: "Money Map", icon: "goal" },
       { href: "/app/today", label: "Today", icon: "bell" },
       { href: "/app/interview", label: "Talk", icon: "chat" },
       { href: "/app/coach", label: "Coach", icon: "spark" },

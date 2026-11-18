@@ -5,7 +5,9 @@ import { useState } from "react";
 import type { FormEvent } from "react";
 
 import { Alert, Badge, Button, Card, Input } from "@/design-system/ui";
+import { Switch } from "@/design-system/switch";
 import { useAuth } from "@/features/auth/auth-context";
+import { useJourney } from "@/features/journey/home-card";
 import { PrivacyCards, SupportCard } from "@/features/privacy/privacy-cards";
 import { api, problemMessage } from "@/lib/api/client";
 
@@ -77,12 +79,40 @@ function Sessions() {
   );
 }
 
+function RewardsCard() {
+  const qc = useQueryClient();
+  const j = useJourney().data;
+  const toggle = useMutation({
+    mutationFn: async (on: boolean) => {
+      const { data, error } = await api.PUT("/api/v1/journey/settings", { body: { rewards_enabled: on } });
+      if (!data) throw new Error(problemMessage(error));
+      return data;
+    },
+    onSuccess: (data) => qc.setQueryData(["journey"], data),
+  });
+  if (!j) return null;
+  return (
+    <Card className="space-y-3">
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="text-lg font-semibold">Points and badges</h2>
+        <Switch checked={j.rewards_enabled} onChange={(on) => toggle.mutate(on)} label="Points and badges on the Money Map" disabled={toggle.isPending} />
+      </div>
+      <p className="text-sm text-muted">
+        Clarity points, badges and active weeks on your Money Map. They reward finishing, never wealth, and they never change your FinScore. Turning them
+        off keeps your answers.
+      </p>
+      {toggle.isError && <Alert tone="error">{toggle.error.message}</Alert>}
+    </Card>
+  );
+}
+
 export default function SettingsPage() {
   return (
     <div className="space-y-6">
       <h1 className="font-display text-3xl font-bold tracking-tight">Settings</h1>
       <ProfileForm />
       <Sessions />
+      <RewardsCard />
       <SupportCard />
       <PrivacyCards />
     </div>

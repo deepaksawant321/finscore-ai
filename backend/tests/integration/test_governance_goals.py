@@ -308,3 +308,35 @@ async def test_goal_creation_is_audited_and_capped(client: httpx.AsyncClient, ap
         assert (await client.post(f"{API}/goals", headers=h, json=body)).status_code == 201
     over = await client.post(f"{API}/goals", headers=h, json=body)
     assert over.status_code == 409 and over.json()["code"] == "limit_reached"
+
+
+async def test_data_export_includes_actions_nudges_health_and_workspaces(client: httpx.AsyncClient, app, mailer) -> None:  # type: ignore[no-untyped-def]
+    from tests.integration.test_actions import act, refresh, weak_user
+
+    ha = await weak_user(client, mailer, "a@example.com")
+    acts = await refresh(client, ha)
+    assert (await act(client, ha, acts[0]["id"], "accept")).status_code == 200
+    assert (await client.post(f"{API}/nudges/refresh", headers=ha)).status_code == 200
+    assert (
+        await client.put(f"{API}/notification-prefs", headers=ha, json={"in_app_enabled": True, "max_active": 2})
+    ).status_code == 200
+    assert (await client.post(f"{API}/health-monitor/check", headers=ha)).status_code == 200
+    org = await client.post(f"{API}/orgs", headers=ha, json={"name": "Acme Wealth"})
+    secret = org.json()["secret_key"]
+    async with await other_client(app) as other:  # another user's actions must never appear
+        hb = await weak_user(other, mailer, "b@example.com")
+        await refresh(other, hb)
+
+    d = (await client.get(f"{API}/users/me/data-export", headers=ha)).json()
+    assert d["format_version"] == "3"
+    assert {a["action"] for a in d["actions"]} == {a["key"] for a in acts}
+    accepted = next(a for a in d["actions"] if a["action"] == acts[0]["key"])
+    assert accepted["state"] == "accepted" and [h["to"] for h in accepted["history"]][-1] == "accepted"
+    assert d["nudges"] and all(n["body"] and not n["body"].startswith("gAAAA") for n in d["nudges"])  # decrypted
+    assert d["nudge_preferences"]["max_active"] == 2
+    assert d["health_checks"] and d["health_checks"][0]["vitals"]
+    assert d["workspace_memberships"] == [
+        {"workspace": "Acme Wealth", "role": "owner", "status": "active", "joined_at": d["workspace_memberships"][0]["joined_at"]}
+    ]
+    blob = str(d)
+    assert secret not in blob and "fs_sec_" not in blob and "fs_pub_" not in blob and "b@example.com" not in blob

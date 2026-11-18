@@ -52,9 +52,10 @@ async def test_full_journey_from_words_to_demo_score_with_explanation(client: ht
     conv = (await client.get(f"{API}/conversations/{cid}", headers=h)).json()
     assert "one money problem" in conv["messages"][0]["content"] and "AI assistant" in conv["disclosure"]
 
-    # Nothing is a fact until confirmed
+    # A sum of two people's incomes is not auto-saved: it waits for the user to check it
     t1 = await say(client, h, cid, "I earn ₹22 lakh annually. My wife earns around ₹12 lakh.", accept=False)
     assert t1["proposals"][0]["field_key"] == "annual_income" and t1["proposals"][0]["value"] == "3400000.00"
+    assert t1["proposals"][0]["status"] == "pending" and "Please check" in t1["assistant_text"]
     assert (await client.get(f"{API}/memory/facts", headers=h)).json() == []
     d = [{"proposal_id": t1["proposals"][0]["id"], "action": "accept"}]
     assert (await client.post(f"{API}/conversations/{cid}/facts/confirm", headers=h, json={"decisions": d})).json()[0][
@@ -228,3 +229,89 @@ async def test_audit_trail_records_fact_and_score_events(client: httpx.AsyncClie
         assert {"conversation.started", "fact.recorded", "score.computed"} <= actions
         assert await verify_chain(s)
     assert PASSWORD
+
+
+# ======================= auto-save of clear answers =======================
+async def facts_by_key(client: httpx.AsyncClient, h: dict[str, str]) -> dict[str, dict]:  # type: ignore[type-arg]
+    return {f["field_key"]: f for f in (await client.get(f"{API}/memory/facts", headers=h)).json()}
+
+
+async def decide(
+    client: httpx.AsyncClient, h: dict[str, str], cid: str, pid: str, action: str, value: str | None = None
+) -> httpx.Response:
+    body = {"decisions": [{"proposal_id": pid, "action": action, "value": value}]}
+    return await client.post(f"{API}/conversations/{cid}/facts/confirm", headers=h, json=body)
+
+
+async def test_clear_answer_is_saved_without_asking_and_marked_unconfirmed(client: httpx.AsyncClient, mailer) -> None:  # type: ignore[no-untyped-def]
+    h = await auth_client(client, mailer)
+    cid = await start(client, h)
+    t = await say(client, h, cid, "I earn 20 lakh a year", accept=False)
+    p = t["proposals"][0]
+    assert p["field_key"] == "annual_income" and p["status"] == "auto_saved" and "saved" in t["assistant_text"]
+    f = (await facts_by_key(client, h))["annual_income"]
+    assert f["value"] == "2000000.00" and f["source_type"] == "USER_STATED" and f["source_ref"].startswith("message:")
+    assert float(f["confidence"]) < 1  # saved from the chat, not yet confirmed by the user
+    assert t["next_question"]["field_key"] != "annual_income"  # never asked again
+    # confirming it later keeps the same version and marks it confirmed
+    assert (await decide(client, h, cid, p["id"], "accept")).status_code == 200
+    hist = (await client.get(f"{API}/memory/facts/annual_income/history", headers=h)).json()
+    assert len(hist) == 1 and float(hist[0]["confidence"]) == 1.0
+
+
+async def test_undo_removes_an_auto_saved_fact_and_is_audited(client: httpx.AsyncClient, app, mailer) -> None:  # type: ignore[no-untyped-def]
+    h = await auth_client(client, mailer)
+    cid = await start(client, h)
+    t = await say(client, h, cid, "We spend 1 lakh per month", accept=False)
+    p = t["proposals"][0]
+    assert p["status"] == "auto_saved" and "monthly_expenses" in await facts_by_key(client, h)
+    assert (await decide(client, h, cid, p["id"], "reject")).status_code == 200
+    assert "monthly_expenses" not in await facts_by_key(client, h)
+    hist = (await client.get(f"{API}/memory/facts/monthly_expenses/history", headers=h)).json()
+    assert len(hist) == 1 and hist[0]["valid_to"] is not None  # kept in history, no longer current
+    assert (await decide(client, h, cid, p["id"], "reject")).status_code == 200  # a second undo is a no-op
+    async with app.state.sessionmaker() as s:
+        actions = {r[0] for r in (await s.execute(text("SELECT action FROM audit_log"))).all()}
+    assert {"fact.recorded", "fact.retracted"} <= actions
+
+
+async def test_edit_of_an_auto_saved_fact_is_a_correction(client: httpx.AsyncClient, mailer) -> None:  # type: ignore[no-untyped-def]
+    h = await auth_client(client, mailer)
+    cid = await start(client, h)
+    p = (await say(client, h, cid, "I earn 20 lakh a year", accept=False))["proposals"][0]
+    r = await decide(client, h, cid, p["id"], "edit", "2500000")
+    assert r.status_code == 200 and r.json()[0]["value"] == "2500000.00"
+    f = (await facts_by_key(client, h))["annual_income"]
+    assert f["value"] == "2500000.00" and float(f["confidence"]) == 1.0
+
+
+async def test_a_different_value_for_a_known_field_is_never_auto_saved(client: httpx.AsyncClient, mailer) -> None:  # type: ignore[no-untyped-def]
+    h = await auth_client(client, mailer)
+    await client.patch(f"{API}/profile/facts/annual_income", headers=h, json={"value": "1200000"})
+    cid = await start(client, h)
+    t = await say(client, h, cid, "I earn 20 lakh a year", accept=False)
+    assert t["proposals"][0]["status"] == "pending"
+    assert (await facts_by_key(client, h))["annual_income"]["value"] == "1200000.00"  # unchanged until the user agrees
+
+
+async def test_undo_after_the_fact_was_corrected_elsewhere_is_refused(client: httpx.AsyncClient, mailer) -> None:  # type: ignore[no-untyped-def]
+    h = await auth_client(client, mailer)
+    cid = await start(client, h)
+    p = (await say(client, h, cid, "I earn 20 lakh a year", accept=False))["proposals"][0]
+    await client.patch(f"{API}/profile/facts/annual_income", headers=h, json={"value": "2200000"})  # Memory page
+    r = await decide(client, h, cid, p["id"], "reject")
+    assert r.status_code == 409 and r.json()["code"] == "fact_changed"
+    assert (await facts_by_key(client, h))["annual_income"]["value"] == "2200000.00"  # the correction is kept
+
+
+async def test_an_amount_about_something_else_is_not_saved_as_the_answer_to_my_question(
+    client: httpx.AsyncClient, mailer
+) -> None:  # type: ignore[no-untyped-def]
+    h = await auth_client(client, mailer)
+    cid = await start(client, h)
+    t1 = await say(client, h, cid, "I earn 20 lakh a year. We spend 1 lakh per month", accept=False)
+    assert t1["next_question"]["field_key"] == "liquid_assets"
+    t2 = await say(client, h, cid, "Actually my wife also earns 12 lakh and I earn 22 lakh", accept=False)
+    assert {p["field_key"]: p["status"] for p in t2["proposals"]} == {"annual_income": "pending", "liquid_assets": "pending"}
+    facts = await facts_by_key(client, h)
+    assert "liquid_assets" not in facts and facts["annual_income"]["value"] == "2000000.00"  # nothing changed without the user

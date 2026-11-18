@@ -126,3 +126,32 @@ def test_indian_digit_grouping_for_display() -> None:
     assert indian_group(5_000) == "5,000"
     assert indian_group(0) == "0"
     assert indian_group(12_345_678) == "1,23,45,678"
+
+
+def test_only_a_short_reply_counts_as_a_clear_answer_to_my_question() -> None:
+    short = {c.field_key: c for c in rule_extract("5 lakh", awaiting="liquid_assets")}
+    assert short["liquid_assets"].confidence == Decimal("0.8") and "please check" not in short["liquid_assets"].rationale
+    # an amount in a longer message may be about something else: offered for checking, never treated as clear
+    long = {
+        c.field_key: c for c in rule_extract("Actually my wife also earns 12 lakh and I earn 22 lakh", awaiting="liquid_assets")
+    }
+    assert long["liquid_assets"].confidence < Decimal("0.8") and "please check" in long["liquid_assets"].rationale
+    wordy = {c.field_key: c for c in rule_extract("I think it is maybe around 5 lakh or so in total", awaiting="liquid_assets")}
+    assert wordy["liquid_assets"].confidence < Decimal("0.8")
+
+
+def test_insurance_question_answered_with_an_amount_means_yes_with_that_cover() -> None:
+    assert vals("yes 1000000", awaiting="has_health_insurance") == {
+        "has_health_insurance": "true", "health_cover_amount": "1000000.00",
+    }  # fmt: skip
+    assert vals("10 lakh", awaiting="has_health_insurance") == {
+        "has_health_insurance": "true",
+        "health_cover_amount": "1000000.00",
+    }
+    assert vals("1 crore", awaiting="has_term_insurance") == {"has_term_insurance": "true", "life_cover_amount": "10000000.00"}
+    assert vals("yes", awaiting="has_health_insurance") == {"has_health_insurance": "true"}
+    assert vals("yes I have", awaiting="has_health_insurance") == {"has_health_insurance": "true"}
+    assert vals("no", awaiting="has_health_insurance") == {"has_health_insurance": "false"}
+    assert "has_health_insurance" not in vals(
+        "yes but not any more", awaiting="has_health_insurance"
+    )  # contradictory: not guessed

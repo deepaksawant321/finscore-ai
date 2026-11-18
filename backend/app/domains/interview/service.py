@@ -1,9 +1,11 @@
 import uuid
 from dataclasses import dataclass
 from datetime import UTC, datetime
+from decimal import Decimal
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm.attributes import flag_modified
 
 from app.ai.extraction import Candidate, extract
 from app.ai.gateway import LLMProvider
@@ -19,6 +21,7 @@ from app.domains.governance.advice import (
 from app.domains.governance.escalation import create_escalation
 from app.domains.governance.service import active_consent, audit
 from app.domains.interview.models import Conversation, Message, MessageExtraction
+from app.domains.profile import derive
 from app.domains.profile.catalog import FIELDS, INTERVIEW_ORDER
 from app.domains.profile.service import ProfileService
 from app.infra.errors import AppError
@@ -28,8 +31,13 @@ OPENING = "What is the one money problem you want to solve right now?"
 DISCLOSURE = (
     "I'm an AI assistant. I help you organise your finances and understand your options; I'm not a human adviser and "
     "I don't give regulated investment advice. All numbers come from a calculation engine, not from the AI model. "
-    "Nothing I say is saved as a fact until you confirm it."
+    "Clear answers are saved straight away and you can undo or correct them; anything I'm not sure about waits for you "
+    "to check it."
 )
+# Auto-save rule (PLACEHOLDER threshold, not an approved rule). A candidate is saved without asking only if the rule
+# extractor (never the LLM) read it with at least this confidence, it is a single amount (sums of several amounts score
+# lower), and the field is not already known or waiting for a check. Everything else stays a proposal for the user.
+AUTOSAVE_MIN_CONFIDENCE = Decimal("0.8")
 # Intent -> fields to ask about first (relevance boost). PLACEHOLDER ordering, not an approved rule (blueprint: PROPOSED).
 INTENT_BOOST: dict[str, tuple[str, ...]] = {
     "retirement": ("age", "retirement_age", "monthly_investment", "annual_income", "life_expectancy", "risk_profile"),
@@ -59,7 +67,7 @@ def _now() -> datetime:
     return datetime.now(UTC)
 
 
-def select_next_field(known: set[str], pending: set[str], intents: list[str]) -> str | None:
+def select_next_field(known: set[str], pending: set[str], intents: list[str], skip: set[str] | None = None) -> str | None:
     """Deterministic question selector: relevance to the user's stated problem first, then default order. The LLM never picks."""
     boosted: list[str] = []
     for i in intents:
@@ -68,7 +76,7 @@ def select_next_field(known: set[str], pending: set[str], intents: list[str]) ->
                 boosted.append(k)
     order = [k for k in (*boosted, *INTERVIEW_ORDER) if k in FIELDS]
     for k in dict.fromkeys(order):
-        if k not in known and k not in pending:
+        if k not in known and k not in pending and k not in (skip or set()):
             return k
     return None
 
@@ -179,19 +187,30 @@ class InterviewService:
         intents = sorted(set(conv.intents) | (set(classify_intents(text)) - {"general_health"}))
         conv.intents = intents
         cands: list[Candidate] = await extract(text, conv.awaiting_field, self.provider)
-        proposals: list[dict[str, object]] = [
-            {"id": uuid.uuid4().hex, "field_key": c.field_key, "label": FIELDS[c.field_key].label, "value": c.value,
-             "display": _fmt(c.field_key, c.value), "evidence": c.evidence, "rationale": c.rationale,
-             "confidence": str(c.confidence), "origin": c.origin, "status": "pending"}
-            for c in cands
-        ]  # fmt: skip
+        known_before = {f.field_key for f in await self.profile.current_facts(user_id)}
+        waiting = await self._pending_fields(conv.id)
+        proposals: list[dict[str, object]] = []
+        for c in cands:
+            p: dict[str, object] = {
+                "id": uuid.uuid4().hex, "field_key": c.field_key, "label": FIELDS[c.field_key].label, "value": c.value,
+                "display": _fmt(c.field_key, c.value), "evidence": c.evidence, "rationale": c.rationale,
+                "confidence": str(c.confidence), "origin": c.origin, "status": "pending",
+            }  # fmt: skip
+            if self._can_autosave(c, known_before, waiting):
+                res = await self.profile.record_fact(
+                    user_id, c.field_key, c.value, source_type="USER_STATED", source_ref=f"message:{user_msg.id}",
+                    confidence=c.confidence, request_id=request_id,
+                )  # fmt: skip
+                p["status"], p["fact_id"] = "auto_saved", str(res.fact.id)
+            proposals.append(p)
         if proposals:
             self.s.add(MessageExtraction(id=uuid.uuid4(), message_id=user_msg.id, conversation_id=conv.id,
                                          proposals=proposals, created_at=_now()))  # fmt: skip
+        await derive.refresh(self.profile, user_id, request_id)  # fill what follows from the answers (no EMIs -> no loans, ...)
         known = {f.field_key for f in await self.profile.current_facts(user_id)}
-        pending = await self._pending_fields(conv.id) | {str(p["field_key"]) for p in proposals}
-        # Ask next: first let the user confirm what I just captured; then continue with the next most useful question.
-        nxt = select_next_field(known, pending, intents)
+        pending = waiting | {str(p["field_key"]) for p in proposals if p["status"] == "pending"}
+        # Ask next: anything waiting for a check is not asked again; continue with the next most useful question.
+        nxt = select_next_field(known, pending, intents, derive.not_applicable(await self.profile.raw_inputs(user_id)))
         conv.awaiting_field = nxt
         total = len(INTERVIEW_ORDER)
         progress = {"known": len(known & set(INTERVIEW_ORDER)), "total": total}
@@ -206,19 +225,35 @@ class InterviewService:
         return Turn(reply, proposals, nq, progress, ready, am.id, blocked, advice)
 
     @staticmethod
+    def _can_autosave(c: Candidate, known: set[str], waiting: set[str]) -> bool:
+        return (
+            c.origin == "rules"
+            and c.confidence >= AUTOSAVE_MIN_CONFIDENCE
+            and c.field_key not in known  # replacing a value the user gave earlier is always checked with them
+            and c.field_key not in waiting
+        )
+
+    @staticmethod
     def _compose(proposals: list[dict[str, object]], nxt: str | None, progress: dict[str, int]) -> str:
         parts: list[str] = []
-        if proposals:
-            caught = ", ".join(f"{p['label']}: {p['display']}" for p in proposals)
-            parts.append(f"Here is what I understood — {caught}. Please confirm or correct it on the right.")
-        else:
+        saved = [p for p in proposals if p["status"] == "auto_saved"]
+        check = [p for p in proposals if p["status"] == "pending"]
+        if saved:
+            caught = ", ".join(f"{p['label']}: {p['display']}" for p in saved)
+            parts.append(f"Got it — saved {caught}. You can undo or change it on the right.")
+        if check:
+            caught = ", ".join(f"{p['label']}: {p['display']}" for p in check)
+            parts.append(f"Please check this before I save it — {caught}.")
+        if not proposals and nxt and FIELDS[nxt].kind == "bool":
+            parts.append("Sorry, I didn't catch that, so I haven't recorded anything. A simple yes or no is enough.")
+        elif not proposals:
             parts.append("Thanks. I couldn't pin down a specific figure from that, so I haven't recorded anything.")
         if nxt:
             parts.append(f"{FIELDS[nxt].why} {FIELDS[nxt].question}")
         else:
             parts.append("I have everything I need for an initial picture.")
         if progress["known"] >= 3:
-            parts.append(f"(Progress: {progress['known']} of {progress['total']} details confirmed.)")
+            parts.append(f"(Progress: {progress['known']} of {progress['total']} details known.)")
         return " ".join(parts)
 
     async def confirm(
@@ -235,6 +270,10 @@ class InterviewService:
             if pid not in by_id:
                 raise AppError(404, "not_found", "Proposal not found")
             row, prop = by_id[pid]
+            if prop["status"] == "auto_saved":
+                await self._decide_auto_saved(user_id, row, prop, action, d.get("value"), request_id, recorded)
+                flag_modified(row, "proposals")  # the list is edited in place, so tell the ORM it changed
+                continue
             if prop["status"] != "pending":
                 continue
             if action == "reject":
@@ -251,8 +290,31 @@ class InterviewService:
                 )
             else:
                 raise AppError(422, "validation_error", "action must be accept, edit or reject")
-            row.proposals = [dict(p) for p in row.proposals]  # reassign so JSON change is detected
+            flag_modified(row, "proposals")  # the list is edited in place, so tell the ORM it changed
+        await derive.refresh(self.profile, user_id, request_id)
         return recorded
+
+    async def _decide_auto_saved(
+        self, user_id: uuid.UUID, row: MessageExtraction, prop: dict[str, object], action: str | None, value: str | None,
+        request_id: str | None, recorded: list[dict[str, object]],
+    ) -> None:  # fmt: skip
+        """accept = confirm the saved value; edit = replace it (a user correction); reject = Undo (the field is unknown again)."""
+        key = str(prop["field_key"])
+        if action == "reject":
+            if not await self.profile.retract_fact(user_id, uuid.UUID(str(prop["fact_id"])), request_id):
+                raise AppError(409, "fact_changed", "This detail has changed since it was saved",
+                               "Correct it on the Memory page instead.")  # fmt: skip
+            prop["status"] = "undone"
+            return
+        if action not in ("accept", "edit"):
+            raise AppError(422, "validation_error", "action must be accept, edit or reject")
+        new_value = value if action == "edit" and value is not None else prop["value"]
+        res = await self.profile.record_fact(
+            user_id, key, new_value, source_type="USER_STATED", source_ref=f"message:{row.message_id}",
+            confidence=Decimal("1.0"), user_correction=(action == "edit"), request_id=request_id,
+        )  # fmt: skip
+        prop["status"] = "accepted" if action == "accept" else "edited"
+        recorded.append({"field_key": res.fact.field_key, "value": res.fact.value, "material_change": res.material_change})
 
     async def coverage(self, user_id: uuid.UUID) -> list[dict[str, object]]:
         """Per scoring pillar: Unknown / Partial / Stated / Verified. 'Stale' needs freshness windows (PENDING, D-B8)."""

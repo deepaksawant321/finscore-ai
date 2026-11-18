@@ -29,8 +29,9 @@ def test_every_engine_input_has_a_catalogue_field() -> None:
 
 
 def test_original_interview_order_is_unchanged_and_new_fields_come_after() -> None:
-    assert INTERVIEW_ORDER[:11] == ORIGINAL_11
-    assert len(NEW_13) == 13 and set(INTERVIEW_ORDER) == set(FIELDS)
+    # home_ownership is no longer asked (neither score uses it, 2026-11-18); the rest keep their order
+    assert INTERVIEW_ORDER[:10] == tuple(k for k in ORIGINAL_11 if k != "home_ownership")
+    assert len(NEW_13) == 13 and set(INTERVIEW_ORDER) == set(FIELDS) - {"home_ownership"}
 
 
 def test_selector_asks_new_fields_only_after_the_original_ones() -> None:

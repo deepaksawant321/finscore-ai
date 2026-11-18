@@ -49,7 +49,11 @@ Base: `/api/v1` · JSON · errors as RFC 7807 `application/problem+json` · auth
 Interview turn responses now include `advice_class`, `escalation_suggested`, `escalation_id`.
 ## Implemented in MVP 6 (organisations, keys, usage, billing)
 Signed-in users (any verified account): `GET/POST /orgs` · `POST /orgs/invites/accept` · `GET/PATCH /orgs/{id}` · `PUT/DELETE /orgs/{id}/branding` · `PUT /orgs/{id}/modules` · `PUT /orgs/{id}/connectors/{id}` · `POST /orgs/{id}/snippet-copied` · `PUT /orgs/{id}/environment` (sandbox or live; the first go-live returns the live secret once) · `GET/POST /orgs/{id}/members`, `PATCH/DELETE /orgs/{id}/members/{member}` · `GET /orgs/{id}/api-keys`, `POST /orgs/{id}/api-keys/rotate`, `DELETE /orgs/{id}/api-keys/{key}` · `GET /orgs/{id}/billing`, `PUT /orgs/{id}/billing/plan`, `POST /orgs/{id}/billing/invoices`, `POST /orgs/{id}/billing/contact-sales` · `GET /orgs/{id}/activity`.
-Partner (secret API key as `Authorization: Bearer fs_sec_...`): `GET /partner/me`, `POST /partner/scores` with `{"facts": {...}}`.
+Money Map: `GET /journey?chapter=&skipped=` (chapters, measured share, next card, rewards), `POST /journey/answer` `{card, value, mix?}` (saves, returns an instant fact, measured before/after, and an audited score when a chapter completes), `POST /journey/keep` `{card}` (keep an assumption), `POST /journey/checkin` (once per ISO week, 409 after), `PUT /journey/settings` `{rewards_enabled}`.
+
+Quick journey: `POST /quick-score` (one screen of answers -> facts -> workbook score, same response as `POST /score/matrix/compute`), `GET /score/matrix/improve` (next questions ranked by score weight, with `reason` missing|assumed and `current_value` for assumptions).
+
+Partner (secret API key as `Authorization: Bearer fs_sec_...`): `GET /partner/me`, `POST /partner/scores` with `{"facts": {...}}`. Burst limits per key and per client address return 429 `rate_limited` with `Retry-After` (separate from the monthly `quota_exceeded`).
 Rules: roles owner, admin, analyst, viewer with permissions `billing.manage`, `branding.edit`, `keys.manage`, `scores.view`, `data.export`, `members.manage` (matrix in `app/domains/organizations/plans.py`). A non-member gets 404. Error codes added: `plan_limit` (403), `seat_limit`, `already_member`, `owner_locked`, `checklist_incomplete`, `plan_conflict`, `contact_sales`, `not_live` (409), `quota_exceeded` (429), `wrong_key_type` and `live_disabled` (403).
 Authoritative contract: `backend/openapi.json` (generated).
 

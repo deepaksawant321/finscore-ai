@@ -14,11 +14,16 @@ from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import Settings
+from app.domains.actions.models import ActionEvent, UserAction
 from app.domains.goals.models import Goal
 from app.domains.governance.models import AuditLog, Consent, DataRequest, Escalation
 from app.domains.governance.service import audit
+from app.domains.health.models import HealthSnapshot
 from app.domains.identity.models import User, UserRole
 from app.domains.interview.models import Conversation, Message
+from app.domains.journey.models import UserProgress
+from app.domains.nudges.models import NotificationPref, Nudge
+from app.domains.organizations.models import Organization, OrgMember
 from app.domains.profile.models import Fact
 from app.domains.scoring.models import ScoreRun
 from app.domains.simulation.models import Simulation
@@ -53,6 +58,8 @@ class PrivacyService:
         goals = await self._all(Goal, Goal.user_id == user_id, Goal.created_at)
         escs = await self._all(Escalation, Escalation.user_id == user_id, Escalation.created_at)
         events = await self._all(AuditLog, AuditLog.actor_user_id == user_id, AuditLog.seq)
+        pref = await self.s.get(NotificationPref, user_id)
+        prog = await self.s.get(UserProgress, user_id)
         conversations = []
         for c in convs:
             msgs = await self._all(Message, Message.conversation_id == c.id, Message.created_at)
@@ -83,7 +90,7 @@ class PrivacyService:
         )
         return {
             "generated_at": _iso(_now()),
-            "format_version": "1",
+            "format_version": "3",  # 2: actions, nudges, nudge_preferences, health_checks, workspace_memberships; 3: money_map
             "account": {
                 "email": user.email,
                 "full_name": user.full_name,
@@ -163,8 +170,80 @@ class PrivacyService:
                 }
                 for e in escs
             ],
+            "actions": await self._actions(user_id),
+            "nudges": [
+                {
+                    "rule": n.rule_key,
+                    "priority": n.priority,
+                    "title": n.title,
+                    "body": n.body,
+                    "state": n.state,
+                    "snoozed_until": _iso(n.snoozed_until),
+                    "created_at": _iso(n.created_at),
+                    "updated_at": _iso(n.updated_at),
+                }
+                for n in await self._all(Nudge, Nudge.user_id == user_id, Nudge.created_at)
+            ],
+            "nudge_preferences": None
+            if pref is None
+            else {"in_app_enabled": pref.in_app_enabled, "max_active": pref.max_active, "muted_rules": pref.muted_rules},
+            "health_checks": [
+                {
+                    "taken_at": _iso(h.taken_at),
+                    "overall": h.overall,
+                    "data_quality": h.data_quality,
+                    "vitals": h.vitals,
+                    "changes": h.events,
+                    "official": h.official,
+                    "rulebook_version": h.rulebook_version,
+                }
+                for h in await self._all(HealthSnapshot, HealthSnapshot.user_id == user_id, HealthSnapshot.taken_at)
+            ],
+            "workspace_memberships": await self._memberships(user_id),
+            "money_map": None
+            if prog is None
+            else {
+                "points": prog.points,
+                "badges": prog.badges,
+                "active_weeks": prog.active_weeks,
+                "rewards_enabled": prog.rewards_enabled,
+            },  # fmt: skip
             "activity_log": [{"at": _iso(e.occurred_at), "action": e.action, "entity_type": e.entity_type} for e in events],
         }
+
+    async def _actions(self, user_id: uuid.UUID) -> list[dict[str, Any]]:
+        acts = await self._all(UserAction, UserAction.user_id == user_id, UserAction.created_at)
+        evs = await self._all(ActionEvent, ActionEvent.user_id == user_id, ActionEvent.at)
+        by_action: dict[uuid.UUID, list[dict[str, Any]]] = {}
+        for e in evs:
+            by_action.setdefault(e.action_id, []).append({"from": e.from_state, "to": e.to_state, "at": _iso(e.at)})
+        return [
+            {
+                "action": a.catalog_key,
+                "state": a.state,
+                "proposed_values": a.params,
+                "expected_score_change": str(a.expected_delta),
+                "official": a.official,
+                "snoozed_until": _iso(a.snoozed_until),
+                "created_at": _iso(a.created_at),
+                "updated_at": _iso(a.updated_at),
+                "history": by_action.get(a.id, []),
+            }
+            for a in acts
+        ]
+
+    async def _memberships(self, user_id: uuid.UUID) -> list[dict[str, Any]]:
+        """Only the user's own membership rows: never other members, API keys, invite tokens or billing data."""
+        q = (
+            select(OrgMember, Organization.name)
+            .join(Organization, Organization.id == OrgMember.org_id)
+            .where(OrgMember.user_id == user_id)
+            .order_by(OrgMember.created_at)
+        )
+        return [
+            {"workspace": name, "role": m.role, "status": m.status, "joined_at": _iso(m.created_at)}
+            for m, name in (await self.s.execute(q)).all()
+        ]
 
     async def pending_erasure(self, user_id: uuid.UUID) -> DataRequest | None:
         q = select(DataRequest).where(

@@ -379,3 +379,33 @@ async def test_activity_records_who_did_what_without_secrets(client: httpx.Async
     assert acts[0]["actor_email"] == "a@example.com"
     blob = str(acts)
     assert secret not in blob and "p@example.com" not in blob and "fs_sec_" not in blob  # no keys, no invitee address
+
+
+async def test_partner_api_is_rate_limited_per_key_on_every_plan(client: httpx.AsyncClient, mailer, app) -> None:  # type: ignore[no-untyped-def]
+    a = await auth_client(client, mailer, "a@example.com")
+    org, key = await make_org(client, a)
+    _, other_key = await make_org(client, a, "Beta Wealth")
+    await set_plan(app, org, "growth")  # a plan with no hard monthly cap still has a burst limit
+    s = app.state.settings
+    old = (s.rate_limit_enabled, s.partner_rate_per_key_per_minute)
+    s.rate_limit_enabled, s.partner_rate_per_key_per_minute = True, 3
+    try:
+        codes = [(await client.get(f"{API}/partner/me", headers=bearer(key))).status_code for _ in range(4)]
+        assert codes == [200, 200, 200, 429]
+        r = await client.post(f"{API}/partner/scores", headers=bearer(key), json={"facts": FACTS})
+        assert r.status_code == 429 and r.json()["code"] == "rate_limited" and int(r.headers["Retry-After"]) >= 1
+        assert (await client.get(f"{API}/partner/me", headers=bearer(other_key))).status_code == 200  # limit is per key
+    finally:
+        s.rate_limit_enabled, s.partner_rate_per_key_per_minute = old
+    assert (await client.get(f"{API}/orgs/{org}", headers=a)).json()["usage"]["scores_used"] == 0  # throttled calls not billed
+
+
+async def test_partner_api_limits_one_address_trying_many_keys(client: httpx.AsyncClient, app) -> None:  # type: ignore[no-untyped-def]
+    s = app.state.settings
+    old = (s.rate_limit_enabled, s.partner_rate_per_ip_per_minute)
+    s.rate_limit_enabled, s.partner_rate_per_ip_per_minute = True, 5
+    try:
+        codes = [(await client.get(f"{API}/partner/me", headers=bearer(f"fs_sec_test_guess{i}"))).status_code for i in range(6)]
+        assert codes == [401] * 5 + [429]
+    finally:
+        s.rate_limit_enabled, s.partner_rate_per_ip_per_minute = old

@@ -4,12 +4,13 @@ Two layers:
   1. Deterministic rule extractor (always on). All unit conversion (lakh/crore, monthly<->annual, summing) happens here, in code.
   2. Optional LLM extractor (only when a provider is configured). It may only COPY the user's words; every candidate is validated
      against the field catalogue and, for money, must be grounded in an amount actually present in the user's text.
-Candidates are PROPOSALS: nothing is stored as a fact until the user confirms (blueprint: never invent missing data).
+Candidates are PROPOSALS. The interview saves only clear, high-confidence rule candidates straight away (with Undo);
+everything else waits for the user to check it (blueprint: never invent missing data).
 """
 
 import json
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from decimal import Decimal
 
 from app.ai.gateway import LLMMessage, LLMProvider, LLMUnavailable
@@ -24,6 +25,7 @@ _ANNUAL = re.compile(r"per year|a year|annual|annually|yearly|per annum|\bpa\b|/
 _NEG = re.compile(r"\b(no|not|don'?t|do not|dont|without|never|zero|nil)\b", re.IGNORECASE)
 _BALANCE = re.compile(r"\b(owe|owes|owed|outstanding|remaining|balance|pending|left to pay|still pay|principal)\b", re.IGNORECASE)
 _EMI_WORD = re.compile(r"\b(emis?|instal+ments?)\b", re.IGNORECASE)
+DIRECT_ANSWER_MAX_WORDS = 6  # PLACEHOLDER: longer replies to a question are checked with the user, not auto-saved
 _WORDS = {"zero": 0, "no": 0, "one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6}
 
 
@@ -151,12 +153,36 @@ def rule_extract(text: str, awaiting: str | None = None) -> list[Candidate]:
     put(_sum_parts("liquid_assets", liquid, "liquid savings"))
     put(_sum_parts("monthly_investment", sip, "monthly investments"))
 
-    # Short direct answer to the question I just asked.
+    # Answer to the question I just asked. Only a short reply that says nothing else ("5 lakh", "none") counts as a clear
+    # answer; in a longer message an amount may be about something else ("my wife earns 12 lakh" while I asked about
+    # savings), so it is offered at low confidence with "please check" and is never saved without the user.
     if awaiting and awaiting in FIELDS and awaiting not in out:
-        c = _answer_to(awaiting, text)
-        if c:
-            out[awaiting] = c
+        direct = not out and len(text.split()) <= DIRECT_ANSWER_MAX_WORDS and len(_amounts(text)) <= 1
+        answers = [c for c in (_answer_to(awaiting, text), *_cover_answer(awaiting, text)) if c is not None]
+        for c in answers:
+            if c.field_key in out:
+                continue
+            if not direct:
+                c = replace(
+                    c, confidence=min(c.confidence, Decimal("0.6")), rationale="your answer to my question? (please check)"
+                )
+            out[c.field_key] = c
     return list(out.values())
+
+
+# "Do you have health insurance?" answered with an amount ("10 lakh", "yes 1000000") means yes, with that much cover.
+_COVER_FOR = {"has_health_insurance": "health_cover_amount", "has_term_insurance": "life_cover_amount"}
+
+
+def _cover_answer(key: str, text: str) -> list[Candidate | None]:
+    cover = _COVER_FOR.get(key)
+    amts = _amounts(text) if cover else []
+    if not cover or len(amts) != 1 or amts[0].value <= 0 or _NEG.search(text):
+        return []
+    return [
+        _mk(key, "yes", text, "you told me your cover amount", "0.85"),
+        _mk(cover, amts[0].value, text, "your cover amount", "0.8"),
+    ]
 
 
 def _answer_to(key: str, text: str) -> Candidate | None:
@@ -171,7 +197,7 @@ def _answer_to(key: str, text: str) -> Candidate | None:
         if re.fullmatch(r"(none|nil|zero|no|nothing|0)\.?", low):
             return _mk(key, 0, text, "your answer to my question", "0.8")
     elif f.kind == "bool":
-        if re.fullmatch(r"(yes|yeah|yep|y|yup|sure|have|i do)\.?", low):
+        if re.fullmatch(r"(yes|yeah|yep|y|yup|sure|have|i do|i have)\b.*", low) and not _NEG.search(low):
             return _mk(key, "yes", text, "your answer to my question", "0.85")
         if re.fullmatch(r"(no|nope|n|nah|don'?t|i don'?t)\.?|.*\b(don'?t|do not) have.*", low):
             return _mk(key, "no", text, "your answer to my question", "0.85")

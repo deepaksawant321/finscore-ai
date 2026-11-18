@@ -10,10 +10,12 @@ from app.api.v1 import (
     health,
     health_monitor,
     intelligence,
+    journey,
     matrix_score,
     nudges,
     orgs,
     partner,
+    quick,
     simulations,
     users,
 )
@@ -24,6 +26,8 @@ api_router.include_router(auth.router)
 api_router.include_router(users.router)
 api_router.include_router(intelligence.router)
 api_router.include_router(matrix_score.router)
+api_router.include_router(quick.router)
+api_router.include_router(journey.router)
 api_router.include_router(governance.router)
 api_router.include_router(goals.router)
 api_router.include_router(coach.router)

@@ -27,7 +27,7 @@ user msg ─► Orchestrator ─► [Safety/Classifier] ─► Planner(LLM) ─�
 | **Evaluation framework** | See §5. |
 
 ## 3. Pipelines
-**Interview turn:** classify intent → extract candidate facts → validate → (user confirms chips) → persist facts → update coverage map → if enough for the problem: call deterministic engine for provisional answer → LLM explains result with assumptions → choose next question (selector) → reply.
+**Interview turn:** classify intent → extract candidate facts → validate → clear rule-extracted facts are saved at once with Undo/Change, unclear ones wait for the user to check them (see below) → persist facts → update coverage map → if enough for the problem: call deterministic engine for provisional answer → LLM explains result with assumptions → choose next question (selector) → reply.
 **Coach turn:** classify mode (Explain/Diagnose/Simulate/Act) → plan tool calls → execute → ground → explain → classify advice → disclose → log.
 **Simulate:** LLM parses NL → `ScenarioSpec` (validated, missing variables asked) → `simulate` engine → result + assumptions + sensitivity → LLM narrates.
 
@@ -56,3 +56,5 @@ Provider outage → degrade: show deterministic dashboard, queue chat, banner. S
 
 ## 8. Voice/Tone
 Reflect first, explain why asking, one question at a time, no manipulative praise, no fear framing (B§2, §10, §13).
+
+**Auto-save of clear answers (2026-11-18).** A candidate is saved without asking only if all of these hold: it comes from the rule extractor (never the LLM); its confidence is at least `AUTOSAVE_MIN_CONFIDENCE` (0.8, PLACEHOLDER); the field is not already known (a different value for a known field is always checked); the field is not already waiting for a check. A reply to the question just asked counts as clear only if it is short (at most `DIRECT_ANSWER_MAX_WORDS`, 6, PLACEHOLDER), has at most one amount and nothing else was extracted. Sums of several amounts score 0.75 and are checked. Auto-saved facts are `USER_STATED` with the extractor's confidence (< 1) and `source_ref = message:<id>`; confirming (interview or Memory page) raises confidence to 1 in place (audit `fact.confirmed`); Undo closes the fact (audit `fact.retracted`) and is refused with 409 `fact_changed` if the fact was changed since.

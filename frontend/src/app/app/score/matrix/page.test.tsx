@@ -36,7 +36,7 @@ describe("MatrixScorePage", () => {
     expect(screen.getByRole("button", { name: "Calculate again" })).toBeInTheDocument();
   });
 
-  it("when there is not enough data it says what is needed and links to the conversation", async () => {
+  it("when there is not enough data it links to the quick questions", async () => {
     POST.mockResolvedValue({
       data: undefined,
       error: { code: "insufficient_data", title: "Not enough information to compute a score yet", detail: "Tell me your age and your yearly income." },
@@ -44,8 +44,8 @@ describe("MatrixScorePage", () => {
     wrap(<MatrixScorePage />);
     await userEvent.click(screen.getByRole("button", { name: "Calculate my score" }));
     const alert = await screen.findByRole("status");
-    expect(alert).toHaveTextContent("Tell me your age and your yearly income.");
-    expect(screen.getByRole("link", { name: "Tell me in conversation" })).toHaveAttribute("href", "/app/interview");
+    expect(alert).toHaveTextContent("I need a little more before I can score you.");
+    expect(screen.getByRole("link", { name: "Answer a few quick questions" })).toHaveAttribute("href", "/app/journey");
     expect(screen.queryByRole("figure")).toBeNull();
   });
 

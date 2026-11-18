@@ -30,6 +30,10 @@ class Settings(BaseSettings):
     erasure_cooling_days: int = 7  # PLACEHOLDER: retention/legal-hold rules PENDING (D-B16)
     mail_dir: str | None = None  # local dev only (never in staging/production)
     mail_from: str = "no-reply@5nance.local"
+    # Partner API burst limits. PLACEHOLDER values (not approved commercial terms). Separate from the plan's monthly
+    # quota: they stop one key (or one address trying keys) from flooding the score engine on any plan.
+    partner_rate_per_key_per_minute: int = Field(default=120, ge=1)
+    partner_rate_per_ip_per_minute: int = Field(default=600, ge=1)
     # In-process erasure purge scheduler (K-25). Interim, single-process solution: no new infra/recurring cost.
     # Safe to enable on more than one instance — purge_due only touches rows still pending and due.
     purge_scheduler_enabled: bool = True

@@ -2,6 +2,40 @@
 
 Format: Keep a Changelog; semver for the product, separate semver for the Rulebook.
 
+## [0.9.0-dev] - Money Map - 2026-11-18
+### Added
+- `/app/journey`: the interview as six short chapters of tap-to-answer cards on a map (Snapshot, Family & protection, Future you, Safety net, Tax smart, Fine-tune). Tapping a chip answers and moves on; cards that do not apply are skipped; "Not sure, ask me later" puts a card off; assumptions can be kept ("Keep it") or changed.
+- An instant fact after every answer from the score engine (for example "Cash flow: 7/10 for your age group"), a "score measured" meter, and a chapter-complete screen with the score and the change since the last chapter.
+- Clarity points, badges and active weeks (migration 0011, `user_progress`). They never change any score, there are no leaderboards, a missed week pauses rather than resets, and they can be switched off in Settings. Included in the data export.
+- Weekly check-in card ("Anything changed this week?") in a week with no activity yet.
+- API: `GET /journey`, `POST /journey/answer`, `POST /journey/keep`, `POST /journey/checkin`, `PUT /journey/settings`.
+### Changed
+- Home and the score page now start or continue the Money Map; `/app/start` redirects to it. The quick-score API remains.
+
+## [0.8.0-dev] - Quick journey - 2026-11-18
+### Added
+- `/app/start`: the FinScore in about a minute. Thirteen tap-first questions (loans and the children question only appear when they apply), amounts typed as "1.5L", "50k" or "2 cr", pre-filled from anything already told. New users land here from Home; the chat stays available.
+- `POST /api/v1/quick-score` saves the answers and returns the workbook score in one call. The equity/debt split implied by the "how is it invested" chip and the planning assumptions (retire at 60, money lasts to 85, risk comfort by age) are stored as estimates and listed as assumptions.
+- `GET /api/v1/score/matrix/improve` and the "Make your score more complete" card on Home and the score page: one question at a time, ranked by how much of the score it unlocks; assumed values can be replaced or kept ("That's right").
+- Values that follow from other answers are filled in and labelled (no EMIs -> no loans outstanding; no health insurance -> no cover and no 80D premium; ...) and withdrawn again if an answer changes.
+### Changed
+- The chat no longer asks about home ownership (no score uses it), children's savings when there are no children, or anything already filled in.
+- Memory page: "Assumed" badge with "That's right", and "Worked out from your other answers" for derived values.
+
+## [0.7.1-dev] - Review fixes - 2026-11-18
+### Added
+- Data export (`GET /users/me/data-export`, `format_version` 2) now also contains actions with their state history, nudges, nudge preferences, health checks and the user's own workspace memberships. API keys, invite tokens and other members are never included.
+- Partner API burst limits: per API key on every plan (`PARTNER_RATE_PER_KEY_PER_MINUTE`, placeholder 120) and per client address before authentication (`PARTNER_RATE_PER_IP_PER_MINUTE`, placeholder 600). A throttled call returns 429 `rate_limited` with `Retry-After` and is not billed.
+### Changed
+- Interview: clear answers are saved straight away and listed under "Saved from your answers" with Change and Undo. Only answers the assistant is unsure about (amounts it added up, long replies to its question, changes to something you already told it, anything read by the AI model) appear under "Please check" and wait for you. The disclosure and consent text say so.
+- A reply counts as the answer to the question just asked only when it is short and says nothing else; otherwise it is offered for checking.
+- Memory page: facts saved from the chat show "Saved from chat · not confirmed" with a Confirm button.
+### Fixed
+- The status of a fact proposal (accepted, undone, ...) was not reliably saved, because the stored list was edited in place.
+- "Do you have health insurance?" answered with "yes 10 lakh" or just an amount was not understood and the question repeated. Now it records yes plus the cover amount (same for term insurance); a reply the assistant cannot read on a yes/no question asks for a simple yes or no.
+### Documentation
+- Recorded two pieces of 2026-11-16 work that the tracker had not listed: the Wealth OS event layer (outbox table `domain_events`, migration 0009, in-process dispatcher) and the workbook-based matrix FinScore. Updated K-11, K-12, K-38 and K-41, and added K-49 (two FinScore models).
+
 ## [0.7.0-dev] - Organisation, API-key, usage and billing backend (MVP 6) - 2026-11-16
 ### Added
 - Organisations (workspaces): create one and you become the owner. Roles owner, admin, analyst and viewer, with a permission matrix enforced on the server. Another workspace's data answers 404, never 403.

@@ -7,6 +7,7 @@ import type { FormEvent } from "react";
 
 import { Alert, Badge, Button, Card } from "@/design-system/ui";
 import { api, problemMessage } from "@/lib/api/client";
+import { formatInr } from "@/lib/format";
 import type { components } from "@/lib/api/schema";
 
 type Proposal = components["schemas"]["ProposalOut"];
@@ -83,10 +84,24 @@ export default function InterviewPage() {
       body: { decisions: [{ proposal_id: p.id, action, value: value ?? null }] },
     });
     if (err) return setError(problemMessage(err));
-    setProposals((all) => all.filter((x) => x.id !== p.id));
-    if (action !== "reject") setProgress((pr) => (pr ? { ...pr, known: pr.known + 1 } : pr));
+    if (p.status === "auto_saved") {
+      // Undo drops the saved value; Change keeps it in the saved list with the new value. Confirming is not needed.
+      if (action === "reject") {
+        setProposals((all) => all.filter((x) => x.id !== p.id));
+        setProgress((pr) => (pr ? { ...pr, known: Math.max(0, pr.known - 1) } : pr));
+      } else if (value !== undefined) {
+        const display = p.display.startsWith("₹") && Number.isFinite(Number(value)) ? formatInr(Number(value)) : value;
+        setProposals((all) => all.map((x) => (x.id === p.id ? { ...x, status: "edited", value, display } : x)));
+      }
+    } else {
+      setProposals((all) => all.filter((x) => x.id !== p.id));
+      if (action !== "reject") setProgress((pr) => (pr ? { ...pr, known: pr.known + 1 } : pr));
+    }
     void qc.invalidateQueries({ queryKey: ["facts"] });
   }
+
+  const toCheck = proposals.filter((p) => p.status === "pending");
+  const saved = proposals.filter((p) => p.status === "auto_saved" || p.status === "edited");
 
   async function askPerson() {
     if (!convId) return;
@@ -113,8 +128,9 @@ export default function InterviewPage() {
         <h1 className="font-display text-3xl font-bold tracking-tight">Before we talk</h1>
         {error && <Alert tone="error">{error}</Alert>}
         <p className="text-sm text-muted">
-          To understand your situation I process what you type using an AI model. I only keep facts you confirm, you can see and correct them any
-          time, and you can withdraw this permission in Settings. I am an AI assistant, not a human adviser.
+          To understand your situation I process what you type using an AI model. Clear answers are saved as you go and anything unclear waits for
+          you to check it. You can see, undo and correct everything any time, and you can withdraw this permission in Settings. I am an AI
+          assistant, not a human adviser.
         </p>
         <Button onClick={grantConsent}>I agree — let&apos;s talk</Button>
       </Card>
@@ -155,15 +171,29 @@ export default function InterviewPage() {
       </section>
 
       <aside className="space-y-4" aria-label="Captured facts">
+        {toCheck.length > 0 && (
+          <Card className="space-y-3">
+            <h2 className="font-semibold">Please check</h2>
+            <p className="text-xs text-muted">I wasn&apos;t sure about these, so they are not saved yet.</p>
+            <ul className="space-y-3">
+              {toCheck.map((p) => (
+                <ProposalCard key={p.id} p={p} onDecide={decide} />
+              ))}
+            </ul>
+          </Card>
+        )}
         <Card className="space-y-3">
-          <h2 className="font-semibold">What I understood</h2>
-          <p className="text-xs text-muted">Nothing is saved until you confirm it.</p>
-          {proposals.length === 0 && <p className="text-sm text-muted">Nothing waiting for confirmation.</p>}
-          <ul className="space-y-3">
-            {proposals.map((p) => (
-              <ProposalCard key={p.id} p={p} onDecide={decide} />
-            ))}
-          </ul>
+          <h2 className="font-semibold">Saved from your answers</h2>
+          {saved.length === 0 ? (
+            <p className="text-sm text-muted">Nothing yet. Clear answers are saved here as we talk.</p>
+          ) : (
+            <ul className="divide-y divide-line">
+              {saved.map((p) => (
+                <SavedRow key={p.id} p={p} onDecide={decide} />
+              ))}
+            </ul>
+          )}
+          <p className="text-xs text-muted">You can also review everything on the Memory page.</p>
         </Card>
         {progress && (
           <Card>
@@ -171,7 +201,7 @@ export default function InterviewPage() {
               <span className="font-semibold tabular-nums">
                 {progress.known}/{progress.total}
               </span>{" "}
-              details confirmed
+              details known
             </p>
             <div className="mt-2 h-2 rounded-full bg-line" role="progressbar" aria-valuemin={0} aria-valuemax={progress.total} aria-valuenow={progress.known}>
               <div className="h-2 rounded-full bg-brand transition-all" style={{ width: `${(progress.known / progress.total) * 100}%` }} />
@@ -218,6 +248,44 @@ function ProposalCard({ p, onDecide }: { p: Proposal; onDecide: (p: Proposal, a:
             Wrong
           </Button>
         </div>
+      )}
+    </li>
+  );
+}
+
+function SavedRow({ p, onDecide }: { p: Proposal; onDecide: (p: Proposal, a: "accept" | "reject" | "edit", v?: string) => void }) {
+  const [editing, setEditing] = useState(false);
+  const [val, setVal] = useState(p.value);
+  const canChange = p.status === "auto_saved";
+  return (
+    <li className="space-y-1 py-2 first:pt-0 last:pb-0">
+      <div className="flex items-baseline justify-between gap-2">
+        <span className="text-sm text-muted">{p.label}</span>
+        {!editing && <span className="font-semibold tabular-nums">{p.display}</span>}
+      </div>
+      {editing ? (
+        <div className="flex gap-2">
+          <input aria-label={`Corrected ${p.label}`} value={val} onChange={(e) => setVal(e.target.value)} className="min-h-[40px] w-full rounded-md border border-line bg-surface px-2 text-sm" />
+          <Button
+            onClick={() => {
+              onDecide(p, "edit", val);
+              setEditing(false);
+            }}
+          >
+            Save
+          </Button>
+        </div>
+      ) : (
+        canChange && (
+          <div className="flex gap-3 text-xs">
+            <button type="button" className="font-semibold text-brand underline-offset-2 hover:underline" onClick={() => setEditing(true)}>
+              Change
+            </button>
+            <button type="button" className="text-muted underline-offset-2 hover:underline" onClick={() => onDecide(p, "reject")} aria-label={`Undo ${p.label}`}>
+              Undo
+            </button>
+          </div>
+        )
       )}
     </li>
   );

@@ -638,6 +638,91 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/journey": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Overview */
+        get: operations["overview_api_v1_journey_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/journey/answer": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Answer */
+        post: operations["answer_api_v1_journey_answer_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/journey/checkin": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Checkin */
+        post: operations["checkin_api_v1_journey_checkin_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/journey/keep": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Keep */
+        post: operations["keep_api_v1_journey_keep_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/journey/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Settings */
+        put: operations["settings_api_v1_journey_settings_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/memory/facts": {
         parameters: {
             query?: never;
@@ -1109,6 +1194,26 @@ export interface paths {
         patch: operations["correct_fact_api_v1_profile_facts__key__patch"];
         trace?: never;
     };
+    "/api/v1/quick-score": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Quick Score
+         * @description Saves the answers (labelled stated / derived / assumed) and returns the workbook FinScore in one call.
+         */
+        post: operations["quick_score_api_v1_quick_score_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/rulebook/status": {
         parameters: {
             query?: never;
@@ -1205,6 +1310,23 @@ export interface paths {
         put?: never;
         /** Compute Matrix Score Ep */
         post: operations["compute_matrix_score_ep_api_v1_score_matrix_compute_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/score/matrix/improve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Improve */
+        get: operations["improve_api_v1_score_matrix_improve_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1435,6 +1557,36 @@ export interface components {
                 [key: string]: unknown;
             };
         };
+        /** AnswerIn */
+        AnswerIn: {
+            /** Card */
+            card: string;
+            /** Mix */
+            mix?: ("mostly_safe" | "balanced" | "mostly_equity") | null;
+            /** Value */
+            value?: string | null;
+        };
+        /** AnswerOut */
+        AnswerOut: {
+            /** Chapter */
+            chapter: string;
+            /** Chapter Complete */
+            chapter_complete: boolean;
+            /** Insight */
+            insight: string;
+            /** Measured After */
+            measured_after: string;
+            /** Measured Before */
+            measured_before: string;
+            /** New Badges */
+            new_badges: components["schemas"]["BadgeOut"][];
+            /** @description The next card in the same chapter, if any */
+            next: components["schemas"]["CardOut"] | null;
+            /** Points Awarded */
+            points_awarded: number | null;
+            /** @description Set when this answer completed a chapter */
+            score: components["schemas"]["MatrixScoreOut"] | null;
+        };
         /** ApiKeyOut */
         ApiKeyOut: {
             /**
@@ -1466,6 +1618,15 @@ export interface components {
             kind: "publishable" | "secret";
             /** Last Used At */
             last_used_at: string | null;
+        };
+        /** BadgeOut */
+        BadgeOut: {
+            /** At */
+            at?: string | null;
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
         };
         /** BillingOut */
         BillingOut: {
@@ -1514,12 +1675,80 @@ export interface components {
             /** Radius */
             radius: number;
         };
+        /** CardOut */
+        CardOut: {
+            /**
+             * Assumed Value
+             * @description Set when the current value is an assumption the user can keep or change
+             */
+            assumed_value: string | null;
+            /** Chapter */
+            chapter: string;
+            /** Chips */
+            chips: components["schemas"]["Chip"][];
+            /** Choices */
+            choices: string[];
+            /** Key */
+            key: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "money" | "int" | "bool" | "choice" | "savings_mix";
+            /**
+             * Mixes
+             * @description For kind=savings_mix: how the savings are mostly invested
+             */
+            mixes: components["schemas"]["Option"][];
+            /**
+             * Per Month
+             * @description The amount is per month (stored per year)
+             */
+            per_month: boolean;
+            /** Prompt */
+            prompt: string;
+            /** Unit */
+            unit: string | null;
+            /** Unsure Ok */
+            unsure_ok: boolean;
+            /** Why */
+            why: string;
+        };
+        /** ChapterOut */
+        ChapterOut: {
+            /** Blurb */
+            blurb: string;
+            /** Complete */
+            complete: boolean;
+            /** Done */
+            done: number;
+            /** Key */
+            key: string;
+            /** Title */
+            title: string;
+            /** Total */
+            total: number;
+            /** Unlocked */
+            unlocked: boolean;
+        };
+        /** CheckinOut */
+        CheckinOut: {
+            /** Points Awarded */
+            points_awarded: number | null;
+        };
         /** ChecklistItem */
         ChecklistItem: {
             /** Done */
             done: boolean;
             /** Id */
             id: string;
+        };
+        /** Chip */
+        Chip: {
+            /** Label */
+            label: string;
+            /** Value */
+            value: string;
         };
         /** CoachConversationOut */
         CoachConversationOut: {
@@ -2076,6 +2305,38 @@ export interface components {
              */
             taken_at: string;
         };
+        /** ImproveOut */
+        ImproveOut: {
+            /** Choices */
+            choices: string[];
+            /**
+             * Current Value
+             * @description The assumed value, for reason=assumed
+             */
+            current_value: string | null;
+            /** Field Key */
+            field_key: string;
+            /**
+             * Impact
+             * @description Factor weight (out of 100) this answer would unlock or firm up
+             */
+            impact: string;
+            /** Kind */
+            kind: string;
+            /** Label */
+            label: string;
+            /** Question */
+            question: string;
+            /**
+             * Reason
+             * @enum {string}
+             */
+            reason: "missing" | "assumed";
+            /** Unit */
+            unit: string | null;
+            /** Why */
+            why: string;
+        };
         /** Invest */
         Invest: {
             /** Inflation Pct */
@@ -2151,6 +2412,28 @@ export interface components {
             subtotal: string;
             /** Total */
             total: string;
+        };
+        /** JourneyOut */
+        JourneyOut: {
+            /** Chapters */
+            chapters: components["schemas"]["ChapterOut"][];
+            /** Checkin Due */
+            checkin_due: boolean;
+            /**
+             * Measured
+             * @description Share of the score that can be measured from the answers so far (0-1)
+             */
+            measured: string;
+            next: components["schemas"]["CardOut"] | null;
+            /** @description Omitted when the user switched rewards off */
+            progress: components["schemas"]["ProgressOut"] | null;
+            /** Rewards Enabled */
+            rewards_enabled: boolean;
+        };
+        /** KeepIn */
+        KeepIn: {
+            /** Card */
+            card: string;
         };
         /** LoginIn */
         LoginIn: {
@@ -2352,6 +2635,13 @@ export interface components {
             state: string;
             /** Title */
             title: string;
+        };
+        /** Option */
+        Option: {
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
         };
         /** OrgCreateIn */
         OrgCreateIn: {
@@ -2597,6 +2887,17 @@ export interface components {
             /** Urgency */
             urgency: string;
         };
+        /** ProgressOut */
+        ProgressOut: {
+            /** Active This Week */
+            active_this_week: boolean;
+            /** Active Weeks */
+            active_weeks: number;
+            /** Badges */
+            badges: components["schemas"]["BadgeOut"][];
+            /** Points */
+            points: number;
+        };
         /** ProposalOut */
         ProposalOut: {
             /** Confidence */
@@ -2619,6 +2920,51 @@ export interface components {
             status: string;
             /** Value */
             value: string;
+        };
+        /** QuickScoreIn */
+        QuickScoreIn: {
+            /** Age */
+            age: number;
+            /** Dependants */
+            dependants: number;
+            /** Health Cover */
+            health_cover: number | string;
+            /** Kids */
+            kids: number;
+            /** Kids Goal Planned */
+            kids_goal_planned?: boolean | null;
+            /** Life Cover */
+            life_cover: number | string;
+            /**
+             * Loans Outstanding
+             * @description Asked only when monthly_emi > 0
+             */
+            loans_outstanding?: number | string | null;
+            /**
+             * Mix
+             * @enum {string}
+             */
+            mix: "mostly_safe" | "balanced" | "mostly_equity";
+            /** Monthly Emi */
+            monthly_emi: number | string;
+            /** Monthly Expenses */
+            monthly_expenses: number | string;
+            /**
+             * Monthly Income
+             * @description Household income per month, before tax
+             */
+            monthly_income: number | string;
+            /** Monthly Investment */
+            monthly_investment: number | string;
+            /** Other Assets */
+            other_assets: number | string;
+            /** Pending Goals */
+            pending_goals: number;
+            /**
+             * Savings Total
+             * @description Savings and investments, not the home
+             */
+            savings_total: number | string;
         };
         /** ReactIn */
         ReactIn: {
@@ -2798,6 +3144,11 @@ export interface components {
             ip: string | null;
             /** User Agent */
             user_agent: string | null;
+        };
+        /** SettingsIn */
+        SettingsIn: {
+            /** Rewards Enabled */
+            rewards_enabled: boolean;
         };
         /** SimulationOut */
         SimulationOut: {
@@ -4254,6 +4605,162 @@ export interface operations {
             };
         };
     };
+    overview_api_v1_journey_get: {
+        parameters: {
+            query?: {
+                /** @description Comma-separated cards the user put off for now */
+                skipped?: string | null;
+                chapter?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JourneyOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    answer_api_v1_journey_answer_post: {
+        parameters: {
+            query?: {
+                skipped?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnswerIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnswerOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    checkin_api_v1_journey_checkin_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CheckinOut"];
+                };
+            };
+        };
+    };
+    keep_api_v1_journey_keep_post: {
+        parameters: {
+            query?: {
+                skipped?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["KeepIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnswerOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    settings_api_v1_journey_settings_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SettingsIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JourneyOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_facts_api_v1_memory_facts_get: {
         parameters: {
             query?: never;
@@ -5269,6 +5776,39 @@ export interface operations {
             };
         };
     };
+    quick_score_api_v1_quick_score_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["QuickScoreIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MatrixScoreOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     rulebook_status_api_v1_rulebook_status_get: {
         parameters: {
             query?: never;
@@ -5408,6 +5948,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MatrixScoreOut"];
+                };
+            };
+        };
+    };
+    improve_api_v1_score_matrix_improve_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImproveOut"][];
                 };
             };
         };

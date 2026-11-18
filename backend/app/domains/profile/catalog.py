@@ -94,9 +94,10 @@ FIELDS: dict[str, FieldDef] = {f.key: f for f in [
 ]}  # fmt: skip
 
 # Fields the interview asks about, in default priority order (the selector reorders by relevance/coverage).
+# home_ownership is still understood when volunteered but no longer asked: neither score uses it (2026-11-18).
 INTERVIEW_ORDER = (
     "annual_income", "monthly_expenses", "liquid_assets", "monthly_emi_total", "has_health_insurance",
-    "has_term_insurance", "age", "dependants", "home_ownership", "retirement_age", "monthly_investment",
+    "has_term_insurance", "age", "dependants", "retirement_age", "monthly_investment",
     "loans_outstanding", "equity_holdings", "debt_holdings", "other_assets", "pending_goals", "life_cover_amount",
     "health_cover_amount", "kids", "kids_goal_planned", "section_80c", "section_80d", "life_expectancy", "risk_profile",
 )  # fmt: skip

@@ -160,3 +160,13 @@ body {
     transition: none !important;
   }
 }
+
+/* Money Map motion (disabled automatically for prefers-reduced-motion via the motion-safe/motion-reduce variants). */
+@keyframes fadein {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes confetti {
+  0% { transform: translateY(-10px) rotate(0); opacity: 1; }
+  100% { transform: translateY(420px) rotate(540deg); opacity: 0; }
+}

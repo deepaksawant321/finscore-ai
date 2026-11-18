@@ -7,6 +7,7 @@ from app.ai.gateway import LLMProvider
 from app.api.deps import ClientDep, PrincipalDep, SessionDep, SettingsDep
 from app.api.v1 import schemas as sc
 from app.domains.interview.service import DISCLOSURE, InterviewService
+from app.domains.profile import derive
 from app.domains.profile.catalog import FIELDS
 from app.domains.profile.models import Fact
 from app.domains.profile.service import ProfileService
@@ -60,10 +61,12 @@ async def fact_history(key: str, p: PrincipalDep, session: SessionDep) -> list[s
 @router.patch("/profile/facts/{key}", response_model=sc.FactChangeOut)
 async def correct_fact(key: str, body: sc.FactPatch, p: PrincipalDep, session: SessionDep, client: ClientDep) -> sc.FactChangeOut:
     """User correction: always allowed to supersede (creates a new version; the old one stays in history)."""
-    r = await ProfileService(session).record_fact(
+    profile = ProfileService(session)
+    r = await profile.record_fact(
         p.user_id, key, body.value, source_type="USER_STATED", source_ref="user_correction", user_correction=True,
         actor_ip=client.ip, request_id=client.request_id,
     )  # fmt: skip
+    await derive.refresh(profile, p.user_id, client.request_id)
     return sc.FactChangeOut(fact=_fact_out(r.fact), changed=r.changed, material_change=r.material_change)
 
 

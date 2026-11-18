@@ -1,6 +1,6 @@
 # FinScore AI — Implementation Tracker
 
-Updated: Phase 0. Status: Pending / In Progress / Completed / Blocked. Priority: Critical/High/Medium/Low. "Tests" column is filled with evidence (CI run / test ids) on completion. **Nothing below MVP 0 is started.**
+Updated: 2026-11-18. Status: Pending / In Progress / Completed / Blocked. Priority: Critical/High/Medium/Low. "Tests" column is filled with evidence (CI run / test ids) on completion. Phase 0 and MVP 1 are complete; MVP 2 to MVP 6 are partly built (sections below).
 
 ## Phase 0 — Discovery & design
 | ID | Module | Requirement | Pri | Status | Deps | Acceptance | Tests | Remarks |
@@ -63,7 +63,8 @@ Evidence: backend `pytest` 93 passed (engines 37, unit 27, integration 29 incl. 
 | M2-E8 | Governance | Completed (2026-11-13, second pass) | Consent gate, audit, AI disclosure; **export, erasure, advice classification, regulated-ask guard, distress path, escalations (user + staff APIs)** — see MVP 2 follow-up below |
 | M2-E9 | Frontend (interview, home/score, explain, DNA, memory) | Completed | Manual browser run; Playwright e2e not extended (K-13) |
 | — | Goals CRUD (roadmap R4) | Completed (second pass) | CRUD + funding view under user-chosen assumptions; AI goal discovery stays in MVP 4 |
-| — | Events skeleton, entitlement hooks (roadmap R5, R6) | **Not started** | |
+| — | Events skeleton (roadmap R5) | Completed (2026-11-16) | Outbox table `domain_events` (migration 0009) + in-process dispatcher; see W-01..W-04 below |
+| — | Entitlement hooks (roadmap R6) | Completed for workspaces (2026-11-16) | Plan limits for seats, modules, go-live and branding in `organizations/plans.py` (UI-08); no per-user (consumer) entitlements yet |
 
 ### MVP 2 follow-up: governance gaps + goals (2026-11-13)
 Evidence: backend `pytest` 122 passed (+29: advice/goals unit 19, governance/goals integration 10, commit-order regression 1, token-liveness 1 in auth); ruff/mypy/import-linter clean; frontend tsc/lint clean, build ok; verified in the in-app browser: goals + funding, support request, data export download, consent toggle, erasure schedule/cancel, regulated-question decline + human escalation.
@@ -165,7 +166,7 @@ Evidence: backend `pytest` 268 passed (+23: copilot engine 12, copilot API 11); 
 | C-04 | Hand-off, never execution | Completed | a `hand_off` finding only offers an "ask a person" button wired to the existing escalation API; nothing is ever executed or recommended by product name; a check never changes an action's state or the user's facts/goals (tested) |
 | C-05 | `/copilot/actions/{id}/check`, `/copilot/goals/check` | Completed | private (404 for other users), audited (rule/level/hand-off only, no message text or amounts), no new table (reuses the audit log) |
 | C-06 | Actions and Goals page integration | Completed | "Check before you accept" per action; "Check affordability first" on the new-goal form |
-| C-07 | Wealth OS (event-driven orchestration across all 20 capabilities) | **Not started** | current domains call each other directly (e.g. nudges call the health checker); an event/outbox layer is a larger architectural piece, not yet justified by load |
+| C-07 | Wealth OS (event-driven orchestration across all 20 capabilities) | Partial (2026-11-16) | An outbox event layer now exists (W-01..W-04 below). Only 4 event types and one handler (refresh actions and nudges); most domains still call each other directly |
 
 ## Cross-cutting: erasure purge scheduler (2026-11-13)
 Evidence: backend `pytest` 280 passed (+12: scheduler timing unit tests 9, end-to-end lifespan-driven purge integration tests 3, including a manual browser/API run that registered an account, requested erasure, restarted the app and confirmed the account was gone and login then failed with no CLI step); ruff/mypy/import-linter clean.
@@ -188,3 +189,59 @@ Evidence: frontend `tsc`, `next lint`, `vitest` (72 passed) and `next build` cle
 | UI-06 | Workspace admin screens (demo data) | Completed | 5 routes, 12 logic tests; K-42 |
 | UI-07 | Run against the real backend with a real login | Completed (2026-11-16) | login, 13 customer pages, coach question, what-if run, workspace go-live flow, team invite and seat limit, billing toggle, dark mode, logout; no horizontal overflow on any page at 390 px. Found and fixed: early estimate must not announce a stage on the ladder; Team table overflowed on phones; copying the snippet could be blocked by the browser and leave Go live locked |
 | UI-08 | Organisation, API-key, usage and billing backend | Completed (2026-11-16), payments excluded | 5 new tables (migration 0010), 24 endpoints under `/orgs` and `/partner`, 26 new backend tests (428 in total), workspace screens moved to the real API. Verified in a browser against the real backend: create workspace, upgrade, go live, branding stored server-side, invite and accept, role-limited views, key rotation with grace period, invoice. K-45 to K-48 |
+
+## Cross-cutting: Wealth OS event layer (2026-11-16, recorded 2026-11-18)
+Evidence: `tests/integration/test_wealth_os.py`, `tests/unit/test_interval_scheduler.py`. This shipped in the 2026-11-16 commit but was not recorded here until the 2026-11-18 review.
+| ID | Item | Status | Evidence / remarks |
+|---|---|---|---|
+| W-01 | Outbox table `domain_events` (migration 0009) | Completed | `bus.publish` only adds a row in the same transaction as the write that caused it, so the event and the write land together or not at all |
+| W-02 | Publishers | Completed | `fact_changed` (profile), `score_computed` (scoring), `goal_updated` (goals), `action_verified` (actions) |
+| W-03 | In-process dispatcher (`app/domains/events/dispatcher.py`) | Completed | Polls every `WEALTH_OS_INTERVAL_SECONDS` (placeholder 15), one event per transaction, gives up after `WEALTH_OS_MAX_ATTEMPTS` (placeholder 5) and logs it; `WEALTH_OS_ENABLED` default on |
+| W-04 | Handler: refresh actions and nudges | Completed | Actions and Today now update in the background after a data change (narrows K-35/K-37). Time-only triggers (a goal deadline approaching with no data change) still wait for the user to open the app |
+
+## Cross-cutting: workbook-based (15-factor matrix) FinScore (2026-11-16, recorded 2026-11-18)
+Evidence: `tests/engines/test_matrix_score.py`, `tests/integration/test_matrix_score.py`, `tests/unit/test_matrix_adapter.py`, `tests/unit/test_matrix_catalogue_fields.py`, frontend `score/matrix` and `features/matrix-score` tests. Details in CHANGELOG 0.5.4 to 0.5.7.
+| ID | Item | Status | Evidence / remarks |
+|---|---|---|---|
+| X-01 | Engine (`engines/matrix_score.py`, `finmath.py`) and draft rules `matrix-0.1.0-draft` | Completed (DRAFT rules) | Reproduces the workbook totals; refused in production |
+| X-02 | Profile catalogue fields for all 15 factors + adapter | Completed | |
+| X-03 | `POST /score/matrix/compute` + `/app/score/matrix` screen + home card | Completed | Stateless: no history or trend |
+| X-04 | **Which FinScore is the product's score** | **Blocked - Product decision** | The 20-pillar score still drives Home, Score, Actions, Health and the partner API; the workbook model is the business's own model. 19 open questions in `docs/rules/FINSCORE_RULES_SPEC.md` section 10 |
+
+## Review fixes (2026-11-18)
+Evidence: backend `pytest` (full suite) green with 3 new tests; ruff/mypy/import-linter clean.
+| ID | Item | Status | Evidence / remarks |
+|---|---|---|---|
+| R-01 | Data export now includes actions (with state history), nudges, nudge preferences, health checks and the user's own workspace memberships (`format_version` 2) | Completed | `test_data_export_includes_actions_nudges_health_and_workspaces`: decrypted for the owner; no API keys, invite tokens or other users' data |
+| R-02 | Partner API burst limits | Completed | Per key (`PARTNER_RATE_PER_KEY_PER_MINUTE`, placeholder 120) on every plan, and per address before authentication (`PARTNER_RATE_PER_IP_PER_MINUTE`, placeholder 600) to slow key guessing. Throttled calls are not billed. In-memory like the rest of the limiter (K-15). Tests: `test_partner_api_is_rate_limited_per_key_on_every_plan`, `test_partner_api_limits_one_address_trying_many_keys` || R-03 | Interview: clear answers are saved straight away (Undo / Change), only unclear ones wait for a check | Completed | Rules in AI_ARCHITECTURE.md ("Auto-save of clear answers"). Tests: `test_clear_answer_is_saved_without_asking_and_marked_unconfirmed`, `test_undo_removes_an_auto_saved_fact_and_is_audited`, `test_edit_of_an_auto_saved_fact_is_a_correction`, `test_a_different_value_for_a_known_field_is_never_auto_saved`, `test_undo_after_the_fact_was_corrected_elsewhere_is_refused`, `test_an_amount_about_something_else_is_not_saved_as_the_answer_to_my_question`, unit `test_only_a_short_reply_counts_as_a_clear_answer_to_my_question`. Found while checking: a long message was taken as the answer to the pending question ("my wife earns 12 lakh" saved as liquid savings); fixed by the short-reply rule |
+| R-04 | Proposal status was not reliably saved after a decision | Completed (bug found while testing) | The proposals JSON was edited in place, so the ORM could miss the change; now marked with `flag_modified`. A second Undo is a no-op (tested) |
+| R-05 | Memory page: "Saved from chat · not confirmed" badge and a Confirm button | Completed | Confirm re-states the same value, which marks the fact confirmed without a new version |
+
+## Quick journey (2026-11-18) - approved plan, phases 1 and 2
+Evidence: backend `pytest` 444 passed (`tests/integration/test_quick_score.py` 5 new); frontend 86 passed (`features/quick-score/logic.test.ts` 8 new); ruff/mypy/import-linter/tsc/lint clean; walked through in the in-app browser with a throwaway account: one screen -> 667/900 at 90% confidence (13 of 15 areas), improve card answer recalculated the score, Memory page labels.
+Decisions taken by the PO on 2026-11-18: the quick journey shows the workbook (15-factor) score; planning assumptions retirement 60, money lasts to 85, risk comfort by age, all labelled "assumed"; exact amounts with shortcut chips; phases 1-2 now, document upload / Account Aggregator later and only with approval.
+| ID | Item | Status | Evidence / remarks |
+|---|---|---|---|
+| Q-01 | `POST /quick-score`: one screen of answers -> facts -> workbook score in one call | Completed | Answers stored USER_STATED (`source_ref=quick_score`); equity/debt split from the mix chip (20/50/80% equity, PLACEHOLDER) and the planning assumptions stored ESTIMATED (`assumed:<what>`), never over a stated value |
+| Q-02 | Logical derivations (`profile/derive.py`) | Completed | no EMIs -> no loans; no health insurance -> cover 0 and 80D 0; cover amount -> insured or not; life cover 0 -> no term plan. Recorded DERIVED, withdrawn again when the condition stops holding; applied after quick score, chat turns, chat confirmations and Memory edits |
+| Q-03 | `/app/start` screen | Completed | 13 questions (loans and the children question only when they apply), chips + shorthand amounts ("1.5L", "50k", "2 cr"), pre-filled from what the user already said, progress bar; Home sends new users here; chat stays as "Prefer to talk?" |
+| Q-04 | `GET /score/matrix/improve` + "Make your score more complete" card (Home, score page) | Completed | One question at a time ranked by score weight it unlocks; assumed values ranked at half weight, with "That's right" to keep them. Built as its own card rather than a Daily Companion nudge, because nudges are tied to the 20-pillar rules |
+| Q-05 | Chat skips what does not apply | Completed | Never asks home ownership (no score uses it), children's savings with no children, or anything already derived/assumed |
+| Q-06 | Memory page labels | Completed | "Assumed" badge with "That's right"; "Worked out from your other answers" for derived values; keeping an assumption makes it the user's own value |
+| Q-07 | Document upload / Account Aggregator | **Not started - approval gate** | Regulated / paid data sources (K-7) |
+| Q-08 | Health, Actions and the 20-pillar score from quick answers | **Not done** | The quick screen asks one savings total, so `liquid_assets` (emergency cushion) stays unknown; the 20-pillar pages fill in as before |
+
+## Money Map: the interview as a game (2026-11-18) - approved plan, phases 1 and 2
+Evidence: backend `pytest` 449 passed (`tests/integration/test_journey.py` 5 new; migration 0011 passes the up/down/drift test); frontend 95 passed (`features/journey` 9 new); ruff/mypy/import-linter/tsc/lint clean; walked through in the in-app browser with a throwaway account: Snapshot by chip taps only -> 674/900 at 69% measured after 7 answers, an instant fact after every answer, +60 points and the "First score" badge, "Not sure" and "Keep it" on assumptions.
+PO decisions (2026-11-18): the journey replaces the one-screen quick score (`/app/start` now redirects); clarity points and badges approved (resolves D-B19 for this scope) on condition that they never change any score and there are no leaderboards; streak is weekly and pauses instead of resetting; instant facts are age-band comparisons only.
+| ID | Item | Status | Evidence / remarks |
+|---|---|---|---|
+| J-01 | Six chapters of cards (`domains/journey/chapters.py`) built on the field catalogue | Completed | Snapshot, Family & protection, Future you, Safety net, Tax smart, Fine-tune. Cards that do not apply are skipped (loans only with EMIs, children's savings only with children, term plan only with life cover); chapters after Snapshot unlock once the score has appeared |
+| J-02 | `GET /journey`, `POST /journey/answer`, `POST /journey/keep` | Completed | Answers are USER_STATED (`source_ref=journey`); the savings card stores the same estimated equity/debt split as the quick score; age sets the same labelled planning assumptions; derivations run after each answer |
+| J-03 | Instant facts | Completed | One sentence per answer from the score engine ("Cash flow: 7/10 for your age group (51-60%)"), never the LLM, never product advice; safety net shows months of spending covered |
+| J-04 | Score measured meter, chapter-complete screen with an audited score and the change since the last chapter | Completed | Between answers the meter uses an unaudited preview (no score shown); a score is only shown from an audited calculation |
+| J-05 | Clarity points, badges, active weeks (`user_progress`, migration 0011) | Completed (point values PLACEHOLDER) | +10 first answer, +5 assumption replaced or kept, +50 chapter, +10 weekly check-in; nothing for re-stating a known value. Badges: First score, Protected, Tax smart, Fine-tuned, Full picture, Four active weeks. Tested: points never change the score (same digest) |
+| J-06 | Weekly check-in | Completed | Offered in a week with no activity yet, once per week; a missed week pauses the count |
+| J-07 | Off switch | Completed | Settings > Points and badges; answers keep working and facts stay; progress is in the data export (`money_map`, format 3) and erased with the account |
+| J-08 | Home and score page entry ("Start my Money Map" / "Continue your Money Map"), nav entry | Completed | Replaces the quick-score card and the one-question "improve" card (the `GET /score/matrix/improve` API stays) |
+| J-09 | Reminders outside the app for the weekly check-in | **Not started - approval gate** | Channel, consent purpose and cost (M5-07) |

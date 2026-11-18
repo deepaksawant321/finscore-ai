@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from fastapi.security import HTTPAuthorizationCredentials
 
 from app.api.deps import SessionDep, SettingsDep, bearer
@@ -9,14 +9,22 @@ from app.domains.organizations import plans as P
 from app.domains.organizations.models import ApiKey, Organization
 from app.domains.organizations.partner import authenticate, score_facts
 from app.domains.organizations.service import OrgService
+from app.infra.ratelimit import enforce
 
 router = APIRouter(prefix="/partner", tags=["partner"])
 
 
 async def partner_key(
-    creds: Annotated[HTTPAuthorizationCredentials | None, Depends(bearer)], session: SessionDep
+    request: Request,
+    creds: Annotated[HTTPAuthorizationCredentials | None, Depends(bearer)],
+    session: SessionDep,
+    settings: SettingsDep,
 ) -> tuple[ApiKey, Organization]:
-    return await authenticate(session, creds.credentials if creds else None)
+    ip = request.client.host if request.client else "unknown"
+    enforce(request, f"partner-ip:{ip}", settings.partner_rate_per_ip_per_minute, 60)  # before auth: slows key guessing
+    key, org = await authenticate(session, creds.credentials if creds else None)
+    enforce(request, f"partner-key:{key.id}", settings.partner_rate_per_key_per_minute, 60)  # per key, on every plan
+    return key, org
 
 
 PartnerDep = Annotated[tuple[ApiKey, Organization], Depends(partner_key)]

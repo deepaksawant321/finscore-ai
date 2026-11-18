@@ -65,9 +65,10 @@ async def test_partial_profile_scores_the_known_factors_and_explains_every_one(c
         assert f["reason"]
         if f["status"] == "missing":
             assert f["missing_inputs"] and f["points"] is None  # never scored as zero
-    assert (
-        "life_cover_amount" in s["missing_inputs"] and "loans_outstanding" in s["missing_inputs"]
-    )  # catalogue keys, ready to ask
+    assert "life_cover_amount" in s["missing_inputs"]  # catalogue keys, ready to ask
+    # no EMIs means no loans outstanding: worked out, never asked, and shown as such
+    assert "loans_outstanding" not in s["missing_inputs"]
+    assert any("Total loans outstanding" in a and "no loan EMIs" in a for a in s["assumptions"])
     assert "life_cover" not in s["missing_inputs"] and "total_emi" not in s["missing_inputs"]
     assert any("Risk profile" in a for a in s["assumptions"]) and any("Planning age" in a for a in s["assumptions"])
     assert not any("Retirement age" in a for a in s["assumptions"])  # the user stated it
@@ -165,7 +166,8 @@ async def test_complete_profile_scores_all_fifteen_factors_with_full_confidence(
     assert s["confidence"] == "1.0000" and s["early_estimate"] is False and s["missing_inputs"] == []
     assert s["overall"] == "765.90" and s["message"] == "Need to maintain the same."
     assert s["official"] is False and "NOT AN OFFICIAL" in s["watermark"]  # a full profile is still a draft rule set
-    assert s["assumptions"] == ["Your liquid savings are counted together with your debt investments"]
+    assert "Your liquid savings are counted together with your debt investments" in s["assumptions"]
+    assert not any("assumed" in a for a in s["assumptions"])  # everything else was stated or follows from what was stated
     f05 = next(f for f in s["factors"] if f["id"] == "F05")
     assert f05["value"] == "60.0000"  # equity 15 lakh / (15 + debt 7 + liquid savings 3) lakh = 60%
     f03 = next(f for f in s["factors"] if f["id"] == "F03")

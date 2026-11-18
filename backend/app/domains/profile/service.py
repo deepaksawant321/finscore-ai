@@ -68,6 +68,19 @@ class ProfileService:
         q = select(Fact).where(Fact.user_id == user_id, Fact.field_key == key, Fact.valid_to.is_(None))
         return (await self.s.execute(q)).scalars().first()
 
+    async def retract_fact(self, user_id: uuid.UUID, fact_id: uuid.UUID, request_id: str | None = None) -> bool:
+        """Undo of an auto-saved fact: closes it so the field is unknown again (the row stays in history). Only the
+        still-current version can be retracted; returns False if the fact has since been replaced or removed."""
+        fact = await self.s.get(Fact, fact_id)
+        if fact is None or fact.user_id != user_id or fact.valid_to is not None:
+            return False
+        fact.valid_to = _now()
+        await self.s.flush()
+        await audit(self.s, action="fact.retracted", entity_type="fact", entity_id=str(fact.id), actor_user_id=user_id,
+                    request_id=request_id, meta={"field": fact.field_key})  # fmt: skip
+        bus.publish(self.s, user_id, bus.FACT_CHANGED, {"field_key": fact.field_key})
+        return True
+
     async def current_facts(self, user_id: uuid.UUID) -> list[Fact]:
         q = select(Fact).where(Fact.user_id == user_id, Fact.valid_to.is_(None)).order_by(Fact.field_key)
         return list((await self.s.execute(q)).scalars().all())
@@ -93,7 +106,12 @@ class ProfileService:
         except InvalidFact as e:
             raise AppError(422, "invalid_fact", "Invalid value", str(e)) from e
         current = await self.current_fact(user_id, key)
-        if current is not None and current.value == value:
+        if current is not None and current.value == value and SOURCE_RANK[source_type] <= SOURCE_RANK[current.source_type]:
+            if source_type == "USER_STATED" and confidence > current.confidence and current.source_type == "USER_STATED":
+                # The user re-states or confirms a value that was auto-saved from the conversation: same value, now confirmed.
+                current.confidence = confidence
+                await audit(self.s, action="fact.confirmed", entity_type="fact", entity_id=str(current.id),
+                            actor_user_id=user_id, ip=actor_ip, request_id=request_id, meta={"field": key})  # fmt: skip
             return RecordResult(current, False, None, False)
         if current is not None and not user_correction and SOURCE_RANK[source_type] < SOURCE_RANK[current.source_type]:
             raise AppError(409, "source_precedence", "A lower-trust source cannot replace a stated fact",

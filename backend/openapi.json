@@ -172,6 +172,125 @@
         "title": "ActivityOut",
         "type": "object"
       },
+      "AnswerIn": {
+        "properties": {
+          "card": {
+            "maxLength": 40,
+            "title": "Card",
+            "type": "string"
+          },
+          "mix": {
+            "anyOf": [
+              {
+                "enum": [
+                  "mostly_safe",
+                  "balanced",
+                  "mostly_equity"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mix"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "maxLength": 40,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          }
+        },
+        "required": [
+          "card"
+        ],
+        "title": "AnswerIn",
+        "type": "object"
+      },
+      "AnswerOut": {
+        "properties": {
+          "chapter": {
+            "title": "Chapter",
+            "type": "string"
+          },
+          "chapter_complete": {
+            "title": "Chapter Complete",
+            "type": "boolean"
+          },
+          "insight": {
+            "title": "Insight",
+            "type": "string"
+          },
+          "measured_after": {
+            "title": "Measured After",
+            "type": "string"
+          },
+          "measured_before": {
+            "title": "Measured Before",
+            "type": "string"
+          },
+          "new_badges": {
+            "items": {
+              "$ref": "#/components/schemas/BadgeOut"
+            },
+            "title": "New Badges",
+            "type": "array"
+          },
+          "next": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CardOut"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The next card in the same chapter, if any"
+          },
+          "points_awarded": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Points Awarded"
+          },
+          "score": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MatrixScoreOut"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Set when this answer completed a chapter"
+          }
+        },
+        "required": [
+          "insight",
+          "measured_before",
+          "measured_after",
+          "chapter",
+          "chapter_complete",
+          "score",
+          "points_awarded",
+          "new_badges",
+          "next"
+        ],
+        "title": "AnswerOut",
+        "type": "object"
+      },
       "ApiKeyOut": {
         "properties": {
           "created_at": {
@@ -240,6 +359,35 @@
           "last_used_at"
         ],
         "title": "ApiKeyOut",
+        "type": "object"
+      },
+      "BadgeOut": {
+        "properties": {
+          "at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "At"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "label"
+        ],
+        "title": "BadgeOut",
         "type": "object"
       },
       "BillingOut": {
@@ -363,6 +511,170 @@
         "title": "BrandingIn",
         "type": "object"
       },
+      "CardOut": {
+        "properties": {
+          "assumed_value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Set when the current value is an assumption the user can keep or change",
+            "title": "Assumed Value"
+          },
+          "chapter": {
+            "title": "Chapter",
+            "type": "string"
+          },
+          "chips": {
+            "items": {
+              "$ref": "#/components/schemas/Chip"
+            },
+            "title": "Chips",
+            "type": "array"
+          },
+          "choices": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Choices",
+            "type": "array"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "money",
+              "int",
+              "bool",
+              "choice",
+              "savings_mix"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "mixes": {
+            "description": "For kind=savings_mix: how the savings are mostly invested",
+            "items": {
+              "$ref": "#/components/schemas/Option"
+            },
+            "title": "Mixes",
+            "type": "array"
+          },
+          "per_month": {
+            "description": "The amount is per month (stored per year)",
+            "title": "Per Month",
+            "type": "boolean"
+          },
+          "prompt": {
+            "title": "Prompt",
+            "type": "string"
+          },
+          "unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit"
+          },
+          "unsure_ok": {
+            "title": "Unsure Ok",
+            "type": "boolean"
+          },
+          "why": {
+            "title": "Why",
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "chapter",
+          "prompt",
+          "why",
+          "kind",
+          "unit",
+          "chips",
+          "choices",
+          "mixes",
+          "per_month",
+          "assumed_value",
+          "unsure_ok"
+        ],
+        "title": "CardOut",
+        "type": "object"
+      },
+      "ChapterOut": {
+        "properties": {
+          "blurb": {
+            "title": "Blurb",
+            "type": "string"
+          },
+          "complete": {
+            "title": "Complete",
+            "type": "boolean"
+          },
+          "done": {
+            "title": "Done",
+            "type": "integer"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          },
+          "unlocked": {
+            "title": "Unlocked",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "key",
+          "title",
+          "blurb",
+          "done",
+          "total",
+          "complete",
+          "unlocked"
+        ],
+        "title": "ChapterOut",
+        "type": "object"
+      },
+      "CheckinOut": {
+        "properties": {
+          "points_awarded": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Points Awarded"
+          }
+        },
+        "required": [
+          "points_awarded"
+        ],
+        "title": "CheckinOut",
+        "type": "object"
+      },
       "ChecklistItem": {
         "properties": {
           "done": {
@@ -379,6 +691,24 @@
           "done"
         ],
         "title": "ChecklistItem",
+        "type": "object"
+      },
+      "Chip": {
+        "properties": {
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "value": {
+            "title": "Value",
+            "type": "string"
+          }
+        },
+        "required": [
+          "label",
+          "value"
+        ],
+        "title": "Chip",
         "type": "object"
       },
       "CoachConversationOut": {
@@ -2031,6 +2361,87 @@
         "title": "HistoryItem",
         "type": "object"
       },
+      "ImproveOut": {
+        "properties": {
+          "choices": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Choices",
+            "type": "array"
+          },
+          "current_value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The assumed value, for reason=assumed",
+            "title": "Current Value"
+          },
+          "field_key": {
+            "title": "Field Key",
+            "type": "string"
+          },
+          "impact": {
+            "description": "Factor weight (out of 100) this answer would unlock or firm up",
+            "title": "Impact",
+            "type": "string"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "question": {
+            "title": "Question",
+            "type": "string"
+          },
+          "reason": {
+            "enum": [
+              "missing",
+              "assumed"
+            ],
+            "title": "Reason",
+            "type": "string"
+          },
+          "unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit"
+          },
+          "why": {
+            "title": "Why",
+            "type": "string"
+          }
+        },
+        "required": [
+          "field_key",
+          "label",
+          "question",
+          "why",
+          "kind",
+          "unit",
+          "choices",
+          "reason",
+          "current_value",
+          "impact"
+        ],
+        "title": "ImproveOut",
+        "type": "object"
+      },
       "Invest": {
         "properties": {
           "inflation_pct": {
@@ -2234,6 +2645,75 @@
           "paid_at"
         ],
         "title": "InvoiceOut",
+        "type": "object"
+      },
+      "JourneyOut": {
+        "properties": {
+          "chapters": {
+            "items": {
+              "$ref": "#/components/schemas/ChapterOut"
+            },
+            "title": "Chapters",
+            "type": "array"
+          },
+          "checkin_due": {
+            "title": "Checkin Due",
+            "type": "boolean"
+          },
+          "measured": {
+            "description": "Share of the score that can be measured from the answers so far (0-1)",
+            "title": "Measured",
+            "type": "string"
+          },
+          "next": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CardOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "progress": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ProgressOut"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Omitted when the user switched rewards off"
+          },
+          "rewards_enabled": {
+            "title": "Rewards Enabled",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "chapters",
+          "measured",
+          "next",
+          "rewards_enabled",
+          "progress",
+          "checkin_due"
+        ],
+        "title": "JourneyOut",
+        "type": "object"
+      },
+      "KeepIn": {
+        "properties": {
+          "card": {
+            "maxLength": 40,
+            "title": "Card",
+            "type": "string"
+          }
+        },
+        "required": [
+          "card"
+        ],
+        "title": "KeepIn",
         "type": "object"
       },
       "LoginIn": {
@@ -2721,6 +3201,24 @@
           "created_at"
         ],
         "title": "NudgeOut",
+        "type": "object"
+      },
+      "Option": {
+        "properties": {
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "label"
+        ],
+        "title": "Option",
         "type": "object"
       },
       "OrgCreateIn": {
@@ -3437,6 +3935,37 @@
         "title": "PriorityOut",
         "type": "object"
       },
+      "ProgressOut": {
+        "properties": {
+          "active_this_week": {
+            "title": "Active This Week",
+            "type": "boolean"
+          },
+          "active_weeks": {
+            "title": "Active Weeks",
+            "type": "integer"
+          },
+          "badges": {
+            "items": {
+              "$ref": "#/components/schemas/BadgeOut"
+            },
+            "title": "Badges",
+            "type": "array"
+          },
+          "points": {
+            "title": "Points",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "points",
+          "badges",
+          "active_weeks",
+          "active_this_week"
+        ],
+        "title": "ProgressOut",
+        "type": "object"
+      },
       "ProposalOut": {
         "properties": {
           "confidence": {
@@ -3493,6 +4022,192 @@
           "status"
         ],
         "title": "ProposalOut",
+        "type": "object"
+      },
+      "QuickScoreIn": {
+        "properties": {
+          "age": {
+            "maximum": 100.0,
+            "minimum": 18.0,
+            "title": "Age",
+            "type": "integer"
+          },
+          "dependants": {
+            "maximum": 20.0,
+            "minimum": 0.0,
+            "title": "Dependants",
+            "type": "integer"
+          },
+          "health_cover": {
+            "anyOf": [
+              {
+                "maximum": 100000000000.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Health Cover"
+          },
+          "kids": {
+            "maximum": 15.0,
+            "minimum": 0.0,
+            "title": "Kids",
+            "type": "integer"
+          },
+          "kids_goal_planned": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kids Goal Planned"
+          },
+          "life_cover": {
+            "anyOf": [
+              {
+                "maximum": 100000000000.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Life Cover"
+          },
+          "loans_outstanding": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Asked only when monthly_emi > 0",
+            "title": "Loans Outstanding"
+          },
+          "mix": {
+            "enum": [
+              "mostly_safe",
+              "balanced",
+              "mostly_equity"
+            ],
+            "title": "Mix",
+            "type": "string"
+          },
+          "monthly_emi": {
+            "anyOf": [
+              {
+                "maximum": 100000000000.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Monthly Emi"
+          },
+          "monthly_expenses": {
+            "anyOf": [
+              {
+                "maximum": 100000000000.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Monthly Expenses"
+          },
+          "monthly_income": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "maximum": 10000000000.0,
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "description": "Household income per month, before tax",
+            "title": "Monthly Income"
+          },
+          "monthly_investment": {
+            "anyOf": [
+              {
+                "maximum": 100000000000.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Monthly Investment"
+          },
+          "other_assets": {
+            "anyOf": [
+              {
+                "maximum": 100000000000.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Other Assets"
+          },
+          "pending_goals": {
+            "maximum": 20.0,
+            "minimum": 0.0,
+            "title": "Pending Goals",
+            "type": "integer"
+          },
+          "savings_total": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "description": "Savings and investments, not the home",
+            "title": "Savings Total"
+          }
+        },
+        "required": [
+          "age",
+          "monthly_income",
+          "monthly_expenses",
+          "monthly_emi",
+          "monthly_investment",
+          "savings_total",
+          "mix",
+          "other_assets",
+          "dependants",
+          "kids",
+          "health_cover",
+          "life_cover",
+          "pending_goals"
+        ],
+        "title": "QuickScoreIn",
         "type": "object"
       },
       "ReactIn": {
@@ -3902,6 +4617,19 @@
           "current"
         ],
         "title": "SessionOut",
+        "type": "object"
+      },
+      "SettingsIn": {
+        "properties": {
+          "rewards_enabled": {
+            "title": "Rewards Enabled",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "rewards_enabled"
+        ],
+        "title": "SettingsIn",
         "type": "object"
       },
       "SimulationOut": {
@@ -6380,6 +7108,282 @@
         ]
       }
     },
+    "/api/v1/journey": {
+      "get": {
+        "operationId": "overview_api_v1_journey_get",
+        "parameters": [
+          {
+            "description": "Comma-separated cards the user put off for now",
+            "in": "query",
+            "name": "skipped",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 500,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Comma-separated cards the user put off for now",
+              "title": "Skipped"
+            }
+          },
+          {
+            "in": "query",
+            "name": "chapter",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 20,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Chapter"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JourneyOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Overview",
+        "tags": [
+          "journey"
+        ]
+      }
+    },
+    "/api/v1/journey/answer": {
+      "post": {
+        "operationId": "answer_api_v1_journey_answer_post",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "skipped",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 500,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Skipped"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnswerIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnswerOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Answer",
+        "tags": [
+          "journey"
+        ]
+      }
+    },
+    "/api/v1/journey/checkin": {
+      "post": {
+        "operationId": "checkin_api_v1_journey_checkin_post",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckinOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Checkin",
+        "tags": [
+          "journey"
+        ]
+      }
+    },
+    "/api/v1/journey/keep": {
+      "post": {
+        "operationId": "keep_api_v1_journey_keep_post",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "skipped",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 500,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Skipped"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KeepIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnswerOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Keep",
+        "tags": [
+          "journey"
+        ]
+      }
+    },
+    "/api/v1/journey/settings": {
+      "put": {
+        "operationId": "settings_api_v1_journey_settings_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SettingsIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JourneyOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Settings",
+        "tags": [
+          "journey"
+        ]
+      }
+    },
     "/api/v1/memory/facts": {
       "get": {
         "operationId": "list_facts_api_v1_memory_facts_get",
@@ -7993,6 +8997,53 @@
         ]
       }
     },
+    "/api/v1/quick-score": {
+      "post": {
+        "description": "Saves the answers (labelled stated / derived / assumed) and returns the workbook FinScore in one call.",
+        "operationId": "quick_score_api_v1_quick_score_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QuickScoreIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MatrixScoreOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Quick Score",
+        "tags": [
+          "quick"
+        ]
+      }
+    },
     "/api/v1/rulebook/status": {
       "get": {
         "operationId": "rulebook_status_api_v1_rulebook_status_get",
@@ -8206,6 +9257,36 @@
         "summary": "Compute Matrix Score Ep",
         "tags": [
           "intelligence"
+        ]
+      }
+    },
+    "/api/v1/score/matrix/improve": {
+      "get": {
+        "operationId": "improve_api_v1_score_matrix_improve_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ImproveOut"
+                  },
+                  "title": "Response Improve Api V1 Score Matrix Improve Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Improve",
+        "tags": [
+          "quick"
         ]
       }
     },

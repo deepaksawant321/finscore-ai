@@ -20,6 +20,9 @@ function showValue(value: string, unit?: string | null): string {
   return value;
 }
 
+/** Auto-saved from the conversation and not yet confirmed: confirmed or corrected facts carry confidence 1. */
+const fromChatUnconfirmed = (f: { source_ref?: string | null; confidence: string }) => Boolean(f.source_ref?.startsWith("message:")) && Number(f.confidence) < 1;
+
 export default function MemoryPage() {
   const qc = useQueryClient();
   const [editing, setEditing] = useState<string | null>(null);
@@ -42,7 +45,8 @@ export default function MemoryPage() {
     onSuccess: async (r) => {
       setEditing(null);
       void qc.invalidateQueries({ queryKey: ["facts"] });
-      if (!r.changed) return setMsg({ tone: "success", text: "No change." });
+      void qc.invalidateQueries({ queryKey: ["improve"] });
+      if (!r.changed) return setMsg({ tone: "success", text: "Saved." });
       if (!r.material_change) return setMsg({ tone: "success", text: "Updated." });
       // A big change: the stored score is stale until it is computed again, so do it now rather than only promising it.
       const { error } = await api.POST("/api/v1/score/compute");
@@ -62,7 +66,7 @@ export default function MemoryPage() {
       <p className="text-sm text-muted">Every fact has a source. You own this information: correct anything that is wrong. Old values are kept in history, never silently overwritten.</p>
       {msg && <Alert tone={msg.tone}>{msg.text}</Alert>}
       {facts.isLoading && <p className="text-muted">Loading…</p>}
-      {facts.data?.length === 0 && <Card className="text-muted">Nothing yet. Facts appear here after you confirm them in the conversation.</Card>}
+      {facts.data?.length === 0 && <Card className="text-muted">Nothing yet. Facts appear here as you answer questions in the conversation.</Card>}
       <ul className="space-y-3">
         {facts.data?.map((f) => (
           <li key={f.id}>
@@ -81,6 +85,9 @@ export default function MemoryPage() {
                 <div className="mt-1 flex flex-wrap gap-2">
                   <SourceBadge source={sourceFromApi(f.source_type)} />
                   <Badge>{f.verification_state === "verified" ? "Verified" : "Not verified"}</Badge>
+                  {fromChatUnconfirmed(f) && <Badge tone="demo">Saved from chat · not confirmed</Badge>}
+                  {f.source_type === "ESTIMATED" && <Badge tone="demo">Assumed · change it if it is wrong</Badge>}
+                  {f.source_type === "DERIVED" && <span className="text-xs text-muted">Worked out from your other answers</span>}
                   <span className="text-xs text-muted">since {new Date(f.valid_from).toLocaleDateString("en-IN")}</span>
                 </div>
               </div>
@@ -94,15 +101,22 @@ export default function MemoryPage() {
                   </Button>
                 </div>
               ) : (
-                <Button
-                  variant="secondary"
-                  onClick={() => {
-                    setEditing(f.field_key);
-                    setVal(f.value);
-                  }}
-                >
-                  Correct
-                </Button>
+                <div className="flex gap-2">
+                  {(fromChatUnconfirmed(f) || f.source_type === "ESTIMATED") && (
+                    <Button onClick={() => save.mutate({ key: f.field_key, value: f.value })} loading={save.isPending}>
+                      {f.source_type === "ESTIMATED" ? "That's right" : "Confirm"}
+                    </Button>
+                  )}
+                  <Button
+                    variant="secondary"
+                    onClick={() => {
+                      setEditing(f.field_key);
+                      setVal(f.value);
+                    }}
+                  >
+                    Correct
+                  </Button>
+                </div>
               )}
             </Card>
           </li>

@@ -31,6 +31,15 @@ class InMemoryRateLimiter:
 limiter = InMemoryRateLimiter()
 
 
+def enforce(request: Request, key: str, limit: int, window_seconds: int) -> None:
+    """Applies a limit to any caller-chosen key (e.g. an API key id) rather than the client address."""
+    if not request.app.state.settings.rate_limit_enabled:
+        return
+    retry = limiter.check(key, limit, window_seconds)
+    if retry is not None:
+        raise AppError(429, "rate_limited", "Too many requests", "Please retry later.", headers={"Retry-After": str(retry)})
+
+
 def rate_limit(name: str, limit: int, window_seconds: int) -> Callable[[Request], Coroutine[Any, Any, None]]:
     async def dep(request: Request) -> None:
         if not request.app.state.settings.rate_limit_enabled:

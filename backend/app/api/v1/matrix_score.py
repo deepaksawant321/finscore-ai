@@ -11,7 +11,7 @@ from pydantic import BaseModel, Field
 
 from app.api.deps import ClientDep, PrincipalDep, SessionDep, SettingsDep
 from app.domains.scoring.matrix_adapter import catalogue_key
-from app.domains.scoring.matrix_service import MATRIX_ENGINE_VERSION, MatrixScoringService
+from app.domains.scoring.matrix_service import MATRIX_ENGINE_VERSION, MatrixScoreRun, MatrixScoringService
 from app.engines.matrix_score import FactorResult
 from app.infra.ratelimit import rate_limit
 from app.rulebook.loader import load_rulebook
@@ -69,7 +69,10 @@ def _factor(f: FactorResult) -> MatrixFactorOut:
 
 @router.post("/score/matrix/compute", response_model=MatrixScoreOut, dependencies=[Depends(rate_limit("score", 30, 60))])
 async def compute_matrix_score_ep(p: PrincipalDep, session: SessionDep, cfg: SettingsDep, client: ClientDep) -> MatrixScoreOut:
-    run = await MatrixScoringService(session, cfg).compute(p.user_id, client.request_id)
+    return matrix_out(await MatrixScoringService(session, cfg).compute(p.user_id, client.request_id))
+
+
+def matrix_out(run: MatrixScoreRun) -> MatrixScoreOut:
     r = run.result
     assert r.overall is not None  # the service raises 422 when nothing could be scored
     early = r.confidence < load_rulebook().min_confidence_for_stage()  # same placeholder threshold as the 20-pillar score
