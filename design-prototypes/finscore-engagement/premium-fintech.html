@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en-IN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Finscore Premium Fintech Direction - Prototype</title>
+<link rel="stylesheet" href="assets/shared.css">
+<link rel="stylesheet" href="assets/games.css">
+<link rel="stylesheet" href="assets/premium.css">
+</head>
+<body data-dir="premium" data-lock="premium">
+<div id="fs-header"></div>
+<main class="wrap" id="main">
+  <div class="page-head row between wrapx">
+    <div><p class="eyebrow">Direction 1 · Premium Fintech &nbsp;<span class="badge new">Proposed</span></p><h1>Good morning, Aarav</h1><p>Your Financial Fitness plan for this week. Calm, clear and in your control.</p></div>
+    <div class="row"><span class="badge ai">Concept A · B · F · K · I</span></div>
+  </div>
+
+  <div class="grid g4" style="margin-bottom:16px">
+    <div class="card reveal"><div class="stat"><b data-count="648">0</b><span>Finscore · Accumulation</span></div><span class="badge" style="margin-top:8px">▲ +12 this month</span></div>
+    <div class="card reveal"><div class="stat"><b><span data-count="6">0</span> wk</b><span>Active cadence</span></div><span class="badge gold" style="margin-top:8px">Pauses, never resets</span></div>
+    <div class="card reveal"><div class="stat"><b data-fs-points>0</b><span>Clarity points</span></div><span class="badge ai" style="margin-top:8px" data-fs-level>Lv</span></div>
+    <div class="card reveal"><div class="stat"><b><span id="wkDone">1</span>/3</b><span>Weekly goals met</span></div><div class="bar" style="margin-top:12px"><i id="wkBar" data-w="33"></i></div></div>
+  </div>
+
+  <div class="split">
+    <div class="stack">
+      <!-- A. Fitness challenge -->
+      <div class="card reveal">
+        <div class="row between wrapx"><div><p class="eyebrow">Concept A</p><h2>Today's fitness challenges</h2></div>
+          <div class="dots" id="weekDots" aria-label="This week's activity"></div></div>
+        <p class="small muted" style="margin:6px 0 14px">Three small actions, about five minutes in total. Complete them to build your weekly streak.</p>
+        <div class="stack" id="challenges"></div>
+        <details class="why"><summary>Engagement design</summary><ul><li><b>Why open:</b> a short, finite checklist tied to real money habits.</li><li><b>Why return:</b> weekly cadence, completion progress and fresh challenges daily.</li><li><b>Discovery:</b> each challenge opens a different Finscore tool.</li><li><b>Premium hook:</b> personalised weekly plans and history.</li></ul></details>
+      </div>
+
+      <!-- B. Score trend -->
+      <div class="card reveal">
+        <div class="row between wrapx"><div><p class="eyebrow">Concept B</p><h2>Score journey</h2></div>
+          <div class="tabs" role="group" aria-label="Range" id="rangeTabs"><button data-r="6" aria-selected="false">6 mo</button><button data-r="11" aria-selected="true">11 mo</button></div></div>
+        <svg id="trend" viewBox="0 0 560 220" style="width:100%;margin-top:10px" role="img" aria-label="Score trend with stage milestones"></svg>
+        <p class="small muted" id="trendNote"></p>
+      </div>
+
+      <div class="grid g2">
+        <!-- F goals -->
+        <div class="card reveal"><p class="eyebrow">Concept F</p><h3>Goals in motion</h3><div class="stack" id="goals" style="margin-top:12px"></div><a class="btn ghost sm" style="margin-top:12px" href="financial-journey.html#savings">Open Savings Adventure →</a></div>
+        <!-- K independence -->
+        <div class="card reveal"><p class="eyebrow">Concept K</p><h3>Independence ladder</h3><ol class="ladder" id="ladder"></ol><a class="btn ghost sm" style="margin-top:12px" href="financial-journey.html#independence">Plan next step →</a></div>
+      </div>
+    </div>
+
+    <div class="stack">
+      <div class="card hero reveal">
+        <p class="eyebrow">Financial health check-up</p><h3 style="margin:4px 0 8px">Last run: 9 days ago</h3>
+        <p class="small muted">A one-minute review of your safety, debt, protection and growth, using dummy data.</p>
+        <button class="btn block" style="margin-top:12px;background:#fff;color:#111" id="checkup">Run check-up</button>
+      </div>
+      <div class="card reveal"><div class="row between"><h3>Check-up pillars</h3><span class="badge">Dummy</span></div><div id="pillars" class="stack" style="margin-top:12px"></div></div>
+      <div class="card reveal">
+        <p class="eyebrow">Concept I</p><h3>Recent achievements</h3>
+        <div class="row wrapx" id="recent" style="margin-top:12px"></div>
+        <a class="btn ghost sm" style="margin-top:12px" href="financial-journey.html#rewards">View collection →</a>
+      </div>
+      <div class="card reveal"><p class="eyebrow">Explore</p><h3>Try a 1-minute activity</h3>
+        <div class="stack" style="margin-top:10px"><a class="card flat tight interactive" href="financial-games.html#spin"><b>🎡 Spin &amp; Learn</b><br><span class="small muted">Today's spin is ready</span></a><a class="card flat tight interactive" href="financial-games.html#quiz"><b>🏟️ Quiz Arena</b><br><span class="small muted">Daily challenge · 5 questions</span></a><a class="card flat tight interactive" href="monthly-wrapped.html"><b>🎁 November Wrapped</b><br><span class="small muted">Your story is ready</span></a></div></div>
+    </div>
+  </div>
+</main>
+<div id="fs-footer"></div>
+<script src="assets/shared.js"></script>
+<script src="assets/premium.js"></script>
+</body>
+</html>

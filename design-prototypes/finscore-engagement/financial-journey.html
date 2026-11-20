@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en-IN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Finscore Journey & Achievements - Prototype</title>
+<link rel="stylesheet" href="assets/shared.css">
+<link rel="stylesheet" href="assets/games.css">
+<link rel="stylesheet" href="assets/journey.css">
+</head>
+<body data-dir="premium">
+<div id="fs-header"></div>
+<main class="wrap" id="main">
+  <div class="page-head">
+    <p class="eyebrow">Concepts B · F · I · K &nbsp;<span class="badge new">Proposed</span> <span class="badge">Builds on existing Score, Goals &amp; Money Map</span></p>
+    <h1>Your financial journey, made visible</h1>
+    <p>See where you started, where you are and what could move you forward. All numbers are dummy data for "Aarav, 31". Estimates are illustrative, not an official Finscore calculation.</p>
+  </div>
+
+  <div class="tabs" role="tablist" aria-label="Journey sections">
+    <button role="tab" data-tab="score">🧭 Score Journey</button>
+    <button role="tab" data-tab="savings">🎯 Savings Adventure</button>
+    <button role="tab" data-tab="independence">🏝️ Independence</button>
+    <button role="tab" data-tab="rewards">🏅 Achievements</button>
+  </div>
+
+  <div id="panels" style="margin-top:18px">
+  <!-- B. SCORE JOURNEY -->
+  <section class="panel" id="panel-score" role="tabpanel" hidden>
+    <div class="split">
+      <div class="stack">
+        <div class="card">
+          <div class="row between wrapx"><div><p class="eyebrow">Finscore · dummy</p><h2>Stage: <span id="stageName">Accumulation</span></h2></div><span class="badge ai" id="stageNum">Stage 5 of 8</span></div>
+          <div class="gauge-row">
+            <div class="gauge"><svg viewBox="0 0 260 230" id="gauge" role="img" aria-label="Score gauge"></svg><div class="gauge-c"><b id="gScore" class="display">648</b><span class="small muted">out of 900</span><span class="badge" id="gDelta"></span></div></div>
+            <div class="stack grow">
+              <div><label for="month" class="small"><b>Travel back in time:</b> <span id="monthLbl">Nov</span></label><input id="month" type="range" min="0" max="10" value="10" style="width:100%;min-height:32px"></div>
+              <svg id="hist" viewBox="0 0 320 90" style="width:100%" role="img" aria-label="Score history January to November"></svg>
+              <div class="grid g2 keep2"><div class="card flat tight stat"><b id="baScore1">612</b><span>Jan (before)</span></div><div class="card flat tight stat"><b id="baScore2">648</b><span>Now (after)</span></div></div>
+            </div>
+          </div>
+          <div class="notice" style="margin-top:12px">Stage bands here are <b>illustrative</b> (75-point steps). The real stage comes from the approved rulebook.</div>
+        </div>
+        <div class="card">
+          <h3>The eight stages</h3><p class="small muted">Tap a stage to learn what it means.</p>
+          <ol class="stages" id="stages"></ol>
+        </div>
+      </div>
+      <div class="stack">
+        <div class="card hero">
+          <p class="eyebrow">Next milestone</p><h3 style="margin:4px 0 8px" id="nextMs">Independence at 675</h3>
+          <div class="bar" style="background:rgb(255 255 255/.25)"><i id="msBar" style="background:#fff"></i></div><p class="small" style="margin-top:8px" id="msTxt"></p>
+        </div>
+        <div class="card"><h3>What could move your score?</h3><p class="small muted">Pick actions to preview a possible effect. Estimates only, never a promise.</p>
+          <div class="stack" id="actions" style="margin-top:12px"></div>
+          <div class="row between" style="margin-top:14px"><span class="small muted">Projected</span><b class="display" id="proj" style="font-size:24px">648</b></div>
+        </div>
+        <details class="why"><summary>Engagement design</summary><ul>
+          <li><b>Why open:</b> a visual story of progress, not just a number.</li>
+          <li><b>Why return:</b> a visible next milestone and a short action list.</li>
+          <li><b>Discovery:</b> each action links to a real tool (Coach, Goals, Health).</li>
+          <li><b>Guardrail:</b> points and badges never change the score.</li></ul></details>
+      </div>
+    </div>
+  </section>
+
+  <!-- F. SAVINGS ADVENTURE -->
+  <section class="panel" id="panel-savings" role="tabpanel" hidden>
+    <div class="notice"><span class="sim-tag">Simulated</span> &nbsp;Buttons here only move the picture. No money is moved, saved or linked to any account.</div>
+    <div class="split" style="margin-top:16px">
+      <div class="card">
+        <div class="row between wrapx"><div><p class="eyebrow">Savings Goal Adventure</p><h2 id="gName">Emergency fund</h2></div>
+          <div class="tabs" role="group" aria-label="Choose goal" id="goalPick"></div></div>
+        <svg id="trail" viewBox="0 0 460 210" role="img" aria-label="Trail map of savings progress" style="width:100%;margin-top:12px"></svg>
+        <div class="row between wrapx"><div class="stat"><b id="gSaved">₹0</b><span>saved of <span id="gTarget"></span></span></div><div class="ring" id="gRing" data-p="0" style="--size:84px"><div><b id="gPct">0%</b></div></div></div>
+        <div class="row wrapx" style="margin-top:12px"><button class="btn sm" data-add="1000">+ ₹1,000</button><button class="btn sm" data-add="5000">+ ₹5,000</button><button class="btn sm" data-add="10000">+ ₹10,000</button><button class="btn ghost sm" id="gReset">Reset</button></div>
+      </div>
+      <div class="stack">
+        <div class="card"><h3>Goal challenges</h3><p class="small muted">Small habits that help this goal.</p><div class="stack" id="chal" style="margin-top:12px"></div></div>
+        <div class="card"><h3>Milestones</h3><ul class="history" id="msList"></ul></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- K. INDEPENDENCE -->
+  <section class="panel" id="panel-independence" role="tabpanel" hidden>
+    <div class="notice"><span class="sim-tag">Illustrative</span> &nbsp;Projections use the assumptions shown, in ranges. Real returns vary and are not guaranteed. Educational, not advice.</div>
+    <div class="grid g3" style="margin-top:16px">
+      <div class="card"><p class="eyebrow">1 · Safety</p><h3>Emergency fund</h3><div class="row" style="margin-top:12px"><div class="ring" data-p="48" style="--size:80px"><div><b>2.9</b><small>of 6 mo</small></div></div><p class="small muted">₹1,74,000 saved. Next step: reach 3 months (₹1,80,000).</p></div></div>
+      <div class="card"><p class="eyebrow">2 · Debt</p><h3>Personal loan</h3><p class="small muted" style="margin-top:8px">₹3,00,000 at 14% for 36 months (dummy).</p>
+        <label class="small" for="extra"><b>Extra / month:</b> <output id="extraO">₹0</output></label><input id="extra" type="range" min="0" max="10000" step="500" value="0" style="width:100%;min-height:32px">
+        <p class="small" id="debtOut" aria-live="polite"></p></div>
+      <div class="card"><p class="eyebrow">3 · Growth</p><h3>Retirement readiness</h3><div class="row" style="margin-top:12px"><div class="ring" id="retRing" data-p="0" style="--size:80px"><div><b id="retPct">0%</b></div></div><p class="small muted" id="retTxt"></p></div></div>
+    </div>
+    <div class="split" style="margin-top:16px">
+      <div class="card"><h3>Retirement planner</h3><div class="grid g2" style="margin-top:8px">
+        <div><label class="small" for="sip"><b>Monthly SIP:</b> <output id="sipO"></output></label><input id="sip" type="range" min="5000" max="80000" step="1000" value="25000" style="width:100%;min-height:32px"></div>
+        <div><label class="small" for="rage"><b>Retire at:</b> <output id="rageO"></output></label><input id="rage" type="range" min="50" max="65" step="1" value="58" style="width:100%;min-height:32px"></div></div>
+        <svg id="range" viewBox="0 0 340 120" style="width:100%;margin-top:10px" role="img" aria-label="Projected corpus range"></svg>
+        <p class="xs muted">Assumes today age 31, existing savings ₹8,00,000, expenses ₹60,000 a month today, inflation 6%, needed corpus = 25× first-year expense (a rule of thumb). Low / base / high growth = 8% / 10% / 12% a year.</p></div>
+      <div class="stack">
+        <div class="card"><h3>Learn the basics</h3><div class="stack" id="learn" style="margin-top:10px"></div></div>
+        <details class="why"><summary>Engagement design</summary><ul>
+          <li><b>Why open:</b> turns a vague worry (retirement) into a concrete next step.</li>
+          <li><b>Why return:</b> milestones in a ladder: safety → debt → growth.</li>
+          <li><b>Premium hook:</b> deeper scenarios and household planning.</li>
+          <li><b>Guardrail:</b> ranges, assumptions shown, no guarantees.</li></ul></details>
+      </div>
+    </div>
+  </section>
+
+  <!-- I. ACHIEVEMENTS -->
+  <section class="panel" id="panel-rewards" role="tabpanel" hidden>
+    <div class="grid g3">
+      <div class="card hero" style="grid-column: span 2"><p class="eyebrow">Your level</p><h2 data-fs-level style="margin:4px 0 10px">Lv 4</h2><div class="bar" style="background:rgb(255 255 255/.25)"><i data-fs-level-bar style="background:#fff;width:0"></i></div><p class="small" style="margin-top:8px" data-fs-level-left></p></div>
+      <div class="card"><div class="stat"><b data-fs-points>0</b><span>clarity points</span></div><p class="xs muted" style="margin-top:6px">Virtual. Never changes your Finscore.</p></div>
+    </div>
+    <div class="row between wrapx" style="margin:18px 0 10px"><h2>Badge collection</h2><div class="tabs" role="group" aria-label="Filter badges" id="bFilter"><button data-f="all" aria-selected="true">All</button><button data-f="on" aria-selected="false">Unlocked</button><button data-f="off" aria-selected="false">To earn</button></div></div>
+    <div id="collections" class="stack-lg"></div>
+    <div class="row" style="margin-top:14px"><button class="btn ghost sm" id="rewardsReset">Prototype: reset badges &amp; points</button></div>
+  </section>
+  </div>
+</main>
+<div id="fs-footer"></div>
+<script src="assets/shared.js"></script>
+<script src="assets/journey.js"></script>
+</body>
+</html>

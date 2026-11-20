@@ -1,0 +1,911 @@
+{
+  "meta": {
+    "simulated": true,
+    "note": "Every number in this prototype is dummy data for design exploration. Scores are SIMULATED and not an official FinScore."
+  },
+  "stages": [
+    {
+      "n": 1,
+      "name": "Dependency",
+      "nick": "The Starter",
+      "lo": 300,
+      "hi": 374
+    },
+    {
+      "n": 2,
+      "name": "Survival",
+      "nick": "The Stabiliser",
+      "lo": 375,
+      "hi": 449
+    },
+    {
+      "n": 3,
+      "name": "Security",
+      "nick": "The Protector",
+      "lo": 450,
+      "hi": 524
+    },
+    {
+      "n": 4,
+      "name": "Stability",
+      "nick": "The Balancer",
+      "lo": 525,
+      "hi": 599
+    },
+    {
+      "n": 5,
+      "name": "Accumulation",
+      "nick": "The Builder",
+      "lo": 600,
+      "hi": 674
+    },
+    {
+      "n": 6,
+      "name": "Independence",
+      "nick": "The Accelerator",
+      "lo": 675,
+      "hi": 749
+    },
+    {
+      "n": 7,
+      "name": "Freedom",
+      "nick": "The Liberator",
+      "lo": 750,
+      "hi": 824
+    },
+    {
+      "n": 8,
+      "name": "Abundance",
+      "nick": "The Legacy Maker",
+      "lo": 825,
+      "hi": 900
+    }
+  ],
+  "levels": [
+    "Starter",
+    "Saver",
+    "Builder",
+    "Planner",
+    "Investor",
+    "Strategist",
+    "Master"
+  ],
+  "profiles": [
+    {
+      "id": "beginner",
+      "name": "Aarav Mehta",
+      "first": "Aarav",
+      "age": 22,
+      "tag": "Financial Beginner",
+      "blurb": "First job, building basic habits",
+      "hue": 175,
+      "income": 26000,
+      "expenses": 22400,
+      "emi": 0,
+      "score": 468,
+      "prev": 441,
+      "history": [
+        412,
+        420,
+        431,
+        436,
+        441,
+        468
+      ],
+      "dims": {
+        "savings": [
+          38,
+          33
+        ],
+        "debt": [
+          82,
+          82
+        ],
+        "invest": [
+          12,
+          8
+        ],
+        "protection": [
+          20,
+          20
+        ],
+        "goals": [
+          32,
+          26
+        ],
+        "emergency": [
+          22,
+          15
+        ]
+      },
+      "emMonths": 0.8,
+      "alloc": {
+        "equity": 0,
+        "debt": 15,
+        "gold": 0,
+        "cash": 85
+      },
+      "retireAge": 60,
+      "goals": [
+        {
+          "id": "g1",
+          "name": "Emergency cushion",
+          "icon": "shield",
+          "target": 60000,
+          "saved": 18000,
+          "due": "Mar 2027",
+          "monthly": 3000
+        },
+        {
+          "id": "g2",
+          "name": "Laptop upgrade",
+          "icon": "spark",
+          "target": 55000,
+          "saved": 12000,
+          "due": "Sep 2027",
+          "monthly": 2200
+        }
+      ],
+      "xp": 140,
+      "streak": 3,
+      "activity": "d-lesson",
+      "baseBadges": [
+        "b-first"
+      ],
+      "line": "You're making progress. Let's take one small financial step today.",
+      "ai": {
+        "msg": "Hi Aarav! You've started building an emergency cushion — ₹18,000 so far, about 30% of your first target. Today, let's spend one minute on a simple idea: the difference between needs and wants. Small, no pressure.",
+        "quick": [
+          "Sounds good",
+          "Show me the lesson",
+          "Why does this matter?"
+        ]
+      },
+      "focus": "build a first emergency cushion of one month's expenses",
+      "learn": [
+        "Needs vs wants",
+        "What is an emergency fund?",
+        "How SIPs work (concept)"
+      ],
+      "actions": [
+        {
+          "t": "Move ₹1,500 to your emergency goal after salary day",
+          "pts": 14,
+          "mins": 2
+        },
+        {
+          "t": "Complete the needs-vs-wants lesson",
+          "pts": 6,
+          "mins": 1
+        },
+        {
+          "t": "Add a basic health-cover review to your list",
+          "pts": 9,
+          "mins": 5
+        }
+      ]
+    },
+    {
+      "id": "young",
+      "name": "Meera Iyer",
+      "first": "Meera",
+      "age": 27,
+      "tag": "Young Professional",
+      "blurb": "Growing income, education loan, first investments",
+      "hue": 200,
+      "income": 95000,
+      "expenses": 58000,
+      "emi": 9500,
+      "score": 596,
+      "prev": 571,
+      "history": [
+        548,
+        556,
+        560,
+        566,
+        571,
+        596
+      ],
+      "dims": {
+        "savings": [
+          62,
+          55
+        ],
+        "debt": [
+          55,
+          52
+        ],
+        "invest": [
+          48,
+          44
+        ],
+        "protection": [
+          40,
+          40
+        ],
+        "goals": [
+          52,
+          47
+        ],
+        "emergency": [
+          50,
+          46
+        ]
+      },
+      "emMonths": 1.9,
+      "alloc": {
+        "equity": 40,
+        "debt": 20,
+        "gold": 5,
+        "cash": 35
+      },
+      "retireAge": 60,
+      "goals": [
+        {
+          "id": "g1",
+          "name": "Emergency fund (6 months)",
+          "icon": "shield",
+          "target": 360000,
+          "saved": 180000,
+          "due": "Jun 2027",
+          "monthly": 15000
+        },
+        {
+          "id": "g2",
+          "name": "Japan trip",
+          "icon": "compass",
+          "target": 200000,
+          "saved": 90000,
+          "due": "Apr 2027",
+          "monthly": 8000
+        },
+        {
+          "id": "g3",
+          "name": "Home down payment",
+          "icon": "house",
+          "target": 1500000,
+          "saved": 240000,
+          "due": "2031",
+          "monthly": 20000
+        }
+      ],
+      "xp": 410,
+      "streak": 9,
+      "activity": "d-save",
+      "baseBadges": [
+        "b-first",
+        "b-streak3",
+        "b-learner"
+      ],
+      "line": "Welcome back! Let's make your money work smarter.",
+      "ai": {
+        "msg": "Good to see you, Meera. Your simulated score rose 25 points this month — mostly from steadier savings. Your emergency fund covers about 1.9 months of expenses; a 2-minute savings challenge could help close that gap sooner.",
+        "quick": [
+          "Start the challenge",
+          "Explain the score change",
+          "What should I focus on?"
+        ]
+      },
+      "focus": "lift emergency cover from about 2 to 3 months while the education loan stays on schedule",
+      "learn": [
+        "Emergency fund sizing",
+        "Good debt vs costly debt",
+        "Diversification basics"
+      ],
+      "actions": [
+        {
+          "t": "Automate ₹5,000 more into your emergency goal",
+          "pts": 18,
+          "mins": 3
+        },
+        {
+          "t": "Review your term-cover need (concept check)",
+          "pts": 12,
+          "mins": 6
+        },
+        {
+          "t": "Complete the savings micro-challenge",
+          "pts": 8,
+          "mins": 2
+        }
+      ]
+    },
+    {
+      "id": "investor",
+      "name": "Rohan Kapoor",
+      "first": "Rohan",
+      "age": 36,
+      "tag": "Active Investor",
+      "blurb": "Diversified portfolio, wants smarter allocation",
+      "hue": 255,
+      "income": 210000,
+      "expenses": 98000,
+      "emi": 0,
+      "score": 712,
+      "prev": 705,
+      "history": [
+        688,
+        694,
+        699,
+        701,
+        705,
+        712
+      ],
+      "dims": {
+        "savings": [
+          78,
+          77
+        ],
+        "debt": [
+          74,
+          72
+        ],
+        "invest": [
+          86,
+          87
+        ],
+        "protection": [
+          58,
+          58
+        ],
+        "goals": [
+          70,
+          66
+        ],
+        "emergency": [
+          74,
+          72
+        ]
+      },
+      "emMonths": 7.4,
+      "alloc": {
+        "equity": 78,
+        "debt": 10,
+        "gold": 4,
+        "cash": 8
+      },
+      "retireAge": 55,
+      "goals": [
+        {
+          "id": "g1",
+          "name": "Financial independence corpus",
+          "icon": "trend",
+          "target": 35000000,
+          "saved": 11000000,
+          "due": "2044",
+          "monthly": 90000
+        },
+        {
+          "id": "g2",
+          "name": "Sabbatical fund",
+          "icon": "compass",
+          "target": 1200000,
+          "saved": 750000,
+          "due": "Dec 2027",
+          "monthly": 25000
+        }
+      ],
+      "xp": 1180,
+      "streak": 21,
+      "activity": "d-invest",
+      "baseBadges": [
+        "b-first",
+        "b-streak3",
+        "b-learner",
+        "b-streak7",
+        "b-sim"
+      ],
+      "line": "Good to have you back. Let's make your money work smarter.",
+      "ai": {
+        "msg": "Welcome back, Rohan. Your simulated score is steady at 712. One thing worth a look: about 78% of your simulated portfolio sits in equity, which is above the 65% you set as your comfort level. Want a two-minute diversification refresher?",
+        "quick": [
+          "Show allocation",
+          "Run a what-if",
+          "Explain diversification"
+        ]
+      },
+      "focus": "review allocation drift and your protection (cover) gap",
+      "learn": [
+        "Asset allocation vs drift",
+        "Rebalancing concepts",
+        "Sequence-of-returns risk"
+      ],
+      "actions": [
+        {
+          "t": "Compare current vs target allocation",
+          "pts": 20,
+          "mins": 4
+        },
+        {
+          "t": "Run the market-dip simulator round",
+          "pts": 15,
+          "mins": 5
+        },
+        {
+          "t": "Review life-cover adequacy (concept check)",
+          "pts": 12,
+          "mins": 6
+        }
+      ]
+    },
+    {
+      "id": "family",
+      "name": "Sneha & Vikram Nair",
+      "first": "Sneha",
+      "age": 41,
+      "tag": "Family Financial Planner",
+      "blurb": "Two incomes, home loan, child's education",
+      "hue": 330,
+      "income": 240000,
+      "expenses": 150000,
+      "emi": 48000,
+      "score": 648,
+      "prev": 630,
+      "history": [
+        610,
+        615,
+        622,
+        626,
+        630,
+        648
+      ],
+      "dims": {
+        "savings": [
+          56,
+          52
+        ],
+        "debt": [
+          46,
+          44
+        ],
+        "invest": [
+          58,
+          56
+        ],
+        "protection": [
+          52,
+          50
+        ],
+        "goals": [
+          62,
+          58
+        ],
+        "emergency": [
+          48,
+          45
+        ]
+      },
+      "emMonths": 3.1,
+      "alloc": {
+        "equity": 45,
+        "debt": 30,
+        "gold": 10,
+        "cash": 15
+      },
+      "retireAge": 58,
+      "goals": [
+        {
+          "id": "g1",
+          "name": "Child's education fund",
+          "icon": "book",
+          "target": 4000000,
+          "saved": 900000,
+          "due": "2036",
+          "monthly": 22000
+        },
+        {
+          "id": "g2",
+          "name": "Home-loan prepayment",
+          "icon": "house",
+          "target": 1000000,
+          "saved": 310000,
+          "due": "2029",
+          "monthly": 15000
+        },
+        {
+          "id": "g3",
+          "name": "Family emergency fund",
+          "icon": "shield",
+          "target": 900000,
+          "saved": 560000,
+          "due": "Dec 2026",
+          "monthly": 20000
+        }
+      ],
+      "xp": 760,
+      "streak": 12,
+      "activity": "d-emerg",
+      "baseBadges": [
+        "b-first",
+        "b-streak3",
+        "b-learner",
+        "b-streak7"
+      ],
+      "line": "Welcome back! Your family's financial journey is moving forward.",
+      "ai": {
+        "msg": "Hello Sneha. Two of your family goals are on track — the education fund is at 23% and growing steadily. Your emergency fund covers about 3.1 months; a quick check could show whether your household needs a larger buffer while the home loan runs.",
+        "quick": [
+          "Check emergency fund",
+          "Family goals overview",
+          "Protection checklist"
+        ]
+      },
+      "focus": "balance the home-loan prepayment goal against a stronger emergency buffer",
+      "learn": [
+        "Child-education planning basics",
+        "Prepay loan vs invest (concept)",
+        "Household protection checklist"
+      ],
+      "actions": [
+        {
+          "t": "Run the family emergency-fund check",
+          "pts": 14,
+          "mins": 3
+        },
+        {
+          "t": "Review the protection checklist together",
+          "pts": 16,
+          "mins": 8
+        },
+        {
+          "t": "Schedule the weekly family money huddle",
+          "pts": 8,
+          "mins": 2
+        }
+      ]
+    },
+    {
+      "id": "saver",
+      "name": "Kabir Singh",
+      "first": "Kabir",
+      "age": 31,
+      "tag": "Goal-Oriented Saver",
+      "blurb": "Disciplined saver closing in on a big goal",
+      "hue": 28,
+      "income": 120000,
+      "expenses": 70000,
+      "emi": 0,
+      "score": 631,
+      "prev": 598,
+      "history": [
+        575,
+        582,
+        590,
+        594,
+        598,
+        631
+      ],
+      "dims": {
+        "savings": [
+          84,
+          79
+        ],
+        "debt": [
+          80,
+          80
+        ],
+        "invest": [
+          44,
+          40
+        ],
+        "protection": [
+          54,
+          54
+        ],
+        "goals": [
+          86,
+          80
+        ],
+        "emergency": [
+          72,
+          70
+        ]
+      },
+      "emMonths": 4.2,
+      "alloc": {
+        "equity": 25,
+        "debt": 35,
+        "gold": 5,
+        "cash": 35
+      },
+      "retireAge": 60,
+      "goals": [
+        {
+          "id": "g1",
+          "name": "Home down payment",
+          "icon": "house",
+          "target": 2000000,
+          "saved": 1400000,
+          "due": "Aug 2027",
+          "monthly": 38000
+        },
+        {
+          "id": "g2",
+          "name": "Emergency fund (6 months)",
+          "icon": "shield",
+          "target": 420000,
+          "saved": 420000,
+          "due": "Done",
+          "monthly": 0
+        },
+        {
+          "id": "g3",
+          "name": "Wedding gift fund",
+          "icon": "gift",
+          "target": 300000,
+          "saved": 80000,
+          "due": "Feb 2028",
+          "monthly": 9000
+        }
+      ],
+      "xp": 905,
+      "streak": 16,
+      "activity": "d-spend",
+      "baseBadges": [
+        "b-first",
+        "b-streak3",
+        "b-learner",
+        "b-streak7",
+        "b-saver"
+      ],
+      "line": "Welcome back! Your financial journey is moving forward.",
+      "ai": {
+        "msg": "Good morning, Kabir! I noticed your savings goal is getting closer. You're 70% of the way there. Today, let's review your monthly expenses and see whether you can reach your target sooner.",
+        "quick": [
+          "Review expenses",
+          "Show my goal path",
+          "Not now"
+        ]
+      },
+      "focus": "finish the down-payment goal and start thinking about what comes after it",
+      "learn": [
+        "Down-payment vs EMI trade-offs",
+        "Parking short-term goal money safely (concept)",
+        "Starting long-term investing"
+      ],
+      "actions": [
+        {
+          "t": "Review last month's top 3 expense categories",
+          "pts": 12,
+          "mins": 4
+        },
+        {
+          "t": "Check the goal path with a +₹3,000 scenario",
+          "pts": 10,
+          "mins": 3
+        },
+        {
+          "t": "Learn: where short-term goal money usually sits",
+          "pts": 8,
+          "mins": 2
+        }
+      ]
+    }
+  ],
+  "aiScripts": {
+    "welcome": "Hi {first}! I'm your Finscore companion. I can only see the simulated profile you're previewing — {tag} — so I'll never guess beyond it. Pick a question or type your own.",
+    "disclosure": "Simulated demo · educational information, not investment advice",
+    "suggested": [
+      {
+        "id": "healthy",
+        "q": "Am I financially healthy?"
+      },
+      {
+        "id": "save",
+        "q": "How can I save more money?"
+      },
+      {
+        "id": "house",
+        "q": "Am I ready to buy a house?"
+      },
+      {
+        "id": "emergency",
+        "q": "How much emergency fund should I maintain?"
+      },
+      {
+        "id": "invest",
+        "q": "Explain my investments"
+      },
+      {
+        "id": "score",
+        "q": "How can I improve my financial score?"
+      },
+      {
+        "id": "retire",
+        "q": "Help me plan for retirement"
+      },
+      {
+        "id": "focus",
+        "q": "What should I focus on this month?"
+      }
+    ],
+    "answers": {
+      "healthy": {
+        "text": "Based on your simulated profile, your wellness score is **{score}/900** — the **{stage}** stage ({nick}). That's {delta} points {dir} last month.\n\nYour strongest area is **{best}**, and the area with most room to grow is **{worst}**. Financial health isn't a grade — it's a direction, and yours is {trend}.",
+        "cards": [
+          {
+            "t": "See full wellness breakdown",
+            "d": "Six health dimensions, simulated",
+            "href": "financial-wellness.html",
+            "icon": "ring"
+          },
+          {
+            "t": "Today's small step",
+            "d": "{actTitle} · {actMins} min",
+            "href": "daily-activities.html",
+            "icon": "spark"
+          }
+        ]
+      },
+      "save": {
+        "text": "You currently save about **{rate}%** of income (≈ {surplusF}/month in this simulation). A few low-effort ideas to explore:\n\n• Shifting just 5% of income ({fiveF}) to savings on salary day, before spending.\n• Reviewing your top expense category — small trims there often matter most.\n• Giving each goal its own labelled pot so progress is visible.\n\nThese are habits, not guarantees — pick the one that feels easiest.",
+        "cards": [
+          {
+            "t": "Try a savings micro-challenge",
+            "d": "2 minutes · +8 points",
+            "href": "daily-activities.html",
+            "icon": "coins"
+          },
+          {
+            "t": "Open Savings Adventure",
+            "d": "See your goal path",
+            "href": "savings-adventure.html",
+            "icon": "route"
+          }
+        ]
+      },
+      "house": {
+        "text": "Let's look at readiness as a checklist, using only what's in this simulated profile:\n\n{houseCheck}\n\nThis is a learning checklist, not a verdict — property decisions also depend on things I can't see (city, prices, job stability). A licensed advisor can help with specifics.",
+        "cards": [
+          {
+            "t": "Plan the goal",
+            "d": "Create or adjust a home goal",
+            "href": "goals-planning.html",
+            "icon": "house"
+          },
+          {
+            "t": "Emergency fund check",
+            "d": "Is the safety net in place?",
+            "href": "daily-activities.html",
+            "icon": "shield"
+          }
+        ]
+      },
+      "emergency": {
+        "text": "A commonly taught guideline is **3 to 6 months** of essential expenses, depending on income stability and dependants.\n\nFor this simulated profile (monthly spend ≈ {expensesF}), that's roughly **{em3F} to {em6F}**. Your cushion today covers about **{emMonths} months**, so you're {emStatus}.\n\nIf an exact figure matters, adjust for your own situation — the guideline is a starting point.",
+        "cards": [
+          {
+            "t": "Emergency fund check",
+            "d": "3-minute daily activity",
+            "href": "daily-activities.html",
+            "icon": "shield"
+          },
+          {
+            "t": "Adjust your goal",
+            "d": "Set a target date",
+            "href": "goals-planning.html",
+            "icon": "target"
+          }
+        ]
+      },
+      "invest": {
+        "text": "Here's your **simulated** mix: equity {a_equity}% · debt {a_debt}% · gold {a_gold}% · cash {a_cash}%.\n\n{investRead}\n\nI can explain concepts (diversification, drift, risk vs return) but I don't recommend specific products or promise returns. Markets can fall as well as rise.",
+        "cards": [
+          {
+            "t": "Try the Investment Simulator",
+            "d": "Virtual money, simulated markets",
+            "href": "investment-simulator.html",
+            "icon": "trend"
+          },
+          {
+            "t": "Learn: diversification",
+            "d": "One-minute knowledge card",
+            "href": "daily-activities.html",
+            "icon": "book"
+          }
+        ]
+      },
+      "score": {
+        "text": "Here are the three steps this simulation estimates would help most (ranges, not promises):\n\n{actionList}\n\nScore changes in the real product would come only from verified actions — never from just opening the app.",
+        "cards": [
+          {
+            "t": "Open Score Journey",
+            "d": "Milestones & what-if",
+            "href": "financial-wellness.html",
+            "icon": "ring"
+          },
+          {
+            "t": "Start the top action",
+            "d": "Daily activity",
+            "href": "daily-activities.html",
+            "icon": "spark"
+          }
+        ]
+      },
+      "retire": {
+        "text": "Retirement is a long game, so let's keep it to concepts. You're {age}; this profile assumes retiring around **{retireAge}** — about **{years} years** away.\n\nThe big levers are (1) how early you start, (2) how steadily you contribute, and (3) staying invested through market ups and downs. Small, regular steps compound — but returns are never guaranteed.\n\nWant a gentle 'what if I add ₹2,000 a month' illustration? It would be an example, not a forecast.",
+        "cards": [
+          {
+            "t": "Goals & retirement planner",
+            "d": "Illustrative projection with ranges",
+            "href": "goals-planning.html",
+            "icon": "sun"
+          },
+          {
+            "t": "Independence journey",
+            "d": "See the full route",
+            "href": "financial-journey.html",
+            "icon": "compass"
+          }
+        ]
+      },
+      "focus": {
+        "text": "Looking at {first}'s simulated profile, a sensible focus this month is to **{focus}**.\n\nOne step to start: **{actTitle}** ({actMins} min, +{actPts} points). Just one — consistency beats intensity.",
+        "cards": [
+          {
+            "t": "Start today's activity",
+            "d": "{actTitle}",
+            "href": "daily-activities.html",
+            "icon": "play"
+          },
+          {
+            "t": "See this month's wrapped preview",
+            "d": "Progress story",
+            "href": "financial-wrapped.html",
+            "icon": "gift"
+          }
+        ]
+      }
+    },
+    "topics": [
+      {
+        "k": [
+          "crypto",
+          "bitcoin",
+          "stock tip",
+          "which stock",
+          "which fund",
+          "best fund",
+          "hot"
+        ],
+        "a": "I can't recommend specific products or predict markets — and I only know this simulated profile. I *can* explain how to think about risk, diversification and time horizon. Want that instead?"
+      },
+      {
+        "k": [
+          "tax",
+          "itr",
+          "80c"
+        ],
+        "a": "Tax rules are specific and change often, and nothing in this simulated profile covers them, so I won't guess. A tax professional is the right place for that. I can help you organise your goals and savings so tax conversations are easier."
+      },
+      {
+        "k": [
+          "loan",
+          "emi",
+          "debt",
+          "credit card"
+        ],
+        "a": "In this simulation your debt health is **{debtScore}/100** and monthly EMIs are {emiF}. A good rule of thumb to learn: clear the costliest debt first while keeping an emergency buffer. Want to try the Debt challenge in weekly activities?"
+      },
+      {
+        "k": [
+          "insurance",
+          "cover",
+          "protect"
+        ],
+        "a": "Protection health in this simulation is **{protScore}/100**. I can walk you through a concept checklist (life, health, income dependants) — but not pick a policy for you."
+      },
+      {
+        "k": [
+          "hello",
+          "hi",
+          "hey",
+          "thanks",
+          "thank"
+        ],
+        "a": "Happy to help, {first}! Ask me anything about your simulated finances, or tap one of the suggestions."
+      }
+    ],
+    "fallback": "I'm not sure I know that from this simulated profile, so I won't guess. Here's what I can help with — pick one of the suggestions, or rephrase your question."
+  }
+}

@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en-IN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Finscore Games & Activities - Prototype</title>
+<link rel="stylesheet" href="assets/shared.css">
+<link rel="stylesheet" href="assets/games.css">
+</head>
+<body data-dir="play">
+<div id="fs-header"></div>
+<main class="wrap" id="main">
+  <div class="page-head">
+    <p class="eyebrow">Concepts C · D · E · G · H &nbsp;<span class="badge new">Proposed</span></p>
+    <h1>Learn by playing, in a minute a day</h1>
+    <p>Five short, optional activities that teach one real money idea each. Points are virtual and never change your Finscore. Use the switch at the top right to see the same activities in all three visual directions.</p>
+  </div>
+
+  <div class="tabs" role="tablist" aria-label="Activities" id="gameTabs">
+    <button role="tab" data-tab="spin">🎡 Spin &amp; Learn</button>
+    <button role="tab" data-tab="quiz">🏟️ Quiz Arena</button>
+    <button role="tab" data-tab="persona">🧭 Personality</button>
+    <button role="tab" data-tab="sim">📈 Investing Sim</button>
+    <button role="tab" data-tab="cards">🃏 Knowledge Cards</button>
+  </div>
+
+  <div id="panels" style="margin-top:18px">
+  <!-- C. SPIN & LEARN -->
+  <section class="panel" id="panel-spin" role="tabpanel" hidden>
+    <div class="split">
+      <div class="card wheel-card">
+        <h2>Today's spin</h2>
+        <div class="wheel-wrap">
+          <div class="pointer" aria-hidden="true"></div>
+          <svg viewBox="-110 -110 220 220" role="img" aria-label="Wheel with eight money topics"><g id="wheelRot"><g id="wheelSegs"></g></g></svg>
+          <button class="wheel-hub" id="spinBtn" aria-label="Spin the wheel">SPIN</button>
+        </div>
+        <p id="spinStatus" class="muted" aria-live="polite">One free spin a day. Land on a topic, learn a tip, answer one question.</p>
+        <button class="btn ghost sm" id="spinReset">Prototype: simulate "tomorrow"</button>
+      </div>
+      <div class="stack">
+        <div class="card">
+          <h3>How it works</h3>
+          <ol class="muted" style="padding-left:18px;margin:10px 0 0"><li>Spin once a day (about 30 seconds).</li><li>Read the tip. No jargon.</li><li>Answer one question for bonus points.</li><li>Points are virtual badges of progress, not money.</li></ol>
+        </div>
+        <div class="card"><h3>Your recent spins</h3><ul class="history" id="spinHistory"></ul><div class="empty" id="spinEmpty" hidden><span class="big">🎡</span>No spins yet. Your first topic is waiting.</div></div>
+        <details class="why"><summary>Engagement design</summary><ul>
+          <li><b>Why open:</b> a 30-second, zero-effort daily moment with a surprise topic.</li>
+          <li><b>Why return:</b> one spin per day and a visible weekly cadence that pauses, never punishes.</li>
+          <li><b>Discovery:</b> each topic ends with a link to the real feature (Goals, What-if, Coach).</li>
+          <li><b>Guardrail:</b> no cash or monetary rewards, no paid spins.</li></ul></details>
+      </div>
+    </div>
+  </section>
+
+  <!-- D. QUIZ ARENA -->
+  <section class="panel" id="panel-quiz" role="tabpanel" hidden>
+    <div class="split">
+      <div class="card" id="quizBox" aria-live="polite"></div>
+      <div class="stack">
+        <div class="card hero" id="dailyQuiz"><p class="eyebrow">Daily challenge</p><h3 style="margin:6px 0">5 questions · about 2 minutes</h3><p class="small muted">A fresh mix each day across all levels. Finish it to extend your weekly cadence.</p><button class="btn block" style="margin-top:12px;background:#fff;color:#111" id="dailyBtn">Start today's challenge</button></div>
+        <div class="card"><h3>Your recent runs</h3><p class="small muted">Compared with your past self only. There is no public leaderboard.</p><table class="runs" id="runsTbl"><thead><tr><th>Level</th><th>Score</th><th>Best</th></tr></thead><tbody></tbody></table><div class="empty" id="runsEmpty" style="margin-top:10px">No runs yet.</div></div>
+        <details class="why"><summary>Engagement design</summary><ul>
+          <li><b>Why open:</b> pick a level that matches you: beginner, intermediate, pro.</li>
+          <li><b>Why return:</b> daily challenge and a personal best to beat.</li>
+          <li><b>Education:</b> every answer, right or wrong, shows a one-line explanation.</li>
+          <li><b>Guardrail:</b> timer is optional, so it never penalises slower readers.</li></ul></details>
+      </div>
+    </div>
+  </section>
+
+  <!-- E. PERSONALITY -->
+  <section class="panel" id="panel-persona" role="tabpanel" hidden>
+    <div class="split">
+      <div class="card" id="pBox" aria-live="polite"></div>
+      <div class="stack">
+        <div class="card"><h3>Why a personality test?</h3><p class="muted small" style="margin-top:8px">Eight everyday scenarios, no right answers. We use it to tailor tips, goals and the order of activities. Finscore already has a "Financial DNA" view; this is a proposed, playful on-ramp to it. Answers stay on this prototype page.</p></div>
+        <details class="why" open><summary>Engagement design</summary><ul>
+          <li><b>Why open:</b> curiosity about "what kind of money person am I?"</li>
+          <li><b>Why return:</b> retake after 3 months to see how habits changed.</li>
+          <li><b>Discovery:</b> result links to existing Goals, What-if and Coach screens.</li>
+          <li><b>Guardrail:</b> advice is educational. Labels describe habits, never judge people.</li></ul></details>
+      </div>
+    </div>
+  </section>
+
+  <!-- G. INVESTMENT SIMULATOR -->
+  <section class="panel" id="panel-sim" role="tabpanel" hidden>
+    <div class="notice"><span class="sim-tag">Simulation</span> &nbsp;Practice money and made-up market years. These are <b>hypothetical scenarios, not predictions, and returns are never guaranteed</b>. Points reward learning and finishing, never profit.</div>
+    <div class="split" style="margin-top:16px">
+      <div class="card" id="simBox" aria-live="polite"></div>
+      <div class="stack">
+        <div class="card"><h3>Practice portfolio</h3><p class="stat"><b id="simValue">₹1,00,000</b><span>virtual value after <span id="simRound">0</span> of 5 years</span></p><svg id="simChart" viewBox="0 0 300 120" style="width:100%;margin-top:10px" role="img" aria-label="Practice portfolio value by round"></svg></div>
+        <details class="why"><summary>Engagement design</summary><ul>
+          <li><b>Why open:</b> try investing ideas with zero risk.</li>
+          <li><b>Why return:</b> five different "market years" to experience.</li>
+          <li><b>Education:</b> teaches diversification, drawdowns and staying the course.</li>
+          <li><b>Guardrail:</b> no trading, no streak pressure, no ranking by returns.</li></ul></details>
+      </div>
+    </div>
+  </section>
+
+  <!-- H. KNOWLEDGE CARDS -->
+  <section class="panel" id="panel-cards" role="tabpanel" hidden>
+    <div class="row between wrapx" style="margin-bottom:14px"><div><h2>Swipe &amp; learn</h2><p class="muted small">Swipe, drag, use arrow keys or the buttons. One minute per card.</p></div><div class="chip">Today <span id="kDone">0</span>/5 · 🔥 <span data-fs-streak>0</span>-week cadence</div></div>
+    <div class="kstage" id="kStage" tabindex="0" aria-label="Knowledge cards. Use left and right arrows."></div>
+    <div class="kctrl"><button class="btn ghost sm" id="kPrev">← Back</button><div class="dots" id="kDots"></div><button class="btn sm" id="kNext">Next →</button></div>
+    <details class="why" style="max-width:620px;margin:18px auto 0"><summary>Engagement design</summary><ul>
+      <li><b>Why open:</b> bite-sized, familiar swipe pattern, no sign-up friction.</li>
+      <li><b>Why return:</b> five fresh cards a day; finishing five counts as the day.</li>
+      <li><b>Education:</b> one idea, one example, one two-choice check.</li></ul></details>
+  </section>
+  </div>
+</main>
+<div id="fs-footer"></div>
+<script src="assets/shared.js"></script>
+<script src="assets/games.js"></script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en-IN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Finscore AI-First Futuristic Direction - Prototype</title>
+<link rel="stylesheet" href="assets/shared.css">
+<link rel="stylesheet" href="assets/games.css">
+<link rel="stylesheet" href="assets/ai.css">
+</head>
+<body data-dir="ai" data-lock="ai">
+<div id="fs-header"></div>
+<main class="wrap" id="main">
+  <section class="ai-hero">
+    <div class="orbit-wrap"><svg id="orbit" viewBox="-150 -150 300 300" role="img" aria-label="Orbit showing four pillars: Safety, Debt, Protection, Growth"></svg><div class="orbit-core"><b class="display" id="coreScore">648</b><span class="xs">Finscore</span></div></div>
+    <div class="grow">
+      <p class="eyebrow">Direction 3 · AI-First Futuristic &nbsp;<span class="badge new">Proposed</span> <span class="badge ai">Concept J</span></p>
+      <h1 style="font-size:clamp(26px,4vw,40px)">Your AI Coach has a plan for today</h1>
+      <p class="typed" id="typed" aria-live="polite"></p>
+      <div class="legend" id="orbLegend" style="margin-top:10px" aria-label="Pillar scores"></div>
+      <div class="row wrapx" style="margin-top:14px"><span class="chip">🧠 Plan <b id="planDone">0</b>/<span id="planTotal">3</span></span><div class="bar grow" style="min-width:140px"><i id="planBar" style="width:0"></i></div><button class="btn ai sm" id="regen">✨ New plan</button></div>
+    </div>
+  </section>
+  <div class="notice ai-note"><b>How the AI behaves:</b> it explains and suggests. Every number comes from Finscore's calculation engine, never from the AI. It is not a licensed adviser.</div>
+
+  <div class="split" style="margin-top:16px">
+    <div class="stack">
+      <section aria-label="Today's action plan"><div class="row between wrapx" style="margin-bottom:10px"><h2>Today's action plan</h2><span class="small muted" id="planMeta"></span></div><div class="stack" id="plan" aria-live="polite"></div></section>
+
+      <section class="card"><div class="row between wrapx"><div><p class="eyebrow">Your next 4 weeks</p><h2>Personal journey</h2></div></div><ol class="timeline" id="timeline"></ol></section>
+    </div>
+    <div class="stack">
+      <section class="card chat" aria-label="Ask the coach"><h3>Ask your coach</h3>
+        <div class="msgs" id="msgs" aria-live="polite"><div class="msg bot">Hi Aarav! Ask me about your goals, emergency fund, loans or score. I explain; I don't give personal investment advice.</div></div>
+        <div class="row wrapx" id="chips" style="margin:8px 0"></div>
+        <form id="askForm" class="row"><label class="sr-only" for="ask">Your question</label><input id="ask" autocomplete="off" placeholder="Ask about your emergency fund…" maxlength="120"><button class="btn ai sm" type="submit">Send</button></form>
+      </section>
+      <section class="card"><p class="eyebrow">Habit recommendations</p><h3>Build a habit</h3><div class="stack" id="habits" style="margin-top:10px"></div></section>
+      <details class="why"><summary>Engagement design</summary><ul>
+        <li><b>Why open:</b> a ready-made plan; no blank-page decisions.</li>
+        <li><b>Why return:</b> new plan each day, habits to track, a coach that remembers.</li>
+        <li><b>Trust:</b> every suggestion shows <i>why</i> and what data it used.</li>
+        <li><b>Premium hook:</b> deeper plans, unlimited coach chats, household view.</li>
+        <li><b>Guardrail:</b> decline regulated questions, hand off to a human.</li></ul></details>
+    </div>
+  </div>
+</main>
+<div id="fs-footer"></div>
+<script src="assets/shared.js"></script>
+<script src="assets/ai.js"></script>
+</body>
+</html>

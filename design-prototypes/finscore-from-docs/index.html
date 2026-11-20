@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en-IN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FinScore AI (from docs) - Prototype</title>
+<link rel="stylesheet" href="assets/fd.css">
+</head>
+<body>
+<div class="shell">
+  <aside class="jrail" aria-label="Journey">
+    <a class="brand" href="#/ask"><i aria-hidden="true">5n</i><span><b>FinScore AI</b><small>5nance · built from the documents</small></span></a>
+    <nav id="nav" aria-label="Screens"></nav>
+    <p class="xs muted" style="margin-top:auto;padding:12px 10px 0">Prototype. Dummy or user-typed data only, stored in this browser. No network.</p>
+  </aside>
+  <div class="main">
+    <header class="top">
+      <h1 id="ttl"></h1><span class="badge demo" id="demoB" hidden>Demo data</span>
+      <span class="sp"></span>
+      <span class="badge gray" id="xpB" title="XP never changes your FinScore"></span>
+      <button class="chip" id="modeB" title="Switch between Problem Mode and Full FinScore Mode"></button>
+      <button class="chip" id="themeB" aria-label="Toggle light or dark">◐</button>
+    </header>
+    <div class="banner" role="note"><strong>DRAFT RULES · NOT AN OFFICIAL FINSCORE.</strong> Derived from the business spreadsheets and awaiting approval. The wealth stage is provisional until the age × score matrix is supplied.</div>
+    <main id="main" tabindex="-1"></main>
+  </div>
+</div>
+<nav class="tabm" id="tabm" aria-label="Tabs"></nav>
+<script src="assets/rules-data.js"></script>
+<script src="assets/engine.js"></script>
+<script src="assets/tests.js"></script>
+<script src="assets/model.js"></script>
+<script src="assets/store.js"></script>
+<script src="assets/app.js"></script>
+<script src="assets/v1.js"></script>
+<script src="assets/v2.js"></script>
+<script src="assets/v3.js"></script>
+<script>FSApp.init();</script>
+</body>
+</html>

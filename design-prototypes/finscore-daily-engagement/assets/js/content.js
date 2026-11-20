@@ -1,0 +1,195 @@
+/* Finscore Daily Engagement (V3) — learning content, games and scripted AI. SIMULATED / EDUCATIONAL ONLY. */
+(function(){
+var D = window.FD_DATA;
+
+D.cats = { basics: "Money basics", saving: "Saving & budgets", investing: "Investing", debt: "Credit & debt", protection: "Protection" };
+D.diffs = ["Easy", "Medium", "Hard"];
+
+/* c=category d=difficulty(1-3) a=answer index w=why */
+D.quiz = [
+ { c:"basics", d:1, q:"What does 'inflation' do to money you keep idle?", o:["Makes it worth more","Reduces what it can buy over time","Nothing","Doubles it"], a:1, w:"Prices rise over time, so the same amount buys less. Idle cash loses buying power quietly." },
+ { c:"basics", d:1, q:"Which is a 'need'?", o:["Streaming bundle","Monthly groceries","Concert tickets","New gadget upgrade"], a:1, w:"Needs keep you safe and functioning. Wants improve life but can wait." },
+ { c:"basics", d:2, q:"A simple way to see where money goes is to…", o:["Guess monthly","Track spending for a few weeks","Avoid looking","Only track big items"], a:1, w:"A few weeks of tracking beats memory. Small items add up more than we expect." },
+ { c:"basics", d:3, q:"A 'real' return is…", o:["Return after tax only","Return after inflation","Return before costs","The highest return seen"], a:1, w:"Real return subtracts inflation. 7% growth with 5% inflation is roughly 2% real." },
+ { c:"saving", d:1, q:"What does 'pay yourself first' mean?", o:["Spend first on yourself","Move savings out right after income arrives","Pay bills last","Skip savings in tough months"], a:1, w:"Saving first, spending what's left, flips the usual order and builds the habit." },
+ { c:"saving", d:1, q:"How big is a common emergency-fund target?", o:["1 week of spending","3–6 months of essentials","10 years of income","Whatever is left"], a:1, w:"3–6 months of essential expenses is a common guide; more if income is uneven." },
+ { c:"saving", d:2, q:"In the 50/30/20 idea, the 20 usually stands for…", o:["Wants","Savings and debt repayment","Rent","Taxes"], a:1, w:"It's a starting frame: 50% needs, 30% wants, 20% savings and extra debt payment." },
+ { c:"saving", d:2, q:"Where should emergency money mainly prioritise?", o:["Maximum returns","Easy access and safety","Long lock-ins","High risk"], a:1, w:"You need it when something goes wrong. Availability and safety beat return." },
+ { c:"saving", d:3, q:"Your savings rate is best defined as…", o:["Savings ÷ income","Income ÷ savings","Interest earned","Expenses ÷ income"], a:0, w:"Savings rate = the share of income you keep. It matters more than any single return." },
+ { c:"investing", d:1, q:"What is diversification?", o:["Putting everything in one winner","Spreading money across different assets","Selling when markets fall","Only holding cash"], a:1, w:"Different assets behave differently. Spreading reduces the damage from any one." },
+ { c:"investing", d:1, q:"Which usually goes with higher potential return?", o:["Lower risk","Higher risk","No risk","Guaranteed safety"], a:1, w:"Higher potential return usually means higher uncertainty. Nothing offers both for free." },
+ { c:"investing", d:2, q:"A SIP invests…", o:["A lump sum once","A fixed amount at regular intervals","Only when markets fall","Only on bonuses"], a:1, w:"Regular investing smooths your entry price and builds the habit." },
+ { c:"investing", d:2, q:"Longer time horizon generally allows…", o:["Less risk-taking","More capacity to ride out ups and downs","No volatility","Guaranteed gains"], a:1, w:"More time gives short-term swings room to even out. It never guarantees outcomes." },
+ { c:"investing", d:3, q:"If a portfolio falls 50%, what gain is needed to recover?", o:["50%","75%","100%","150%"], a:2, w:"₹100 → ₹50 needs to double back to ₹100, a 100% gain. Drawdowns hurt more than they look." },
+ { c:"investing", d:3, q:"What is 'rebalancing'?", o:["Selling everything","Restoring your target mix after drift","Timing the market","Buying the best performer only"], a:1, w:"Rebalancing trims what grew and tops up what lagged to return to your intended risk." },
+ { c:"debt", d:1, q:"Which debt usually costs the most interest?", o:["Home loan","Credit card revolving balance","Education loan","Gold loan"], a:1, w:"Unpaid card balances typically carry the highest rates. Pay in full when you can." },
+ { c:"debt", d:2, q:"A sensible EMI-to-income comfort zone is often…", o:["Over 70%","Under about 40%","100%","Doesn't matter"], a:1, w:"Keeping total EMIs under roughly 40% of income leaves room for life and savings." },
+ { c:"debt", d:2, q:"Paying only the minimum due on a card…", o:["Clears the debt fast","Keeps interest running on the rest","Is free","Raises your limit"], a:1, w:"Minimum payments keep you in debt longer. Interest accrues on the remaining balance." },
+ { c:"debt", d:3, q:"The 'avalanche' repayment method targets…", o:["Smallest balance first","Highest interest rate first","Oldest debt first","Newest debt first"], a:1, w:"Avalanche saves the most interest. 'Snowball' (smallest first) trades savings for motivation." },
+ { c:"protection", d:1, q:"What is insurance mainly for?", o:["Making a profit","Transferring a big risk you can't absorb","Avoiding savings","Guaranteed returns"], a:1, w:"Insurance covers rare, large losses. Treat it as protection, not an investment." },
+ { c:"protection", d:2, q:"Term insurance is most relevant when…", o:["You have no dependants","Others depend on your income","You're retired","You want a bonus"], a:1, w:"It replaces income for dependants if you're gone. Cover should reflect loans and goals." },
+ { c:"protection", d:2, q:"Health cover from work alone is…", o:["Always enough","Worth supplementing since it may end with the job","Illegal","Never useful"], a:1, w:"Employer cover can end when the job does. A personal base policy adds continuity." },
+ { c:"protection", d:3, q:"A common rule of thumb for term cover is…", o:["1× income","About 10–15× annual income, adjusted for your situation","Equal to rent","No rule applies"], a:1, w:"It's a starting point only. Loans, dependants and goals shift the real number." },
+ { c:"basics", d:2, q:"Compounding means…", o:["Interest earns interest over time","Fees increase yearly","Money is split","Taxes apply"], a:0, w:"Returns earned begin to earn their own returns. Time is the main ingredient." },
+ { c:"saving", d:2, q:"Which habit best beats lifestyle creep?", o:["Raise spending with every raise","Raise savings with every raise","Stop tracking","Avoid goals"], a:1, w:"Give each raise a job: send part straight to savings before spending expands." },
+ { c:"investing", d:1, q:"Which is true of any investment?", o:["Returns are guaranteed","Value can go up and down","Fees never apply","Past returns guarantee future ones"], a:1, w:"Values move. Past performance doesn't guarantee what comes next." }
+];
+
+D.cards = [
+ { id:"c1", tag:"Saving",  t:"The 24-hour rule", b:"Before a non-essential purchase, wait a day. If you still want it tomorrow, it's a considered choice, not an impulse.", try:"Try it on your next 'quick buy'." },
+ { id:"c2", tag:"Basics",  t:"Rule of 72", b:"Divide 72 by an annual return rate to estimate years to double. At 8%, about 9 years. It's an approximation, not a promise.", try:"Calculate it for 6%." },
+ { id:"c3", tag:"Debt",    t:"Pay the costly debt first", b:"A 40% card balance outruns almost any savings return. Clearing high-interest debt is a guaranteed 'return'.", try:"List your debts by interest rate." },
+ { id:"c4", tag:"Investing",t:"Time in beats timing", b:"Missing a handful of the best market days can hurt a lot, but they often sit next to the worst days. Staying invested avoids guessing.", try:"Write down your investing horizon." },
+ { id:"c5", tag:"Saving",  t:"Name your money", b:"Savings with a name ('Goa trip') are protected better than savings with none. Labels make dipping in feel real.", try:"Rename one account or pot today." },
+ { id:"c6", tag:"Protection",t:"Insurance isn't investing", b:"Mixing protection and investment in one product can make both worse. Often it's clearer to keep them separate.", try:"Check what each policy is for." },
+ { id:"c7", tag:"Basics",  t:"Needs, wants, future-you", b:"Add a third bucket to needs and wants: future-you. Pay it first, so it never competes with wants.", try:"Set one auto-transfer." },
+ { id:"c8", tag:"Investing",t:"Risk is not just volatility", b:"Risk is also not meeting your goal: too little growth, or panic-selling at the wrong time.", try:"Ask: what's my real risk here?" },
+ { id:"c9", tag:"Credit",  t:"Credit score is a habit report", b:"On-time payments and low utilisation shape your credit history. Both are habits you can improve.", try:"Set a reminder for due dates." },
+ { id:"c10",tag:"Saving",  t:"Step up with raises", b:"Raise your savings by half of every raise. You still feel better off, and goals speed up.", try:"Decide your step-up share." },
+ { id:"c11",tag:"Basics",  t:"Net worth in one line", b:"Assets minus liabilities. It's a single number that shows direction. Watch it quarterly, not daily.", try:"Estimate yours roughly." },
+ { id:"c12",tag:"Investing",t:"Costs compound against you", b:"A small yearly fee shrinks the base that grows. Over decades, a 1% difference can be large.", try:"Find the cost of one product you hold." },
+ { id:"c13",tag:"Goals",   t:"Short goals want safety", b:"Money you need within 2–3 years generally shouldn't ride on market swings. Long goals can accept some.", try:"Sort goals by timeline." },
+ { id:"c14",tag:"Saving",  t:"Sinking funds beat surprises", b:"Annual bills (insurance, gifts, repairs) are predictable. Save 1/12th each month into a pot so they stop being 'emergencies'.", try:"List 3 annual costs." },
+ { id:"c15",tag:"Basics",  t:"Habits before hacks", b:"Tracking, automating and reviewing weekly will do more than any clever trick. Boring works.", try:"Pick one weekly money minute." }
+];
+
+D.spin = [
+ { t:"Compounding", i:"trend", l:"Money grows on its own growth. ₹10,000 at 8% becomes about ₹21,600 in 10 years if returns stay steady (illustrative).", q:"What matters most for compounding?", o:["Luck","Time","A secret product"], a:1, w:"Time is the key ingredient. Starting early beats starting big." },
+ { t:"Emergency fund", i:"shield", l:"A pot of 3–6 months of essentials, kept accessible and separate from spending.", q:"The emergency fund's job is…", o:["Highest return","Availability","Fun spending"], a:1, w:"It exists to be there fast when life surprises you." },
+ { t:"Credit habits", i:"card", l:"Paying the full card bill by the due date avoids interest and builds history.", q:"The best card habit is…", o:["Pay minimum","Pay in full on time","Max the limit"], a:1, w:"Full, on-time payment is free borrowing with no interest." },
+ { t:"Inflation", i:"flame", l:"If prices rise 6% a year, ₹100 buys what ₹94 does after a year.", q:"Inflation makes idle cash…", o:["Worth more","Buy less over time","Safer"], a:1, w:"Over time, rising prices erode purchasing power." },
+ { t:"Diversify", i:"scale", l:"Different assets move differently. A mix makes the ride steadier.", q:"Diversification helps by…", o:["Guaranteeing gains","Reducing reliance on one thing","Timing markets"], a:1, w:"It reduces the damage from any single surprise." },
+ { t:"SIP basics", i:"coins", l:"Investing a fixed amount regularly buys more units when prices are low and fewer when high.", q:"A SIP builds…", o:["A habit and smoother entry","A guarantee","Instant wealth"], a:0, w:"It automates discipline and averages your entry over time." },
+ { t:"Insurance", i:"umbrella", l:"Insurance moves rare, large losses off your own balance sheet.", q:"Insurance is best seen as…", o:["An investment","Protection","A bonus"], a:1, w:"Keep protection and investing separate for clarity." },
+ { t:"Budgeting", i:"chart", l:"A budget is a plan for your money, not a punishment. 50/30/20 is one starting frame.", q:"A budget is mainly…", o:["A restriction","A plan with choices","A report card"], a:1, w:"It gives each rupee a purpose before the month starts." },
+ { t:"Bonus: Tax basics", i:"doc", l:"Taxes shape what you keep. Knowing your slab and eligible savings avenues is part of planning (check current rules).", q:"Planning for taxes is best done…", o:["In the last week","Through the year","Never"], a:1, w:"Spread planning avoids the last-minute rush and bad choices.", bonus:true },
+ { t:"Bonus: Goal buckets", i:"target", l:"Group goals by horizon: under 3 years, 3–7, 7+. Each deserves a different risk level.", q:"Short-term goals suit…", o:["High-risk","Stable options","Anything"], a:1, w:"Timelines decide the risk your money can afford.", bonus:true }
+];
+
+/* Journey: 7 modules x 2 steps (lesson + check). */
+D.journey = [
+ { id:"basics", n:"Money Basics", i:"book", d:"What money is for, and how it works.", steps:[
+   { h:"Money is a tool", b:"Money isn't the goal; what it lets you do is. Start by naming what you want your money to do for you in 5 years.", q:"A good first step in money planning is…", o:["Buy a stock","Know what you want it to do","Cut every expense"], a:1, w:"Direction first, then tactics." },
+   { h:"Income, spending, saving", b:"Income minus spending leaves saving, but flip it: decide saving first, then spend the rest.", q:"'Pay yourself first' means…", o:["Spend on yourself","Save before you spend","Skip bills"], a:1, w:"Setting savings aside first protects it." } ]},
+ { id:"budget", n:"Budgeting That Works", i:"chart", d:"A simple plan you'll actually follow.", steps:[
+   { h:"The 50/30/20 starting point", b:"Roughly 50% needs, 30% wants, 20% savings and extra debt payments. Adjust for your life; the point is the conversation.", q:"The '20' is mainly for…", o:["Wants","Savings and debt","Rent"], a:1, w:"It's the part that builds your future." },
+   { h:"Track, then tune", b:"Track three weeks of spending, find the leak that surprises you, and fix just that one first.", q:"Where do you start fixing?", o:["Everything","The biggest surprise","Nothing"], a:1, w:"One change you keep beats ten you drop." } ]},
+ { id:"safety", n:"Your Safety Net", i:"shield", d:"Emergency funds and why they come first.", steps:[
+   { h:"Why a buffer", b:"Surprises are normal: medical bills, repairs, job gaps. A buffer keeps them from becoming debt.", q:"Without a buffer, surprises often become…", o:["Savings","Debt","Gifts"], a:1, w:"Borrowing at high interest is the usual result." },
+   { h:"How big and where", b:"Aim for 3–6 months of essentials in an easy-to-access, low-risk place. Build it in steps: 1 month first.", q:"Where does an emergency fund belong?", o:["Highest-risk assets","Easy access, low risk","Locked for 10 years"], a:1, w:"Availability beats return here." } ]},
+ { id:"debt", n:"Smart Debt & Credit", i:"card", d:"Borrow with eyes open.", steps:[
+   { h:"Good vs costly debt", b:"Debt is a tool with a price. Compare interest rate, purpose and your ability to repay. Cards left unpaid are the costliest.", q:"Which usually costs the most?", o:["Home loan","Unpaid card balance","Education loan"], a:1, w:"Revolving card interest is typically highest." },
+   { h:"Pay down strategy", b:"Avalanche pays highest rate first and saves most interest; snowball pays smallest first and builds momentum.", q:"Avalanche targets…", o:["Smallest balance","Highest rate","Newest loan"], a:1, w:"It minimises total interest." } ]},
+ { id:"invest", n:"Investing Basics", i:"trend", d:"Risk, return, time and mix.", steps:[
+   { h:"Risk and return travel together", b:"Higher potential returns come with higher uncertainty. Nothing in investing is both guaranteed and high.", q:"Higher return potential usually means…", o:["Less risk","More uncertainty","A guarantee"], a:1, w:"Be suspicious of anything promising both." },
+   { h:"Mix, time and rhythm", b:"Spread across assets, match to your timeline and invest regularly. Avoid reacting to every headline.", q:"A steady approach is…", o:["Timing the market","Regular, diversified investing","Chasing last year's winner"], a:1, w:"Process beats prediction." } ]},
+ { id:"goals", n:"Goals & Timelines", i:"target", d:"Match money to the time you have.", steps:[
+   { h:"Name, price, date", b:"Every goal needs a name, a rupee target and a date. Without all three it's a wish.", q:"A goal needs…", o:["Hope","Name, amount, date","Only an amount"], a:1, w:"Specifics turn intentions into plans." },
+   { h:"Short money, long money", b:"Money needed in under 3 years prefers stability; long-term goals can handle growth-oriented risk.", q:"A goal due in 18 months prefers…", o:["Stability","Maximum risk","Speculation"], a:0, w:"Little time means little room to recover from a fall." } ]},
+ { id:"protect", n:"Protecting What Matters", i:"umbrella", d:"Insurance, simply.", steps:[
+   { h:"Insure the big risks", b:"Insurance is for losses you can't absorb: health emergencies, loss of income, major liabilities.", q:"Insurance is best for…", o:["Small, frequent costs","Rare, large losses","Building wealth"], a:1, w:"Pay a small premium to avoid a ruinous cost." },
+   { h:"Cover that fits", b:"Term cover should reflect dependants, loans and goals. Review after big life events.", q:"Review cover when…", o:["Never","Life changes","Only at renewal"], a:1, w:"Marriage, kids, loans change the number." } ]}
+];
+
+D.scenarios = {
+ "thu-beginner": { title:"The unexpected ₹10,000", setup:"A relative gifts you ₹10,000 out of the blue. You have almost no savings. What do you do?", opts:[
+   { t:"Spend it all on that new gadget", s:20, f:"Understandable, but you'd start from zero again. A gift is a rare chance to build a buffer." },
+   { t:"Put ₹7,000 in your emergency pot, enjoy ₹3,000", s:95, f:"Balanced. You build safety and still feel the win, which makes the habit sustainable." },
+   { t:"Put all ₹10,000 into a high-risk investment", s:35, f:"Building a cushion usually comes before taking risk. A fall here could leave you with nothing to fall back on." } ],
+   lesson:"Windfalls are best split: mostly to your future, a little for joy." },
+ "thu-young": { title:"The raise decision", setup:"You've received a 15% raise. Your rent and subscriptions already feel tight. What's your move?", opts:[
+   { t:"Upgrade lifestyle: new flat, new phone", s:25, f:"Lifestyle creep absorbs raises quietly. Joy is fine, but nothing is left for goals." },
+   { t:"Auto-send half of the raise to savings, enjoy the rest", s:96, f:"This is the habit the best savers share. You still feel richer, and goals accelerate." },
+   { t:"Save the whole raise, cut all fun", s:55, f:"Admirable, but a plan without joy is hard to sustain. Aim for a rule you can keep." } ],
+   lesson:"Give every raise a job before it becomes spending." },
+ "thu-investor": { title:"The hot sector", setup:"A sector is up 60% this year and everyone talks about it. Your simulated portfolio is already above target equity. What do you do?", opts:[
+   { t:"Add more to catch the momentum", s:20, f:"That's recency bias. Chasing winners often means buying after the rise." },
+   { t:"Follow your written rebalancing rule", s:97, f:"A rule made in calm times beats a decision made in excitement. That's what process means." },
+   { t:"Sell everything and wait for a fall", s:30, f:"Timing both exits and entries is very hard. Large moves based on feeling tend to cost more." } ],
+   lesson:"A rule written in calm protects you in noise. (Simulated discussion, not advice.)" },
+ "thu-family": { title:"The school fee surprise", setup:"A school fee jumps by ₹40,000 this term, due in 3 weeks. You have a home loan EMI and some savings. What first?", opts:[
+   { t:"Put it on a credit card and pay minimums", s:20, f:"Minimum payments let interest run and strain an already loaded budget." },
+   { t:"Use the sinking-fund pot for annual costs, then top it up monthly", s:94, f:"Planned pots stop predictable costs from becoming crises. Rebuild it so it's ready next time." },
+   { t:"Break your retirement investments", s:35, f:"That trades a short-term gap for a long-term hole. Look at planned pots and cash flow first." } ],
+   lesson:"Name predictable costs, then fund them monthly." },
+ "thu-saver": { title:"The idle goal money", setup:"Your home down payment is due in 2 years. A friend says to put it in a high-return, high-risk fund to get there faster. What do you do?", opts:[
+   { t:"Go all in on the risky fund", s:20, f:"A fall close to the due date can't be recovered in time. Time horizon matters more than return chasing." },
+   { t:"Keep it in stable, accessible options matched to the date", s:96, f:"Short timelines favour stability. Your discipline does the heavy lifting here." },
+   { t:"Leave it in a plain account earning nothing", s:50, f:"Safe, but idle cash loses to inflation. Stable options that earn something are a middle path." } ],
+   lesson:"Match risk to the date of the goal, not to the hope for it." }
+};
+
+/* Savings challenge rounds. Amounts scale by profile (rounded). */
+D.savingsRounds = [
+ { t:"Morning coffee run", d:"Your usual café coffee costs", base:180, opts:[["Buy it","spend"],["Brew at home","save",0.8],["Skip today","save",1]] },
+ { t:"Lunch plans", d:"Colleagues are ordering in. Your share is", base:420, opts:[["Order in","spend"],["Bring leftovers","save",0.7],["Cook a quick meal","save",0.6]] },
+ { t:"Late-night shopping", d:"A flash sale on something you didn't need", base:1500, opts:[["Buy now","spend"],["Wait 24 hours","save",1],["Add to wishlist","save",1]] },
+ { t:"Subscription audit", d:"A subscription you barely use costs per month", base:499, opts:[["Keep it","spend"],["Pause it","save",1],["Downgrade the plan","save",0.5]] },
+ { t:"Weekend ride", d:"A cab to a spot reachable by metro", base:350, opts:[["Take the cab","spend"],["Take the metro","save",0.75],["Share a ride","save",0.5]] },
+ { t:"Payday moment", d:"Payday! Move a portion to goals first", base:2500, opts:[["Spend freely","spend"],["Auto-transfer to goals","save",1],["Half and half","save",0.5]] }
+];
+
+D.personality = {
+ qs: [
+  { q:"A surprise bonus arrives. First instinct?", o:["Plan how it supports my goals","Look for something to grow it","Park it safely","Treat myself, I earned it"] },
+  { q:"Markets fall 15%. You…", o:["Stick to my plan","See it as a chance","Feel uneasy, want safety","Don't check"] },
+  { q:"Your ideal budget is…", o:["A clear monthly plan","Flexible, outcomes matter","Conservative with buffers","Loose, I enjoy now"] },
+  { q:"A friend offers a 'hot tip'. You…", o:["Ask how it fits my plan","Dig in and test small","Skip, too risky","Sounds fun to try"] },
+  { q:"Saving for a goal feels…", o:["Satisfying, like progress","Slow versus investing","Reassuring","Boring, life is now"] },
+  { q:"Your phrase for money is…", o:["A plan","An opportunity","Security","Freedom to enjoy"] }
+ ],
+ types: [
+  { id:"B", n:"Steady Builder", i:"rocket", d:"You like plans and progress. You finish what you start and trust the process.", s:["Consistency","Goal clarity"], w:["Can be slow to adapt","May under-use growth"], tip:"Add one small learning goal each month to widen your toolkit." },
+  { id:"E", n:"Bold Explorer", i:"compass", d:"You're curious and comfortable with uncertainty. You look for opportunity.", s:["Curiosity","Risk comfort"], w:["Overconfidence","Chasing trends"], tip:"Write a rule for when you stop, and size positions to survive being wrong." },
+  { id:"G", n:"Careful Guardian", i:"shield", d:"You value safety and stability. You prepare for rainy days.", s:["Protection","Discipline"], w:["Too much idle cash","Missing growth"], tip:"Review whether long-term money is beating inflation." },
+  { id:"P", n:"Present Enjoyer", i:"sun", d:"You value experiences now. You're generous and spontaneous.", s:["Enjoying life","Generosity"], w:["Thin buffers","Delayed saving"], tip:"Automate 'future-you' first so enjoying today stays guilt-free." }
+ ]
+};
+
+D.sim = {
+ start: 100000, years: ["Y1","Y2","Y3","Y4","Y5"],
+ assets: [ { k:"equity", n:"Equity", c:"#0F8F8D" }, { k:"debt", n:"Debt", c:"#5A55D6" }, { k:"gold", n:"Gold", c:"#C9962B" }, { k:"cash", n:"Cash", c:"#7A8798" } ],
+ presets: [ { n:"Cautious", a:{equity:20,debt:50,gold:10,cash:20} }, { n:"Balanced", a:{equity:50,debt:30,gold:10,cash:10} }, { n:"Growth", a:{equity:75,debt:10,gold:10,cash:5} }, { n:"All equity", a:{equity:100,debt:0,gold:0,cash:0} } ],
+ scenarios: [
+  { id:"steady", n:"Steady growth", d:"Markets rise with normal bumps.", r:{ equity:[14,12,15,10,13], debt:[7,7,7,7,7], gold:[6,8,5,7,6], cash:[3.5,3.5,3.5,3.5,3.5] } },
+  { id:"storm", n:"Sharp fall, then recovery", d:"A bad first year, then a rebound.", r:{ equity:[-28,18,22,12,10], debt:[8,8,7,7,7], gold:[18,10,4,5,6], cash:[3.5,3.5,3.5,3.5,3.5] } },
+  { id:"side", n:"Sideways market", d:"A lot of noise, little progress.", r:{ equity:[2,-3,4,1,3], debt:[6.5,6.5,6.5,6.5,6.5], gold:[3,2,4,1,3], cash:[3.5,3.5,3.5,3.5,3.5] } },
+  { id:"lost", n:"The Lost Decade", d:"Unlocks at level 3. Long, painful drag.", lvl:3, r:{ equity:[-12,-8,5,-6,7], debt:[6,6,6,6,6], gold:[12,9,3,6,4], cash:[3.5,3.5,3.5,3.5,3.5] } }
+ ]
+};
+
+D.healthChecks = [
+ { q:"Did you track your spending this week?", yes:"Great. Awareness is the base of control.", no:"A quick scan of your last 5 transactions is a fine start." },
+ { q:"Are your upcoming bills and EMIs covered?", yes:"Perfect. Predictability reduces stress.", no:"List the next three due dates and set reminders today." },
+ { q:"Did you set money aside before spending?", yes:"Paying yourself first is the strongest habit.", no:"Try moving a small fixed amount on payday." },
+ { q:"Do you know your safety-net size?", yes:"Knowing it is half of building it.", no:"Divide your savings by your monthly essentials to find out." }
+];
+
+/* Scripted AI. Each intent: k = keywords; r = function(profile, ctx) → { text, cards? } */
+D.ai = {
+ quick: {
+  beginner: ["How do I start saving?","What is an emergency fund?","Explain my wellness score","What should I do today?"],
+  young:    ["How should I automate savings?","Is my savings rate good?","What's a SIP?","What should I do today?"],
+  investor: ["Explain drift and rebalancing","How do I avoid recency bias?","Explain my wellness score","What should I do today?"],
+  family:   ["How much term cover do I need?","Prepay loan or invest?","How's my education fund?","What should I do today?"],
+  saver:    ["Where should short-goal money live?","Am I on track for my down payment?","Explain my wellness score","What should I do today?"]
+ },
+ intents: [
+  { id:"today", k:["today","do now","next","recommend","activity","what should"], r:function(p,c){ return { text:"Here's what I'd do today, "+p.first+": **"+c.today.name+"** ("+c.today.sub.toLowerCase()+"). It takes about "+c.today.mins+" minutes and earns "+c.today.xp+" XP. And your focus this week: **"+p.focus+"**. "+p.focusWhy, cards:[{t:c.today.name,d:c.today.mins+" min · "+c.today.xp+" XP",href:"daily-activities.html?day="+c.today.id,i:c.today.icon}] }; } },
+  { id:"score", k:["score","wellness","health","explain my","how am i","doing"], r:function(p,c){ return { text:"Your simulated wellness score is **"+c.score+"/100**, "+(c.score>=c.prev?"up":"down")+" "+Math.abs(c.score-c.prev)+" from last week. Strongest: **"+c.best+"**. Biggest chance to grow: **"+c.weak+"**. The score only moves from habits you build: tracking, saving, learning and reviewing goals. It's a demo number, not an official FinScore." }; } },
+  { id:"emergency", k:["emergency","buffer","safety net","rainy"], r:function(p){ return { text:"An emergency fund is money set aside only for surprises. Aim for **3–6 months of essentials** in an accessible, low-risk place. "+(p.id==="beginner"?"Start with ₹500 a week towards your first month. Small and steady counts.":p.id==="family"?"With dependants and a loan, lean to the 6-month end.":"Check if yours matches your household's essentials."), cards:[{t:"Journey: Your Safety Net",d:"2 quick steps · 10 XP",href:"financial-journey.html?m=safety",i:"shield"}] }; } },
+  { id:"save", k:["save","saving","automate","savings rate","budget","spend"], r:function(p){ return { text:p.id==="young"?"Your simulated savings rate is about **21%**, comfortably above the 20% rule of thumb. To lock it in: **automate a transfer on payday** so saving happens before spending.":p.id==="beginner"?"Start tiny: move **₹250 a week** the day income arrives. In a year that's ₹13,000, and the habit matters more than the amount. Try the Savings Challenge on Saturday.":p.id==="saver"?"Your discipline is your edge. The next gains come from **where** savings sit: stable for short goals, growth-oriented for long ones.":"A simple frame: 50% needs, 30% wants, 20% saving and extra debt payments. Adjust to your life, and automate the 20.", cards:[{t:"Savings Challenge",d:"Smart Saturday · 15 XP",href:"daily-activities.html?day=sat",i:"coins"}] }; } },
+  { id:"invest", k:["invest","sip","rebalanc","drift","equity","mutual","market","portfolio","diversif"], r:function(p){ return { text:(p.id==="investor"?"Your simulated equity share has **drifted above target** after a strong run. Rather than reacting, write a rule: *'If any asset drifts 5 points from target, rebalance at quarter-end.'* ":"I can explain concepts such as diversification, SIPs and risk vs return. ")+"I won't recommend specific products or predict markets. Everything in the simulator is **virtual money and illustrative returns**.", cards:[{t:"Investment Simulator",d:"Wealth Wednesday · virtual money",href:"daily-activities.html?day=wed",i:"trend"}] }; } },
+  { id:"goal", k:["goal","down payment","education","track","target","on track","home"], r:function(p,c){ var g=p.goals[0]; if(!g) return { text:"You haven't set a goal yet. A goal is just a name, an amount and a date. The Goal planner can size the monthly amount for you.", cards:[{t:"Goal planner",d:"Set your first goal",href:"financial-journey.html#goals",i:"target"}] }; var pct=Math.round(g.saved/g.target*100); return { text:"Your lead goal is **"+g.name+"**: "+(g.unit==="%"?pct+"% complete":"₹"+c.inr(g.saved)+" of ₹"+c.inr(g.target)+" ("+pct+"%)")+", due "+g.due+". "+(g.monthly?"At ₹"+c.inr(g.monthly)+" a month you're "+(pct>50?"well on track":"building steadily")+". ":"")+"A tiny step-up tends to beat a big one-off. Try Friday's goal review for a nudge.", cards:[{t:"Goal Review",d:"Financial Freedom Friday · 15 XP",href:"daily-activities.html?day=fri",i:"target"}] }; } },
+  { id:"debt", k:["debt","loan","emi","prepay","credit","card","interest"], r:function(p){ return { text:p.id==="family"?"Prepay or invest? A common frame: compare your **loan's interest rate** to the realistic after-tax return you'd expect from investing, then add peace of mind. Many families do both: prepay a bit, keep investing, and keep an emergency buffer first. I can't give personal advice, but I can walk you through the maths.":"For debt, the order is usually: **pay minimums on all, then target the highest interest rate** (avalanche), or the smallest balance for momentum (snowball). Unpaid card balances are typically the costliest.", cards:[{t:"Journey: Smart Debt & Credit",d:"2 quick steps · 10 XP",href:"financial-journey.html?m=debt",i:"card"}] }; } },
+  { id:"insure", k:["insurance","cover","term","protect","health cover"], r:function(p){ return { text:"Insurance transfers large risks you couldn't absorb. A common starting guide for term cover is about **10–15× annual income**, then adjusted for loans, dependants and goals. "+(p.id==="family"?"For your household, check cover against the home loan and your children's goals.":"Review when life changes."), cards:[{t:"Journey: Protecting What Matters",d:"2 quick steps · 10 XP",href:"financial-journey.html?m=protect",i:"umbrella"}] }; } },
+  { id:"learn", k:["learn","lesson","teach","explain","what is","how does","bias","recency","kids","know"], r:function(p){ var l=p.learn[0]; return { text:"For you, I'd start with **"+l.t+"**: "+l.d+" Then try a quick quiz to lock it in.", cards:[{t:l.t,d:"Learning recommendation",href:l.mod?"financial-journey.html?m="+l.mod:l.href,i:"book"},{t:"Quiz Arena",d:"20 XP for a round ≥ 60%",href:"quiz-arena.html",i:"brain"}] }; } },
+  { id:"streak", k:["xp","level","streak","badge","progress","points"], r:function(p,c){ return { text:"You're **level "+c.level.n+" ("+c.level.name+")** with **"+c.xp+" XP**"+(c.next?", "+(c.next.xp-c.xp)+" XP to "+c.next.name:"")+". XP is virtual and never money. I only reward meaningful steps, so opening the app earns nothing, but a real review does.", cards:[{t:"Achievement Center",d:"Badges and level path",href:"achievement-center.html",i:"trophy"}] }; } },
+  { id:"risk", k:["risk","safe","afraid","worried","nervous","fall","crash"], r:function(p){ return { text:"Feeling uneasy about risk is normal and useful. Match each goal's **time horizon** to how much risk it can take: short goals want stability; long goals can ride out swings. Try the simulator's *'Sharp fall, then recovery'* to feel it with virtual money." }; } },
+  { id:"thanks", k:["thanks","thank you","great","cool","nice"], r:function(p){ return { text:"Anytime, "+p.first+". One small step a day adds up. See you tomorrow? 🌱" }; } },
+  { id:"hello", k:["hi","hello","hey","namaste","good morning"], r:function(p){ return { text:"Hi "+p.first+"! "+p.ai }; } },
+  { id:"refuse", k:["which stock","best fund","tip","crypto","bitcoin","guarantee","double my money","buy now","hot stock"], r:function(){ return { text:"I can't recommend specific products or predict markets, and I only know this simulated demo profile. What I *can* do is explain how to think about risk, diversification and time horizon. Want a lesson on that?" }; } }
+ ],
+ fallback: function(p){ return { text:"I'm a scripted demo companion, so I may not know that one yet. Try asking about **saving, goals, investing basics, debt, protection or today's activity**, or pick a suggestion below." }; }
+};
+})();

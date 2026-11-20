@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en-IN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Finscore Gamified & Playful Direction - Prototype</title>
+<link rel="stylesheet" href="assets/shared.css">
+<link rel="stylesheet" href="assets/games.css">
+<link rel="stylesheet" href="assets/playful.css">
+</head>
+<body data-dir="play" data-lock="play">
+<div id="fs-header"></div>
+<main class="wrap" id="main">
+  <section class="card hero play-hero" style="margin-top:20px">
+    <div class="mascot" id="mascot" role="button" tabindex="0" aria-label="Fin the fox, tap for a tip">🦊</div>
+    <div class="grow">
+      <p class="eyebrow">Direction 2 · Gamified &amp; Playful &nbsp;<span class="badge new">Proposed</span></p>
+      <h1 style="font-size:clamp(26px,4vw,38px)">Hey Aarav! Ready for today's quests?</h1>
+      <div class="speech" id="speech" aria-live="polite">Tap me for a money tip!</div>
+      <div class="row wrapx" style="margin-top:14px"><span class="chip gold" data-fs-level>Lv</span><div class="bar lvbar grow" style="min-width:140px;background:rgb(255 255 255/.25)"><i data-fs-level-bar style="background:#fff;width:0"></i></div><span class="small" data-fs-level-left></span></div>
+    </div>
+  </section>
+
+  <div class="grid g3" style="margin-top:20px">
+    <!-- Rings -->
+    <section class="card">
+      <p class="eyebrow">Concept A</p><h2>Today's rings</h2>
+      <div class="rings"><svg viewBox="0 0 200 200" id="rings" role="img" aria-label="Three activity rings: Learn, Save, Protect"></svg><div class="rings-c"><b id="ringTotal" class="display">0</b><span class="xs">of 3 closed</span></div></div>
+      <ul class="legend" style="list-style:none;padding:0;justify-content:center;margin:0"><li><i style="background:#e8447a"></i>Learn</li><li><i style="background:#0fb5a6"></i>Save</li><li><i style="background:#f5a524"></i>Protect</li></ul>
+    </section>
+    <!-- Quests -->
+    <section class="card" style="grid-column: span 2">
+      <div class="row between wrapx"><h2>Daily quests</h2><span class="badge gold"><span id="qDone">0</span> / 5 done</span></div>
+      <div class="stack" id="quests" style="margin-top:12px"></div>
+      <details class="why"><summary>Engagement design</summary><ul><li><b>Why open:</b> five bite-sized quests, each tied to a real habit.</li><li><b>Why return:</b> rings reset daily, the weekly map rewards consistency.</li><li><b>Guardrail:</b> points are virtual, there is no ranking, and missing a day only pauses your cadence.</li></ul></details>
+    </section>
+  </div>
+
+  <div class="grid g2" style="margin-top:16px">
+    <!-- Chest -->
+    <section class="card chest-card">
+      <p class="eyebrow">Daily reward</p><h2>Treasure chest</h2>
+      <button class="chest" id="chest" disabled aria-label="Treasure chest, locked">🎁</button>
+      <p class="small muted" id="chestMsg" aria-live="polite">Complete 3 quests to unlock today's chest.</p>
+      <p class="xs muted">Rewards are virtual: stickers, titles and tips. Never cash.</p>
+    </section>
+    <!-- Quest map -->
+    <section class="card">
+      <p class="eyebrow">Concept A · weekly</p><h2>November Quest map</h2>
+      <div class="map" id="map" role="list"></div>
+      <p class="small muted" id="mapMsg" style="margin-top:12px"></p>
+    </section>
+  </div>
+
+  <section class="card" style="margin-top:16px">
+    <div class="row between wrapx"><div><p class="eyebrow">Concept I</p><h2>Badge shelf</h2></div><a class="btn ghost sm" href="financial-journey.html#rewards">Full collection →</a></div>
+    <div class="shelf" id="shelf"></div>
+  </section>
+
+  <section style="margin-top:16px">
+    <h2 style="margin-bottom:12px">Mini-games portal</h2>
+    <div class="grid g4 keep2">
+      <a class="card interactive portal" href="financial-games.html#spin" style="text-decoration:none;color:inherit"><span class="pe">🎡</span><b>Spin &amp; Learn</b><span class="small muted">Daily spin</span></a>
+      <a class="card interactive portal" href="financial-games.html#quiz" style="text-decoration:none;color:inherit"><span class="pe">🏟️</span><b>Quiz Arena</b><span class="small muted">3 levels</span></a>
+      <a class="card interactive portal" href="financial-games.html#cards" style="text-decoration:none;color:inherit"><span class="pe">🃏</span><b>Swipe cards</b><span class="small muted">1 minute</span></a>
+      <a class="card interactive portal" href="financial-games.html#sim" style="text-decoration:none;color:inherit"><span class="pe">📈</span><b>Investing Sim</b><span class="small muted">Practice only</span></a>
+    </div>
+  </section>
+</main>
+<div id="fs-footer"></div>
+<script src="assets/shared.js"></script>
+<script src="assets/playful.js"></script>
+</body>
+</html>

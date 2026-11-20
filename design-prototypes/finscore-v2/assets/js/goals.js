@@ -1,0 +1,32 @@
+/* Goals & Planning: goal list, goal builder, retirement illustration, weekly review */
+(function () {
+  const F = window.FS; let ra = 6, rc = null;
+  const mine = () => { const e = F.S.extra; e.goals = e.goals || {}; return (e.goals[F.S.profile] = e.goals[F.S.profile] || []); };
+  const fv = (P, C, rate, n) => { const i = rate / 100 / 12; return i === 0 ? P + C * n : P * Math.pow(1 + i, n) + C * ((Math.pow(1 + i, n) - 1) / i); };
+  const need = (T, rate, n) => { const i = rate / 100 / 12; return i === 0 ? T / n : T * i / (Math.pow(1 + i, n) - 1); };
+  F.init({
+    id: "goals-planning", title: "Goals & Planning",
+    render(p) {
+      const G = p.goals.concat(mine()), years = p.retireAge - p.age; rc = rc == null ? Math.round(p.income * .1 / 500) * 500 : rc;
+      const cur = Math.round(p.goals.reduce((a, g) => a + (g.icon === "trend" ? g.saved : 0), 0) || p.income * 3);
+      const lo = fv(cur, rc, Math.max(0, ra - 3), years * 12), mid = fv(cur, rc, ra, years * 12), hi = fv(cur, rc, ra + 3, years * 12), mx = hi;
+      return `${F.head("Goals & Planning", "Name it, date it, fund it. Every projection is an illustration with a range — never a promise.", `<span class="sim-badge">Simulated</span>`)}
+      <section class="card" aria-label="Goals"><div class="card-h"><h3>${F.icon("target", 20)} ${p.first}'s goals</h3><button class="btn sm" id="newg">${F.icon("plus", 16)} New goal</button></div><ul class="list">${G.map(g => { const v = Math.round(g.saved / g.target * 100); return `<li class="li" style="align-items:center"><span class="ico">${F.icon(g.icon || "target", 20)}</span><div style="flex:1"><div class="row between"><b>${g.name}</b><span class="num sm">${v}%</span></div>${F.bar(v)}<div class="xs muted" style="margin-top:4px">${F.cpt(g.saved)} of ${F.cpt(g.target)} · ${g.due}${g.monthly ? " · " + F.inr(g.monthly) + "/mo" : ""}${g.mine ? ' · <span class="tag ai">new</span>' : ""}</div></div></li>`; }).join("")}</ul></section>
+      <div class="grid g2" style="margin-top:18px;align-items:start"><section class="card" id="retirement" aria-label="Retirement planner"><div class="card-h"><h3>${F.icon("sun", 20)} Retirement illustration</h3><span class="sim-badge">Illustration</span></div>
+        <p class="sm muted" style="margin-bottom:12px">${p.first} is ${p.age}; assuming retirement at ${p.retireAge} (${years} years). Starting corpus used: ${F.cpt(cur)}.</p>
+        <label class="f">Monthly contribution: <b>${F.inr(rc)}</b><input type="range" id="rc" min="0" max="${Math.round(p.income * .5 / 500) * 500}" step="500" value="${rc}" aria-label="Monthly contribution"></label>
+        <label class="f" style="margin-top:12px">Assumed yearly growth (middle case): <b>${ra}%</b><input type="range" id="ra" min="3" max="12" value="${ra}" aria-label="Assumed growth"></label>
+        <div class="stack" style="gap:10px;margin-top:16px">${[["Cautious", lo, "var(--warn)"], ["Middle", mid, "var(--brand)"], ["Optimistic", hi, "var(--pos)"]].map(r => `<div><div class="row between sm"><span>${r[0]} case</span><b class="num">${F.cpt(r[1])}</b></div><div class="bar"><i style="width:${r[1] / mx * 100}%;background:${r[2]}"></i></div></div>`).join("")}</div>
+        <p class="xs muted" style="margin-top:12px">Before inflation and tax. Real returns vary and can be negative. Not a forecast or advice.</p></section>
+      <section class="card" aria-label="Weekly review"><div class="card-h"><h3>${F.icon("calendar", 20)} Weekly financial review</h3><span class="tag">10 min</span></div><p class="sm muted">A short ritual that keeps goals moving.</p><ul class="list" style="margin:12px 0">${["Look at income and large expenses", "Check upcoming bills", "Move money to a goal", "Pick one focus for next week"].map(t => `<li class="row sm">${F.icon("check", 16)} ${t}</li>`).join("")}</ul><button class="btn" id="wr">Start weekly review</button>
+        <div class="li" style="margin-top:16px"><span class="ico ai">${F.icon("spark", 18)}</span><div class="sm"><b>Fin suggests</b><br>${p.focus[0].toUpperCase() + p.focus.slice(1)}.</div></div></section></div>`;
+    },
+    after(p, root) {
+      ["ra", "rc"].forEach(id => { const el = F.$("#" + id, root); el.oninput = () => { el.previousElementSibling.textContent = id === "ra" ? el.value + "%" : F.inr(+el.value); }; el.onchange = () => { if (id === "ra") ra = +el.value; else rc = +el.value; F.rerender(); }; }); F.$("#wr", root).onclick = () => F.runActivity("w-review", () => F.rerender());
+      const hash = location.hash === "#retirement"; if (hash) F.$("#retirement", root).scrollIntoView({ block: "start" });
+      F.$("#newg", root).onclick = () => { const m = F.modal(`<h2 style="margin-bottom:6px">Create a goal</h2><p class="sm muted" style="margin-bottom:14px">Illustrative maths only. Nothing is saved to a real account.</p><form class="stack" style="gap:12px" id="gf"><label class="f">Goal name<input name="n" required value="Family holiday" maxlength="40"></label><label class="f">Target amount (₹)<input name="t" type="number" min="1000" step="1000" value="300000" required></label><label class="f">Months to reach it<input name="m" type="number" min="3" max="360" value="24" required></label><label class="f">Assumed yearly growth: <span id="gr">5</span>%<input name="r" type="range" min="0" max="10" value="5"></label><div class="li" aria-live="polite" id="gout"></div><button class="btn" type="submit">Add goal</button></form>`, { label: "Create goal" }), f = F.$("#gf", m.el);
+        const calc = () => { const t = +f.t.value, n = +f.m.value, r = +f.r.value; F.$("#gr", m.el).textContent = r; const a = need(t, Math.max(0, r - 2), n), b = need(t, r + 2, n); F.$("#gout", m.el).innerHTML = `<span class="ico">${F.icon("coins", 18)}</span><div class="sm"><b>≈ ${F.inr(Math.min(a, b))}–${F.inr(Math.max(a, b))} per month</b><br><span class="muted">Range based on ${Math.max(0, r - 2)}–${r + 2}% growth. Higher growth means more risk.</span></div>`; }; f.oninput = calc; calc();
+        f.onsubmit = e => { e.preventDefault(); const t = +f.t.value, n = +f.m.value, d = new Date(); d.setMonth(d.getMonth() + n); mine().push({ id: "n" + Date.now(), name: f.n.value, icon: "target", target: t, saved: 0, due: d.toLocaleString("en", { month: "short", year: "numeric" }), monthly: Math.round(need(t, +f.r.value, n) / 100) * 100, mine: true }); F.save(); m.close(); F.flag("goalNew"); F.addXP(10, "Goal created"); F.confetti(); F.rerender(); }; };
+    }
+  });
+})();

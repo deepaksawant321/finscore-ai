@@ -1,0 +1,32 @@
+/* gamified-experience.html: chunky, colourful, game-inspired */
+.play-hero { display: flex; gap: 22px; align-items: center; padding: 26px; }
+.mascot { font-size: 84px; width: 130px; height: 130px; flex: none; display: grid; place-items: center; border-radius: 50%; background: rgb(255 255 255/.25); border: 3px solid #fff; animation: float 3.2s ease-in-out infinite; cursor: pointer; user-select: none; }
+.mascot:active { transform: scale(.9) rotate(-8deg); }
+.speech { margin-top: 10px; display: inline-block; background: #fff; color: #1c1740; border-radius: 18px 18px 18px 4px; padding: 8px 14px; font-weight: 700; font-size: 15px; max-width: 100%; animation: pop .4s both; }
+@media (max-width: 560px) { .play-hero { flex-direction: column; text-align: center; } .mascot { width: 100px; height: 100px; font-size: 64px; } }
+.rings { position: relative; width: 200px; margin: 8px auto; } .rings svg { width: 100%; display: block; transform: rotate(-90deg); }
+.rings-c { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; } .rings-c b { font-size: 40px; }
+.rg-track { fill: none; stroke: var(--surface-2); stroke-width: 16; } .rg { fill: none; stroke-width: 16; stroke-linecap: round; transition: stroke-dashoffset 1s var(--ease); }
+.quest { display: grid; grid-template-columns: 48px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 12px; border: 2.5px solid var(--ink); border-radius: 18px; background: var(--surface); transition: transform .2s var(--ease), background .3s; }
+.quest:hover { transform: translateX(4px); }
+.quest .q-ico { width: 48px; height: 48px; border-radius: 14px; display: grid; place-items: center; font-size: 24px; border: 2.5px solid var(--ink); }
+.quest.done { background: #d8f7e4; } .quest.done b { text-decoration: line-through; }
+.quest.done .btn { background: #fff; }
+.quest .xp { font-size: 12px; font-weight: 800; color: var(--warn); }
+@media (max-width: 520px) { .quest { grid-template-columns: 44px minmax(0, 1fr); } .quest .btn { grid-column: 1 / -1; } }
+.chest-card { text-align: center; display: grid; justify-items: center; gap: 8px; }
+.chest { font-size: 96px; border: 0; background: none; line-height: 1; filter: grayscale(1) opacity(.55); transition: transform .3s var(--ease); }
+.chest.ready { filter: none; animation: wiggle 1.2s infinite; cursor: pointer; } .chest.open { animation: none; filter: none; transform: scale(1.15); }
+@keyframes wiggle { 0%, 100% { transform: rotate(0); } 20% { transform: rotate(-8deg) scale(1.05); } 40% { transform: rotate(8deg) scale(1.05); } 60% { transform: rotate(-4deg); } }
+.map { display: flex; justify-content: space-between; gap: 6px; margin-top: 18px; position: relative; padding: 8px 0; }
+.map::before { content: ""; position: absolute; left: 6%; right: 6%; top: 36px; border-top: 4px dotted var(--ink); opacity: .35; }
+.node { position: relative; z-index: 1; text-align: center; flex: 1; font-size: 12px; font-weight: 800; }
+.node i { display: grid; place-items: center; width: 44px; height: 44px; margin: 0 auto 4px; border-radius: 50%; border: 3px solid var(--ink); background: var(--surface); font-style: normal; font-size: 18px; }
+.node.done i { background: var(--brand); } .node.today i { background: var(--gold); animation: pulse 1.6s infinite; } .node.boss i { border-radius: 14px; }
+.shelf { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 12px; margin-top: 14px; }
+.shelf button { text-align: center; padding: 12px 6px; border: 2.5px solid var(--ink); border-radius: 18px; background: var(--surface); font-weight: 800; font-size: 12px; transition: transform .2s var(--ease); min-height: 44px; }
+.shelf button:hover { transform: translateY(-4px) rotate(-2deg); } .shelf .ico { display: grid; place-items: center; width: 52px; height: 52px; margin: 0 auto 6px; border-radius: 50%; font-size: 26px; background: var(--hero); color: #fff; }
+.shelf button.locked .ico { background: var(--surface-2); color: var(--muted); filter: grayscale(1); } .shelf button.locked { opacity: .8; border-style: dashed; }
+.card.portal { display: grid; gap: 4px; text-align: center; justify-items: center; padding: 18px 10px; } .portal .pe { font-size: 42px; }
+.node { min-width: 0; }
+@media (max-width: 520px) { .node i { width: 34px; height: 34px; font-size: 14px; } .map::before { top: 30px; } .node { font-size: 11px; } }

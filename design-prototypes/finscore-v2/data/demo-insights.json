@@ -1,0 +1,294 @@
+{
+  "insights": {
+    "beginner": [
+      {
+        "type": "good",
+        "t": "Your emergency goal is moving",
+        "b": "₹18,000 of ₹60,000 saved. At ₹3,000/month, the simulation estimates reaching it between Jan and Apr 2027.",
+        "cta": "See goal",
+        "href": "savings-adventure.html"
+      },
+      {
+        "type": "watch",
+        "t": "Cushion is under one month",
+        "b": "Your simulated cushion covers about 0.8 months of expenses. A one-month cushion is a common first milestone.",
+        "cta": "Emergency check",
+        "href": "daily-activities.html"
+      },
+      {
+        "type": "info",
+        "t": "Spending changed this month",
+        "b": "Food & delivery rose about 12% in this simulated data. Small shifts show up quickly at this income level.",
+        "cta": "Spending challenge",
+        "href": "daily-activities.html"
+      },
+      {
+        "type": "good",
+        "t": "Score improved by 27 points",
+        "b": "Mostly from two weeks of consistent saving (simulated).",
+        "cta": "Explain the score",
+        "href": "financial-wellness.html"
+      }
+    ],
+    "young": [
+      {
+        "type": "good",
+        "t": "Score up 25 points",
+        "b": "Steadier monthly savings and a lower card balance helped (simulated).",
+        "cta": "Explain the score",
+        "href": "financial-wellness.html"
+      },
+      {
+        "type": "watch",
+        "t": "Emergency fund needs attention",
+        "b": "About 1.9 months covered. Your goal is 6; a ₹5,000 automation could shorten the path by months.",
+        "cta": "Plan it",
+        "href": "goals-planning.html"
+      },
+      {
+        "type": "info",
+        "t": "Education-loan on schedule",
+        "b": "EMI of ₹9,500 is about 10% of income — in a comfortable range in this simulation.",
+        "cta": "Debt overview",
+        "href": "financial-journey.html"
+      },
+      {
+        "type": "info",
+        "t": "Protection looks thin",
+        "b": "No term cover recorded in this simulated profile. Worth a concept review, not a rush.",
+        "cta": "Protection lesson",
+        "href": "daily-activities.html"
+      }
+    ],
+    "investor": [
+      {
+        "type": "watch",
+        "t": "Allocation may need review",
+        "b": "Equity is ~78% vs your 65% comfort level (simulated). Drift happens when markets run.",
+        "cta": "Open simulator",
+        "href": "investment-simulator.html"
+      },
+      {
+        "type": "good",
+        "t": "Savings rate is strong",
+        "b": "Roughly 53% of income saved or invested in this simulated profile.",
+        "cta": "See wellness",
+        "href": "financial-wellness.html"
+      },
+      {
+        "type": "info",
+        "t": "Protection is your lowest score",
+        "b": "Protection health 58/100. Cover adequacy is worth a periodic check.",
+        "cta": "Insurance awareness",
+        "href": "daily-activities.html"
+      },
+      {
+        "type": "good",
+        "t": "Financial independence on track",
+        "b": "Corpus at 31% of target with 8 years of buffer on the projected range.",
+        "cta": "Goal path",
+        "href": "goals-planning.html"
+      }
+    ],
+    "family": [
+      {
+        "type": "good",
+        "t": "Education fund at 23%",
+        "b": "₹9L of ₹40L. The projected range shows the target reachable by 2036 at the current pace (not guaranteed).",
+        "cta": "See goal",
+        "href": "savings-adventure.html"
+      },
+      {
+        "type": "watch",
+        "t": "Emergency fund needs attention",
+        "b": "About 3.1 months while the home loan EMI is ₹48,000. A larger buffer is common for single-earner risk.",
+        "cta": "Emergency check",
+        "href": "daily-activities.html"
+      },
+      {
+        "type": "info",
+        "t": "EMI is 20% of income",
+        "b": "Within a typical comfort range. Prepayment vs investing is a trade-off worth understanding.",
+        "cta": "Learn the trade-off",
+        "href": "daily-activities.html"
+      },
+      {
+        "type": "good",
+        "t": "Score improved by 18 points",
+        "b": "Debt and goals dimensions both rose (simulated).",
+        "cta": "Explain the score",
+        "href": "financial-wellness.html"
+      }
+    ],
+    "saver": [
+      {
+        "type": "good",
+        "t": "Down payment at 70%",
+        "b": "₹14L of ₹20L. At ₹38,000/month the simulation shows Aug 2027, possibly a month or two sooner.",
+        "cta": "Goal path",
+        "href": "savings-adventure.html"
+      },
+      {
+        "type": "good",
+        "t": "Emergency fund complete",
+        "b": "Six months covered. This is your foundation — nicely done.",
+        "cta": "See journey",
+        "href": "financial-journey.html"
+      },
+      {
+        "type": "info",
+        "t": "Long-term investing hasn't started",
+        "b": "Invest health is 44/100. After the goal, many people start a regular long-term habit.",
+        "cta": "Learn the basics",
+        "href": "daily-activities.html"
+      },
+      {
+        "type": "info",
+        "t": "Spending is steady",
+        "b": "Expenses moved less than 2% from last month in this simulation.",
+        "cta": "Review expenses",
+        "href": "daily-activities.html"
+      }
+    ]
+  },
+  "badges": [
+    {
+      "id": "b-first",
+      "name": "First Step",
+      "icon": "star",
+      "desc": "Completed your first activity",
+      "flag": "first",
+      "xp": 20
+    },
+    {
+      "id": "b-streak3",
+      "name": "3-Day Spark",
+      "icon": "flame",
+      "desc": "Reached a 3-day streak",
+      "flag": "streak3",
+      "xp": 30
+    },
+    {
+      "id": "b-streak7",
+      "name": "Week Warrior",
+      "icon": "flame",
+      "desc": "Reached a 7-day streak",
+      "flag": "streak7",
+      "xp": 60
+    },
+    {
+      "id": "b-streak30",
+      "name": "Habit Builder",
+      "icon": "crown",
+      "desc": "Reached a 30-day streak",
+      "flag": "streak30",
+      "xp": 150
+    },
+    {
+      "id": "b-learner",
+      "name": "Curious Mind",
+      "icon": "book",
+      "desc": "Finished 5 learning activities",
+      "flag": "learner",
+      "xp": 40
+    },
+    {
+      "id": "b-quiz",
+      "name": "Quiz Ace",
+      "icon": "brain",
+      "desc": "Scored 80%+ in the Quiz Arena",
+      "flag": "quizAce",
+      "xp": 50
+    },
+    {
+      "id": "b-spin",
+      "name": "Lucky Learner",
+      "icon": "spark",
+      "desc": "Completed a Spin & Learn round",
+      "flag": "spin",
+      "xp": 15
+    },
+    {
+      "id": "b-saver",
+      "name": "Goal Getter",
+      "icon": "target",
+      "desc": "Reached a savings milestone",
+      "flag": "milestone",
+      "xp": 60
+    },
+    {
+      "id": "b-sim",
+      "name": "Practice Investor",
+      "icon": "trend",
+      "desc": "Finished the Investment Simulator",
+      "flag": "sim",
+      "xp": 60
+    },
+    {
+      "id": "b-ai",
+      "name": "Curious Companion",
+      "icon": "chat",
+      "desc": "Asked the AI companion a question",
+      "flag": "askAI",
+      "xp": 15
+    },
+    {
+      "id": "b-persona",
+      "name": "Know Thyself",
+      "icon": "user",
+      "desc": "Finished the Personality Test",
+      "flag": "persona",
+      "xp": 25
+    },
+    {
+      "id": "b-wrap",
+      "name": "Reflector",
+      "icon": "gift",
+      "desc": "Viewed your Monthly Wrapped",
+      "flag": "wrapped",
+      "xp": 20
+    },
+    {
+      "id": "b-goal",
+      "name": "Planner",
+      "icon": "route",
+      "desc": "Created a financial goal",
+      "flag": "goalNew",
+      "xp": 40
+    },
+    {
+      "id": "b-review",
+      "name": "Weekly Reviewer",
+      "icon": "calendar",
+      "desc": "Completed a weekly review",
+      "flag": "weekly",
+      "xp": 40
+    },
+    {
+      "id": "b-safe",
+      "name": "Safety Net",
+      "icon": "shield",
+      "desc": "Emergency fund at 3+ months",
+      "flag": "safe",
+      "xp": 80
+    },
+    {
+      "id": "b-free",
+      "name": "Freedom Seeker",
+      "icon": "sun",
+      "desc": "Reached the Independence stage (675+)",
+      "flag": "free",
+      "xp": 120
+    }
+  ],
+  "wrapped": {
+    "month": "October (simulated)",
+    "highlights": [
+      "Completed {done} activities",
+      "Learned {learn} new concepts",
+      "Saved ₹{saved} toward goals",
+      "Best streak: {streak} days"
+    ],
+    "next": "Focus for next month: {focus}"
+  }
+}

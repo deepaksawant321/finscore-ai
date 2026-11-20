@@ -1,0 +1,71 @@
+/* Page styles for financial-games.html (and reused card styles) */
+.page-head { padding: 28px 0 18px; }
+.page-head h1 { font-size: clamp(28px, 4vw, 42px); }
+.page-head p { max-width: 62ch; margin-top: 8px; color: var(--muted); }
+.why { margin-top: 14px; border: 1px dashed var(--line); border-radius: var(--r-md); padding: 10px 14px; font-size: 13px; background: color-mix(in srgb, var(--surface-2) 70%, transparent); }
+body[data-dir="play"] .why { border-color: var(--ink); }
+.why summary { cursor: pointer; font-weight: 700; }
+.why ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); } .why li + li { margin-top: 4px; }
+.why b { color: var(--ink); }
+
+/* Spin wheel */
+.wheel-card { display: grid; place-items: center; gap: 14px; text-align: center; }
+.wheel-wrap { position: relative; width: min(360px, 86vw); aspect-ratio: 1; }
+.wheel-wrap svg { width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 14px 22px rgb(0 0 0/.18)); }
+#wheelRot { transform-origin: 0 0; transition: transform 4.6s cubic-bezier(.12,.7,.1,1); }
+.wheel-wrap .pointer { position: absolute; top: -10px; left: 50%; width: 30px; height: 36px; transform: translateX(-50%); background: var(--ink); clip-path: polygon(50% 100%, 0 0, 100% 0); z-index: 2; }
+body[data-dir="ai"] .pointer { background: #fff; }
+.wheel-hub { position: absolute; inset: 50% auto auto 50%; width: 88px; height: 88px; transform: translate(-50%,-50%); border-radius: 50%; border: 4px solid var(--surface); background: var(--hero); color: #fff; font-family: var(--font-display); font-weight: 800; font-size: 15px; letter-spacing: .06em; box-shadow: 0 8px 20px rgb(0 0 0/.3); z-index: 3; transition: transform .2s var(--ease); }
+.wheel-hub:hover:not([disabled]) { transform: translate(-50%,-50%) scale(1.07); }
+.wheel-hub[disabled] { filter: grayscale(.6); cursor: not-allowed; }
+.seg-label { font: 700 8.2px var(--font-body); fill: #fff; }
+.history li { display: flex; justify-content: space-between; gap: 8px; padding: 8px 0; border-bottom: 1px dashed var(--line); font-size: 14px; }
+.history { list-style: none; margin: 0; padding: 0; }
+
+/* Quiz */
+.diff { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.diff button { padding: 16px; text-align: left; border-radius: var(--r-md); background: var(--surface); border: 2px solid var(--line); min-height: 96px; transition: transform .2s var(--ease), border-color .2s; }
+body[data-dir="play"] .diff button { border-color: var(--ink); }
+.diff button:hover { transform: translateY(-3px); border-color: var(--brand); }
+.diff b { font-family: var(--font-display); font-size: 18px; display: block; }
+.timer { height: 8px; border-radius: 99px; background: var(--surface-2); overflow: hidden; }
+.timer i { display: block; height: 100%; width: 100%; background: var(--brand); transform-origin: left; }
+.timer.low i { background: var(--negative); }
+.explain { margin-top: 12px; padding: 12px 14px; border-radius: var(--r-md); background: var(--brand-soft); color: var(--ink); font-size: 14px; animation: rise .35s both; }
+body[data-dir="ai"] .explain { color: #eaf0ff; }
+.qmeta { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); font-weight: 600; }
+.dots { display: flex; gap: 6px; } .dots i { width: 10px; height: 10px; border-radius: 50%; background: var(--surface-2); border: 1.5px solid var(--line); } .dots i.on { background: var(--brand); border-color: var(--brand); } .dots i.bad { background: var(--negative); border-color: var(--negative); }
+.toggle { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; }
+.toggle input { width: 18px; height: 18px; accent-color: var(--brand); }
+.runs { width: 100%; border-collapse: collapse; font-size: 14px; } .runs td, .runs th { padding: 8px 6px; border-bottom: 1px solid var(--line); text-align: left; }
+
+/* Personality */
+.pq { display: grid; gap: 10px; margin-top: 14px; }
+.axis { display: grid; grid-template-columns: 110px 1fr 40px; gap: 10px; align-items: center; font-size: 14px; }
+.archetype-emoji { font-size: 56px; animation: float 3s ease-in-out infinite; }
+
+/* Simulator */
+.alloc { display: grid; grid-template-columns: 90px 1fr 56px; gap: 10px; align-items: center; padding: 8px 0; }
+.alloc input[type=range] { width: 100%; min-height: 32px; accent-color: var(--brand); }
+.alloc output { font-weight: 800; text-align: right; font-variant-numeric: tabular-nums; }
+.stackbar { display: flex; height: 22px; border-radius: 99px; overflow: hidden; border: var(--card-border); }
+.stackbar i { display: block; height: 100%; transition: width .4s var(--ease); }
+.c-eq { background: #4f46e5; } .c-db { background: #0fb5a6; } .c-gd { background: #f5a524; } .c-cs { background: #8aa0b4; }
+.legend { display: flex; gap: 12px; flex-wrap: wrap; font-size: 13px; } .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; }
+.scenario { padding: 16px; border-radius: var(--r-md); background: var(--ai-soft); border: 1px dashed var(--ai); }
+body[data-dir="ai"] .scenario { background: var(--ai-soft); }
+.neg { color: var(--negative); font-weight: 700; } .pos { color: var(--positive); font-weight: 700; }
+
+/* Knowledge cards */
+.kstage { position: relative; height: 420px; width: min(420px, 100%); margin: 0 auto; touch-action: pan-y; }
+.kcard { position: absolute; inset: 0; border-radius: var(--r-lg); padding: 24px; display: flex; flex-direction: column; background: var(--surface); border: var(--card-border); box-shadow: var(--shadow); transition: transform .35s var(--ease), opacity .35s; user-select: none; }
+.kcard.under1 { transform: scale(.94) translateY(16px); opacity: .7; pointer-events: none; } .kcard.under2 { transform: scale(.88) translateY(32px); opacity: .4; pointer-events: none; }
+.kcard.gone { opacity: 0; pointer-events: none; }
+.kcard .cat { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .09em; color: var(--brand-strong); }
+body[data-dir="ai"] .kcard .cat { color: var(--brand); }
+.kcard h3 { font-size: 24px; margin: 8px 0; }
+.kcard .fact { margin-top: auto; padding: 10px 12px; border-radius: 12px; background: var(--surface-2); font-size: 13px; }
+.kcard .mini { margin-top: 12px; display: grid; gap: 8px; grid-template-columns: 1fr 1fr; }
+.kcard .mini .opt { min-height: 44px; padding: 10px; justify-content: center; font-size: 14px; }
+.kctrl { display: flex; justify-content: center; align-items: center; gap: 12px; margin-top: 18px; flex-wrap: wrap; }
+@media (max-width: 640px) { .diff { grid-template-columns: 1fr; } .axis { grid-template-columns: 90px 1fr 36px; } .kstage { height: 460px; } }

@@ -1,0 +1,338 @@
+{
+  "levels": [
+    {
+      "n": 1,
+      "name": "Starter",
+      "xp": 0,
+      "unlock": "Daily activities, Fin the companion"
+    },
+    {
+      "n": 2,
+      "name": "Saver",
+      "xp": 100,
+      "unlock": "Bonus Spin & Learn topics"
+    },
+    {
+      "n": 3,
+      "name": "Builder",
+      "xp": 250,
+      "unlock": "Advanced simulator scenario: The Lost Decade"
+    },
+    {
+      "n": 4,
+      "name": "Planner",
+      "xp": 450,
+      "unlock": "Financial personality deep-dive card"
+    },
+    {
+      "n": 5,
+      "name": "Investor",
+      "xp": 700,
+      "unlock": "Plus preview: Insight Deep-Dive (simulated)"
+    },
+    {
+      "n": 6,
+      "name": "Strategist",
+      "xp": 1000,
+      "unlock": "Strategist title and gold ring"
+    },
+    {
+      "n": 7,
+      "name": "Master",
+      "xp": 1400,
+      "unlock": "Master title, all unlocks"
+    }
+  ],
+  "rewards": {
+    "learn": 10,
+    "quiz": 20,
+    "goal": 15,
+    "habit": 15,
+    "weekly": 30,
+    "journey": 50
+  },
+  "days": [
+    {
+      "id": "mon",
+      "dow": 1,
+      "short": "Mon",
+      "name": "Money Monday",
+      "sub": "Financial health review",
+      "icon": "heart",
+      "xp": 15,
+      "type": "habit",
+      "mins": 3,
+      "blurb": "Four honest yes/no checks on this week's money habits, with a tailored tip."
+    },
+    {
+      "id": "tue",
+      "dow": 2,
+      "short": "Tue",
+      "name": "Trivia Tuesday",
+      "sub": "Financial knowledge quiz",
+      "icon": "brain",
+      "xp": 20,
+      "type": "quiz",
+      "mins": 4,
+      "blurb": "Five questions picked for your profile. Learn from every answer."
+    },
+    {
+      "id": "wed",
+      "dow": 3,
+      "short": "Wed",
+      "name": "Wealth Wednesday",
+      "sub": "Investment education",
+      "icon": "trend",
+      "xp": 10,
+      "type": "learn",
+      "mins": 5,
+      "blurb": "A short lesson, then a virtual-money simulator. Simulated, never advice."
+    },
+    {
+      "id": "thu",
+      "dow": 4,
+      "short": "Thu",
+      "name": "Think Smart Thursday",
+      "sub": "AI financial challenge",
+      "icon": "bolt",
+      "xp": 15,
+      "type": "habit",
+      "mins": 3,
+      "blurb": "Fin gives you a real-life money decision. Choose, then compare thinking."
+    },
+    {
+      "id": "fri",
+      "dow": 5,
+      "short": "Fri",
+      "name": "Financial Freedom Friday",
+      "sub": "Financial goal review",
+      "icon": "target",
+      "xp": 15,
+      "type": "goal",
+      "mins": 3,
+      "blurb": "Check goal progress, nudge a goal forward and set one intention."
+    },
+    {
+      "id": "sat",
+      "dow": 6,
+      "short": "Sat",
+      "name": "Smart Saturday",
+      "sub": "Interactive learning games",
+      "icon": "dice",
+      "xp": 10,
+      "type": "learn",
+      "mins": 6,
+      "blurb": "Spin & Learn, knowledge cards and a savings challenge. Play any, in any order."
+    },
+    {
+      "id": "sun",
+      "dow": 0,
+      "short": "Sun",
+      "name": "Sunday Review",
+      "sub": "Weekly progress and wins",
+      "icon": "flag",
+      "xp": 30,
+      "type": "weekly",
+      "mins": 3,
+      "blurb": "See your week, name a win and choose one focus for next week."
+    }
+  ],
+  "badges": [
+    {
+      "id": "first-step",
+      "name": "First Step",
+      "icon": "footprint",
+      "stat": "activities",
+      "n": 1,
+      "desc": "Complete your first activity"
+    },
+    {
+      "id": "quiz-whiz",
+      "name": "Quiz Whiz",
+      "icon": "brain",
+      "stat": "quizzes",
+      "n": 3,
+      "desc": "Finish 3 quiz rounds"
+    },
+    {
+      "id": "sharp-mind",
+      "name": "Sharp Mind",
+      "icon": "star",
+      "stat": "perfectQuiz",
+      "n": 1,
+      "desc": "Score 100% in a quiz round"
+    },
+    {
+      "id": "curious",
+      "name": "Curious Mind",
+      "icon": "book",
+      "stat": "cards",
+      "n": 6,
+      "desc": "Read 6 knowledge cards"
+    },
+    {
+      "id": "spinner",
+      "name": "Spin Scholar",
+      "icon": "dice",
+      "stat": "spins",
+      "n": 2,
+      "desc": "Learn from 2 spins"
+    },
+    {
+      "id": "saver",
+      "name": "Smart Saver",
+      "icon": "coins",
+      "stat": "savingsGames",
+      "n": 1,
+      "desc": "Complete the savings challenge"
+    },
+    {
+      "id": "goal-getter",
+      "name": "Goal Getter",
+      "icon": "target",
+      "stat": "goalReviews",
+      "n": 1,
+      "desc": "Complete a goal review"
+    },
+    {
+      "id": "health",
+      "name": "Habit Checker",
+      "icon": "heart",
+      "stat": "healthChecks",
+      "n": 1,
+      "desc": "Finish a financial health review"
+    },
+    {
+      "id": "thinker",
+      "name": "Smart Thinker",
+      "icon": "bolt",
+      "stat": "challenges",
+      "n": 1,
+      "desc": "Take on an AI financial challenge"
+    },
+    {
+      "id": "explorer",
+      "name": "Portfolio Explorer",
+      "icon": "trend",
+      "stat": "sims",
+      "n": 1,
+      "desc": "Run the investment simulator"
+    },
+    {
+      "id": "know-self",
+      "name": "Know Yourself",
+      "icon": "user",
+      "stat": "personality",
+      "n": 1,
+      "desc": "Discover your financial personality"
+    },
+    {
+      "id": "week-warrior",
+      "name": "Week Warrior",
+      "icon": "flame",
+      "stat": "activeDays",
+      "n": 4,
+      "desc": "Be active on 4 days in one week"
+    },
+    {
+      "id": "sunday-sage",
+      "name": "Sunday Sage",
+      "icon": "flag",
+      "stat": "weeklyReviews",
+      "n": 1,
+      "desc": "Complete a Sunday review"
+    },
+    {
+      "id": "pathfinder",
+      "name": "Pathfinder",
+      "icon": "map",
+      "stat": "journeyModules",
+      "n": 3,
+      "desc": "Complete 3 journey modules"
+    },
+    {
+      "id": "journey-end",
+      "name": "Journey Complete",
+      "icon": "medal",
+      "stat": "journeyDone",
+      "n": 1,
+      "desc": "Finish the whole learning journey"
+    },
+    {
+      "id": "storyteller",
+      "name": "Storyteller",
+      "icon": "share",
+      "stat": "shares",
+      "n": 1,
+      "desc": "Share a report (simulated)"
+    },
+    {
+      "id": "wrapped",
+      "name": "Looking Back",
+      "icon": "gift",
+      "stat": "wrappedViews",
+      "n": 1,
+      "desc": "Watch your Monthly Wrapped"
+    },
+    {
+      "id": "level-3",
+      "name": "Builder",
+      "icon": "rocket",
+      "stat": "level",
+      "n": 3,
+      "desc": "Reach level 3"
+    },
+    {
+      "id": "level-5",
+      "name": "Investor",
+      "icon": "crown",
+      "stat": "level",
+      "n": 5,
+      "desc": "Reach level 5"
+    }
+  ],
+  "products": [
+    {
+      "id": "score",
+      "name": "FinScore Check",
+      "d": "Your simulated score and drivers",
+      "icon": "gauge",
+      "href": "financial-journey.html"
+    },
+    {
+      "id": "goals",
+      "name": "Goal Planner",
+      "d": "Plan and track goals",
+      "icon": "target",
+      "href": "financial-journey.html#goals"
+    },
+    {
+      "id": "wealth",
+      "name": "Wealth Learning",
+      "d": "Investment basics, simulated",
+      "icon": "trend",
+      "href": "daily-activities.html?day=wed"
+    },
+    {
+      "id": "protect",
+      "name": "Protection Check",
+      "d": "Insurance adequacy basics",
+      "icon": "shield",
+      "href": "financial-journey.html?m=protect"
+    },
+    {
+      "id": "credit",
+      "name": "Debt & Credit",
+      "d": "Smarter repayment thinking",
+      "icon": "card",
+      "href": "financial-journey.html?m=debt"
+    },
+    {
+      "id": "reports",
+      "name": "Reports",
+      "d": "Weekly and monthly summaries",
+      "icon": "chart",
+      "href": "weekly-engagement.html"
+    }
+  ]
+}

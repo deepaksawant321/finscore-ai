@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en-IN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Finscore Monthly Wrapped - Prototype</title>
+<link rel="stylesheet" href="assets/shared.css">
+<link rel="stylesheet" href="assets/games.css">
+<link rel="stylesheet" href="assets/wrapped.css">
+</head>
+<body data-dir="play">
+<div id="fs-header"></div>
+<main class="wrap" id="main">
+  <div class="page-head">
+    <p class="eyebrow">Concept L &nbsp;<span class="badge new">Proposed</span></p>
+    <h1>Your November, wrapped</h1>
+    <p>A once-a-month story of your progress: score, learning, goals and habits. Tap the right side to move on, the left side to go back, or use the arrow keys. Dummy data for "Aarav".</p>
+  </div>
+  <div class="wr-layout">
+    <section aria-label="Monthly Wrapped story" class="story-col">
+      <div class="story" id="story" tabindex="0">
+        <div class="seg" id="segs" aria-hidden="true"></div>
+        <div class="story-top"><span class="chip" id="slideLbl">1 / 8</span><button class="btn ghost sm" id="pauseBtn" aria-pressed="false" aria-label="Pause auto-play">⏸ Pause</button></div>
+        <div class="slides" id="slides" aria-live="polite"></div>
+        <button class="hit left" id="prevHit" aria-label="Previous slide"></button>
+        <button class="hit right" id="nextHit" aria-label="Next slide"></button>
+      </div>
+      <div class="row wrapx" style="justify-content:center;margin-top:14px"><button class="btn ghost sm" id="prevBtn">← Back</button><button class="btn sm" id="nextBtn">Next →</button><button class="btn ghost sm" id="replayBtn">↺ Replay</button></div>
+    </section>
+    <aside class="stack">
+      <div class="card"><h3>Share your milestone card</h3><p class="small muted" style="margin-top:6px">Designed for privacy: it never shows balances or amounts. You choose what is included.</p>
+        <div class="stack" style="margin-top:12px">
+          <label class="toggle"><input type="checkbox" id="shScore" checked> Score change</label>
+          <label class="toggle"><input type="checkbox" id="shBadges" checked> Badges earned</label>
+          <label class="toggle"><input type="checkbox" id="shName"> Show my first name</label>
+        </div>
+        <div class="share-card" id="shareCard" aria-label="Preview of shareable card"></div>
+        <div class="row wrapx" style="margin-top:12px"><button class="btn sm" id="saveImg">Save image</button><button class="btn ghost sm" id="copyTxt">Copy text</button></div>
+        <p class="xs muted" style="margin-top:8px">Nothing is uploaded. The image is generated in your browser.</p></div>
+      <details class="why" open><summary>Engagement design</summary><ul>
+        <li><b>Why open:</b> a monthly "moment" users want to see and share.</li>
+        <li><b>Why return:</b> next month's story has to be earned by acting this month.</li>
+        <li><b>Discovery:</b> each slide ends with one link to a feature to try.</li>
+        <li><b>Business:</b> organic sharing; deeper insights could be a premium layer.</li>
+        <li><b>Guardrail:</b> no amounts on shared cards. No comparison with other people.</li></ul></details>
+    </aside>
+  </div>
+</main>
+<div id="fs-footer"></div>
+<script src="assets/shared.js"></script>
+<script src="assets/wrapped.js"></script>
+</body>
+</html>
